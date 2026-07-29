@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
 import './index.css'
 
@@ -27,6 +27,8 @@ function App() {
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
   const [isSubmittingResep, setIsSubmittingResep] = useState(false)
   const [isSubmittingBahan, setIsSubmittingBahan] = useState(false)
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false)
+  const dropdownRef = useRef(null)
 
   useEffect(() => {
     api.ambilDataPublik().then(({ bahan, resep }) => {
@@ -67,6 +69,19 @@ function App() {
     const { bahan } = await api.ambilBahanTertunda(tokenAktif)
     setBahanTertunda(bahan || [])
   }
+
+  useEffect(() => {
+    if (!showLoginDropdown) return
+
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowLoginDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showLoginDropdown])
 
   useEffect(() => {
     if (!session || !token) return
@@ -253,11 +268,44 @@ function App() {
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white border-b shadow-sm">
-          <div className="max-w-5xl mx-auto px-6 py-6 text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Buku Resep Pintar</h1>
-            <p className="text-gray-500 mt-2 max-w-xl mx-auto">
-              Pilih bahan yang ada di kulkas Anda, dapatkan rekomendasi menu masakan favorit!
-            </p>
+          <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
+              <p className="text-sm text-gray-500">Pilih bahan di kulkas, dapatkan rekomendasi masakan</p>
+            </div>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm"
+              >
+                Masuk / Daftar
+              </button>
+              {showLoginDropdown && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-5 z-50">
+                  <div className="space-y-3">
+                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" />
+                    <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleAuth('login')}
+                        disabled={isSubmittingAuth}
+                        className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-2.5 rounded-xl font-semibold text-sm transition"
+                      >
+                        {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
+                      </button>
+                      <button
+                        onClick={() => handleAuth('daftar')}
+                        disabled={isSubmittingAuth}
+                        className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
+                      >
+                        {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
+                      </button>
+                    </div>
+                  </div>
+                  {pesanStatus && <p className="text-center mt-3 text-sm text-red-500">{pesanStatus}</p>}
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -298,35 +346,6 @@ function App() {
                 )}
               </div>
             ))}
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Masuk / Daftar</h3>
-              <p className="text-sm text-gray-400 mt-1">Untuk menambahkan resep dan bahan baru</p>
-            </div>
-            <div className="max-w-md mx-auto space-y-4">
-              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none" />
-              <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none" />
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleAuth('login')}
-                  disabled={isSubmittingAuth}
-                  className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-3 rounded-xl font-semibold transition"
-                >
-                  {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
-                </button>
-                <button
-                  onClick={() => handleAuth('daftar')}
-                  disabled={isSubmittingAuth}
-                  className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-3 rounded-xl font-semibold transition"
-                >
-                  {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
-                </button>
-              </div>
-            </div>
-            {pesanStatus && <p className="text-center mt-4 text-sm text-red-500">{pesanStatus}</p>}
           </div>
         </main>
       </div>
