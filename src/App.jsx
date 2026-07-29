@@ -24,12 +24,17 @@ function App() {
   const [bahanResepDipilih, setBahanResepDipilih] = useState([])
   const [pesanResep, setPesanResep] = useState('')
 
-  // State ini mengunci tombol saat request API sedang berjalan agar data tidak dobel.
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
   const [isSubmittingResep, setIsSubmittingResep] = useState(false)
   const [isSubmittingBahan, setIsSubmittingBahan] = useState(false)
 
-  // Saat aplikasi dibuka, token lokal dicek ke backend pengganti Supabase Auth.
+  useEffect(() => {
+    api.ambilDataPublik().then(({ bahan, resep }) => {
+      setDataBahan(bahan || [])
+      setDataResep(resep || [])
+    }).catch(() => {})
+  }, [])
+
   useEffect(() => {
     const tokenTersimpan = ambilTokenTersimpan()
 
@@ -52,7 +57,6 @@ function App() {
     return () => { aktif = false }
   }, [])
 
-  // Data utama diambil setelah user login karena semua endpoint aplikasi wajib token.
   async function initData(tokenAktif = token) {
     const { bahan, resep } = await api.ambilDataAwal(tokenAktif)
     setDataBahan(bahan || [])
@@ -90,7 +94,6 @@ function App() {
     return () => { aktif = false }
   }, [session, token, userRole])
 
-  // Jaccard Similarity menghitung kemiripan bahan di kulkas user dengan bahan resep.
   function hitungJaccard(bahanUser, bahanResep) {
     const setA = new Set(bahanUser)
     const setB = new Set(bahanResep)
@@ -149,7 +152,6 @@ function App() {
     try {
       const langkahValid = langkahResep.filter((l) => l.instruksi.trim() !== '')
 
-      // Payload ini dikirim ke API Express, lalu API menyimpan resep dan relasi bahan ke MySQL Laragon.
       await api.tambahResep(token, {
         judul_resep: judulResep.trim(),
         porsi_default: porsiDefault,
@@ -179,7 +181,6 @@ function App() {
     setIsSubmittingBahan(true)
 
     try {
-      // Bahan baru masuk sebagai status_validasi=false, lalu admin menyetujuinya dari panel moderasi.
       await api.tambahBahan(token, {
         nama_bahan: inputNamaBahan.trim(),
         kategori: inputKategori,
@@ -248,43 +249,99 @@ function App() {
       : setKulkasUser([...kulkasUser, idBahan])
   }
 
-  if (!session) {
+  function LandingPage() {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-gray-100">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Buku Resep Pintar 🍳</h2>
-          <div className="space-y-4 mt-6">
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b shadow-sm">
+          <div className="max-w-5xl mx-auto px-6 py-6 text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Buku Resep Pintar</h1>
+            <p className="text-gray-500 mt-2 max-w-xl mx-auto">
+              Pilih bahan yang ada di kulkas Anda, dapatkan rekomendasi menu masakan favorit!
+            </p>
+          </div>
+        </header>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleAuth('login')}
-                disabled={isSubmittingAuth}
-                className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-3 rounded-lg font-semibold transition"
-              >
-                {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
-              </button>
-              <button
-                onClick={() => handleAuth('daftar')}
-                disabled={isSubmittingAuth}
-                className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-3 rounded-lg font-semibold transition"
-              >
-                {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
-              </button>
+        <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8 pb-12">
+          <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Isi Kulkas Anda</h3>
+            <p className="text-xs text-gray-400 mb-3">Pilih bahan yang tersedia di kulkas Anda</p>
+            <div className="flex flex-wrap gap-2">
+              {dataBahan.map((bahan) => (
+                <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-200 text-gray-700'}`}>
+                  <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+                  {bahan.nama_bahan}
+                </label>
+              ))}
             </div>
           </div>
-          {pesanStatus && <p className="text-center mt-4 text-sm text-red-500">{pesanStatus}</p>}
-        </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
+            {kulkasUser.length === 0 && (
+              <p className="text-sm text-gray-400 italic">Pilih bahan di kulkas untuk melihat rekomendasi</p>
+            )}
+            {hasilRekomendasi.map((resep) => (
+              <div key={resep.id} className={`border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
+                <div className="flex justify-between items-start gap-4">
+                  <h4 className="text-xl font-bold text-gray-900">{resep.judul}</h4>
+                  <span className={`px-3 py-1.5 rounded-xl text-xs font-bold ${resep.persentase > 50 ? 'bg-emerald-100 text-emerald-700' : resep.persentase > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
+                    Cocok: {resep.persentase}%
+                  </span>
+                </div>
+                {resep.persentase > 0 && (
+                  <div className="mt-4 border-t pt-4">
+                    <h5 className="font-semibold text-sm mb-2">Langkah Memasak:</h5>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                      {resep.langkah?.map((l, idx) => <li key={idx} className="pl-1">{l.instruksi}</li>)}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Masuk / Daftar</h3>
+              <p className="text-sm text-gray-400 mt-1">Untuk menambahkan resep dan bahan baru</p>
+            </div>
+            <div className="max-w-md mx-auto space-y-4">
+              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none" />
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleAuth('login')}
+                  disabled={isSubmittingAuth}
+                  className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-3 rounded-xl font-semibold transition"
+                >
+                  {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
+                </button>
+                <button
+                  onClick={() => handleAuth('daftar')}
+                  disabled={isSubmittingAuth}
+                  className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-3 rounded-xl font-semibold transition"
+                >
+                  {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
+                </button>
+              </div>
+            </div>
+            {pesanStatus && <p className="text-center mt-4 text-sm text-red-500">{pesanStatus}</p>}
+          </div>
+        </main>
       </div>
     )
+  }
+
+  if (!session) {
+    return <LandingPage />
   }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 pb-12">
       <nav className="bg-white border-b px-6 py-4 flex justify-between items-center max-w-5xl mx-auto rounded-b-xl shadow-sm">
         <div>
-          <h1 className="text-xl font-bold">Buku Resep Pintar 🍳</h1>
+          <h1 className="text-xl font-bold">Buku Resep Pintar</h1>
           <p className="text-xs text-gray-500">User: {session.user.email} <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded capitalize">{userRole}</span></p>
         </div>
         <button onClick={handleLogout} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm transition font-medium">Keluar</button>
@@ -293,7 +350,7 @@ function App() {
       <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
         {userRole === 'admin' && (
           <div className="bg-blue-50 border border-blue-200 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-blue-900 mb-2">🛡️ Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
+            <h3 className="text-lg font-bold text-blue-900 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
             {bahanTertunda.length === 0 ? <p className="text-sm text-blue-600 italic">Tidak ada usulan bahan.</p> : (
               <div className="space-y-2">{bahanTertunda.map((b) => (
                 <div key={b.id} className="flex justify-between items-center bg-white p-3 rounded-xl border border-blue-100 shadow-xs">
@@ -306,8 +363,8 @@ function App() {
         )}
 
         <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">➕ Bagikan Resep Masakan Anda</h3>
-          <p className="text-sm text-gray-500 mb-6">Tulis instruksi memasak secara detail agar sistem bisa merekomendasikannya [Dapur Umami].</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Bagikan Resep Masakan Anda</h3>
+          <p className="text-sm text-gray-500 mb-6">Tulis instruksi memasak secara detail agar sistem bisa merekomendasikannya.</p>
 
           <form onSubmit={handleTambahResepBaru} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -334,7 +391,7 @@ function App() {
             </div>
 
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Langkah Demi Langkah Memasak [Dapur Umami]:</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Langkah Demi Langkah Memasak:</label>
               {langkahResep.map((langkah, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <span className="bg-gray-200 text-gray-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">{index + 1}</span>

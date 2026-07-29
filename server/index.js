@@ -293,6 +293,39 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
   }
 })
 
+app.get('/api/public/data', async (_req, res) => {
+  try {
+    const [ingredientsResult, recipesResult] = await Promise.all([
+      pool.query(
+        'SELECT id, nama_bahan, kategori, status_validasi FROM ingredients WHERE status_validasi = TRUE ORDER BY nama_bahan ASC',
+      ),
+      pool.query(`
+        SELECT
+          r.id,
+          r.judul_resep,
+          r.langkah_memasak,
+          COALESCE(
+            (
+              SELECT JSON_ARRAYAGG(JSON_OBJECT('ingredient_id', ri.ingredient_id) ORDER BY ri.ingredient_id)
+              FROM recipe_ingredients ri
+              WHERE ri.recipe_id = r.id
+            ),
+            JSON_ARRAY()
+          ) AS recipe_ingredients
+        FROM recipes r
+        ORDER BY r.created_at DESC, r.id DESC
+      `),
+    ])
+
+    res.json({
+      bahan: ingredientsResult[0].map(formatBahan),
+      resep: recipesResult[0].map(formatResep),
+    })
+  } catch (error) {
+    kirimError(res, 500, 'Gagal mengambil data publik.')
+  }
+})
+
 app.get(/^(?!\/api).*/, (_req, res) => {
   res.sendFile(path.join(distDir, 'index.html'))
 })

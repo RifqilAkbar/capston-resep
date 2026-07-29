@@ -36,6 +36,7 @@ async function request(path, { method = 'GET', body, token } = {}) {
 }
 
 export const api = {
+  ambilDataPublik: () => request('/public/data'),
   // Auth dipisah dari komponen supaya App.jsx fokus pada state dan tampilan.
   daftar: (email, password) => request('/auth/register', {
     method: 'POST',
