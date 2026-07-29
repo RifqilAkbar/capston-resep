@@ -59,8 +59,8 @@ function App() {
     return () => { aktif = false }
   }, [])
 
-  async function initData(tokenAktif = token) {
-    const { bahan, resep } = await api.ambilDataAwal(tokenAktif)
+  async function initData() {
+    const { bahan, resep } = await api.ambilDataPublik()
     setDataBahan(bahan || [])
     setDataResep(resep || [])
   }
@@ -84,18 +84,18 @@ function App() {
   }, [showLoginDropdown])
 
   useEffect(() => {
-    if (!session || !token) return
+    if (!session) return
 
     let aktif = true
 
-    api.ambilDataAwal(token).then(({ bahan, resep }) => {
+    api.ambilDataPublik().then(({ bahan, resep }) => {
       if (!aktif) return
       setDataBahan(bahan || [])
       setDataResep(resep || [])
     })
 
     return () => { aktif = false }
-  }, [session, token])
+  }, [session])
 
   useEffect(() => {
     if (!session || !token || userRole !== 'admin') return
