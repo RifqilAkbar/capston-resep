@@ -264,7 +264,7 @@ function App() {
       : setKulkasUser([...kulkasUser, idBahan])
   }
 
-  function LandingPage() {
+  if (!session) {
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white border-b shadow-sm">
@@ -350,10 +350,6 @@ function App() {
         </main>
       </div>
     )
-  }
-
-  if (!session) {
-    return <LandingPage />
   }
 
   return (
