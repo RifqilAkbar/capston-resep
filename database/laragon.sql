@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients (
 
 INSERT IGNORE INTO users (id, email, password_hash, role)
 VALUES
-  (1, 'admin@example.com', '$2b$10$fh4Oaxhth3XS0Kv1VI.CZe5NkeYEi0ub8Wj0p/gkrdgsPBhWopJxG', 'admin');
+  (1, 'admin@example.com', '$2b$10$Kod6e08rsSi0024jlFMYleED7K4/1mGAdwdSQh76VjBxwebPS4SDm', 'admin');
 
 INSERT IGNORE INTO ingredients (id, nama_bahan, kategori, status_validasi)
 VALUES
