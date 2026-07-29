@@ -238,10 +238,12 @@ function App() {
   }
 
   const handleSetujuiBahan = async (idBahan) => {
+    setPesanStatus('')
     try {
       await api.setujuiBahan(token, idBahan)
       await initData()
       await ambilBahanTertunda()
+      setPesanStatus('Sukses menyetujui bahan!')
     } catch (error) {
       setPesanStatus(error.message)
     }
@@ -374,6 +376,11 @@ function App() {
                 </div>
               ))}</div>
             )}
+            {pesanStatus && (
+              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600' : 'text-red-500'}`}>
+                {pesanStatus}
+              </p>
+            )}
           </div>
         )}
 
@@ -429,22 +436,27 @@ function App() {
           {pesanResep && <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600' : 'text-red-500'}`}>{pesanResep}</p>}
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-sm">
-          <h3 className="text-lg font-bold text-amber-900 mb-2">Punya Bahan Unik?</h3>
-          <form onSubmit={handleTambahBahanBaru} className="flex flex-wrap gap-3 items-center">
-            <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white border border-amber-300 rounded-xl outline-none text-sm" />
-            <select value={inputKategori} onChange={(e) => setInputKategori(e.target.value)} className="p-3 bg-white border border-amber-300 rounded-xl text-sm">
-              <option value="Sayuran">Sayuran</option><option value="Protein">Protein</option><option value="Bumbu">Bumbu</option>
-            </select>
-            <button
-              type="submit"
-              disabled={isSubmittingBahan}
-              className="bg-amber-500 disabled:bg-amber-300 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
-            >
-              {isSubmittingBahan ? 'Mengirim...' : 'Usulkan'}
-            </button>
-          </form>
-        </div>
+          <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-sm">
+            <h3 className="text-lg font-bold text-amber-900 mb-2">Punya Bahan Unik?</h3>
+            <form onSubmit={handleTambahBahanBaru} className="flex flex-wrap gap-3 items-center">
+              <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white border border-amber-300 rounded-xl outline-none text-sm" />
+              <select value={inputKategori} onChange={(e) => setInputKategori(e.target.value)} className="p-3 bg-white border border-amber-300 rounded-xl text-sm">
+                <option value="Sayuran">Sayuran</option><option value="Protein">Protein</option><option value="Bumbu">Bumbu</option>
+              </select>
+              <button
+                type="submit"
+                disabled={isSubmittingBahan}
+                className="bg-amber-500 disabled:bg-amber-300 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
+              >
+                {isSubmittingBahan ? 'Mengirim...' : 'Usulkan'}
+              </button>
+            </form>
+            {pesanStatus && (
+              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600' : 'text-red-500'}`}>
+                {pesanStatus}
+              </p>
+            )}
+          </div>
 
         <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 mb-1">Isi Kulkas Anda</h3>
