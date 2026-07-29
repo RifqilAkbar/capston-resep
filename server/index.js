@@ -182,7 +182,7 @@ app.get('/api/initial-data', wajibLogin, async (_req, res) => {
         r.langkah_memasak,
         COALESCE(
           (
-            SELECT JSON_ARRAYAGG(JSON_OBJECT('ingredient_id', ri.ingredient_id) ORDER BY ri.ingredient_id)
+            SELECT JSON_ARRAYAGG(JSON_OBJECT('ingredient_id', ri.ingredient_id))
             FROM recipe_ingredients ri
             WHERE ri.recipe_id = r.id
           ),
@@ -306,7 +306,7 @@ app.get('/api/public/data', async (_req, res) => {
           r.langkah_memasak,
           COALESCE(
             (
-              SELECT JSON_ARRAYAGG(JSON_OBJECT('ingredient_id', ri.ingredient_id) ORDER BY ri.ingredient_id)
+              SELECT JSON_ARRAYAGG(JSON_OBJECT('ingredient_id', ri.ingredient_id))
               FROM recipe_ingredients ri
               WHERE ri.recipe_id = r.id
             ),
