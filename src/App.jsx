@@ -2,6 +2,84 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
 import './index.css'
 
+function CardResep({ resep, index }) {
+  const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
+  const progressColor =
+    resep.persentase > 75 ? 'from-emerald-400 to-emerald-500' :
+    resep.persentase > 50 ? 'from-orange-400 to-orange-500' :
+    resep.persentase > 0 ? 'from-yellow-400 to-yellow-500' :
+    'from-gray-300 to-gray-400'
+  const badgeColor =
+    resep.persentase > 75 ? 'bg-emerald-100 text-emerald-700' :
+    resep.persentase > 50 ? 'bg-orange-100 text-orange-700' :
+    resep.persentase > 0 ? 'bg-yellow-100 text-yellow-700' :
+    'bg-gray-100 text-gray-500'
+
+  return (
+    <div
+      data-id={resep.id}
+      onClick={() => window.location.href = `detail.html?id=${resep.id}`}
+      className="card-enter bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden
+                 hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] cursor-pointer
+                 transition-all duration-300"
+      style={{ animationDelay: `${index * 80}ms` }}
+    >
+      {/* Gambar placeholder */}
+      <div className="relative h-44 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
+        <span className="text-6xl font-bold text-orange-300/60 select-none">{inisial}</span>
+        {/* Badge kecocokan */}
+        <span className={`absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm ${badgeColor}`}>
+          Cocok: {resep.persentase}%
+        </span>
+      </div>
+
+      {/* Body card */}
+      <div className="p-5 space-y-3">
+        {/* Nama resep */}
+        <h4 className="text-lg font-bold text-gray-900 truncate">{resep.judul}</h4>
+
+        {/* Meta: kategori, durasi, jumlah bahan */}
+        <div className="flex flex-wrap gap-1.5">
+          <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">{resep.kategori}</span>
+          <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">
+            {resep.durasi || '—'}
+          </span>
+          <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">
+            {resep.jumlahBahan} bahan
+          </span>
+        </div>
+
+        {/* Progress bar kecocokan */}
+        <div>
+          <div className="flex justify-between text-xs mb-1.5">
+            <span className="text-gray-400">Kecocokan</span>
+            <span className="font-semibold text-gray-600">{resep.persentase}%</span>
+          </div>
+          <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full bg-gradient-to-r ${progressColor} rounded-full transition-all duration-700`}
+              style={{ width: `${resep.persentase}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Tombol Lihat Detail */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            window.location.href = `detail.html?id=${resep.id}`
+          }}
+          className="w-full mt-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700
+                     text-white font-semibold py-2.5 px-4 rounded-xl text-sm
+                     transition-all duration-200 active:scale-95"
+        >
+          Lihat Detail
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [session, setSession] = useState(null)
   const [token, setToken] = useState('')
@@ -29,6 +107,8 @@ function App() {
   const [isSubmittingBahan, setIsSubmittingBahan] = useState(false)
   const [showLoginDropdown, setShowLoginDropdown] = useState(false)
   const dropdownRef = useRef(null)
+
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     api.ambilDataPublik().then(({ bahan, resep }) => {
@@ -123,17 +203,43 @@ function App() {
     const hasil = dataResep.map((resep) => {
       const idBahanResep = resep.recipe_ingredients.map((ri) => ri.ingredient_id)
       const skor = hitungJaccard(kulkasUser, idBahanResep)
+
+      // Ambil kategori unik dari bahan
+      const kategoriBahan = resep.recipe_ingredients
+        ?.map((ri) => ri.kategori)
+        .filter(Boolean) || []
+      const kategoriUnik = [...new Set(kategoriBahan)]
+      const kategori = kategoriUnik.length > 0 ? kategoriUnik.join(', ') : 'Makanan'
+
       return {
         id: resep.id,
         judul: resep.judul_resep,
         langkah: resep.langkah_memasak,
         persentase: Math.round(skor * 100),
+        kategori,
+        durasi: null,
+        jumlahBahan: resep.recipe_ingredients?.length || 0,
+        bahan: resep.recipe_ingredients || [],
+        porsi: resep.porsi_default,
       }
     })
 
     hasil.sort((a, b) => b.persentase - a.persentase)
     return hasil
   }, [kulkasUser, dataResep])
+
+  const hasilFilter = useMemo(() => {
+    if (!searchQuery.trim()) return hasilRekomendasi
+    const q = searchQuery.toLowerCase()
+    return hasilRekomendasi.filter((resep) => {
+      const namaMatch = resep.judul.toLowerCase().includes(q)
+      const kategoriMatch = resep.kategori.toLowerCase().includes(q)
+      const bahanMatch = resep.bahan.some((b) =>
+        b.nama_bahan?.toLowerCase().includes(q)
+      )
+      return namaMatch || kategoriMatch || bahanMatch
+    })
+  }, [searchQuery, hasilRekomendasi])
 
   const handleUbahLangkah = (index, value) => {
     const listLangkahBaru = [...langkahResep]
@@ -266,6 +372,66 @@ function App() {
       : setKulkasUser([...kulkasUser, idBahan])
   }
 
+  // Bagian rekomendasi yang dipakai di kedua mode (login dan guest)
+  const rekomendasiSection = (
+    <div className="space-y-4">
+      <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
+
+      {/* Search bar */}
+      {kulkasUser.length > 0 && (
+        <div className="relative">
+          <svg
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Cari resep..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl
+                       outline-none focus:ring-2 focus:ring-orange-500 text-sm
+                       bg-white transition"
+          />
+        </div>
+      )}
+
+      {kulkasUser.length === 0 && (
+        <p className="text-sm text-gray-400 italic">
+          Pilih bahan di kulkas untuk melihat rekomendasi
+        </p>
+      )}
+
+      {/* Grid resep */}
+      {kulkasUser.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {hasilFilter.map((resep, index) => (
+            <CardResep key={resep.id} resep={resep} index={index} />
+          ))}
+        </div>
+      )}
+
+      {/* Pesan hasil tidak ditemukan */}
+      {kulkasUser.length > 0 && hasilFilter.length === 0 && (
+        <div className="text-center py-12">
+          <svg
+            className="w-12 h-12 mx-auto text-gray-300 mb-3"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <p className="text-gray-400 text-sm">Resep tidak ditemukan.</p>
+        </div>
+      )}
+    </div>
+  )
+
   if (!session) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -325,30 +491,7 @@ function App() {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
-            {kulkasUser.length === 0 && (
-              <p className="text-sm text-gray-400 italic">Pilih bahan di kulkas untuk melihat rekomendasi</p>
-            )}
-            {hasilRekomendasi.map((resep) => (
-              <div key={resep.id} data-id={resep.id} onClick={() => window.location.href = `detail.html?id=${resep.id}`} className={`cursor-pointer border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
-                <div className="flex justify-between items-start gap-4">
-                  <h4 className="text-xl font-bold text-gray-900">{resep.judul}</h4>
-                  <span className={`px-3 py-1.5 rounded-xl text-xs font-bold ${resep.persentase > 50 ? 'bg-emerald-100 text-emerald-700' : resep.persentase > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
-                    Cocok: {resep.persentase}%
-                  </span>
-                </div>
-                {resep.persentase > 0 && (
-                  <div className="mt-4 border-t pt-4">
-                    <h5 className="font-semibold text-sm mb-2">Langkah Memasak:</h5>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-                      {resep.langkah?.map((l, idx) => <li key={idx} className="pl-1">{l.instruksi}</li>)}
-                    </ol>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          {rekomendasiSection}
         </main>
       </div>
     )
@@ -470,27 +613,7 @@ function App() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
-          {hasilRekomendasi.map((resep) => (
-            <div key={resep.id} data-id={resep.id} onClick={() => window.location.href = `detail.html?id=${resep.id}`} className={`cursor-pointer border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
-              <div className="flex justify-between items-start gap-4">
-                <h4 className="text-xl font-bold text-gray-900">{resep.judul}</h4>
-                <span className={`px-3 py-1.5 rounded-xl text-xs font-bold ${resep.persentase > 50 ? 'bg-emerald-100 text-emerald-700' : resep.persentase > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
-                  Cocok: {resep.persentase}%
-                </span>
-              </div>
-              {resep.persentase > 0 && (
-                <div className="mt-4 border-t pt-4">
-                  <h5 className="font-semibold text-sm mb-2">Langkah Memasak:</h5>
-                  <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-                    {resep.langkah?.map((l, idx) => <li key={idx} className="pl-1">{l.instruksi}</li>)}
-                  </ol>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        {rekomendasiSection}
       </main>
     </div>
   )
