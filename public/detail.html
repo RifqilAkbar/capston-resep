@@ -16,6 +16,10 @@
           <h1 class="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
           <p class="text-sm text-gray-500">Detail Resep Masakan</p>
         </div>
+        <div class="flex items-center gap-3">
+          <a href="/favorite.html" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Favorit</a>
+          <a href="/history.html" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Riwayat</a>
+        </div>
       </div>
     </header>
 
@@ -64,7 +68,10 @@
             </div>
             <!-- Info resep -->
             <div class="p-6 md:p-8 flex flex-col justify-center space-y-4">
-              <h2 id="recipe-judul" class="text-2xl md:text-3xl font-bold text-gray-900">-</h2>
+              <div class="flex items-center gap-3">
+                <h2 id="recipe-judul" class="text-2xl md:text-3xl font-bold text-gray-900">-</h2>
+                <button id="btn-favorit" class="text-3xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90" aria-label="Tambah ke favorit">🤍</button>
+              </div>
               <div class="flex flex-wrap gap-3">
                 <span id="recipe-kategori" class="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-xl text-xs font-bold">-</span>
                 <span id="recipe-durasi" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-xs font-bold">-</span>
@@ -122,6 +129,7 @@
     </footer>
   </div>
 
+  <script src="/js/storage.js"></script>
   <script src="/detail.js"></script>
 </body>
 </html>

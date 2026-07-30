@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
 import './index.css'
 
-function CardResep({ resep, index }) {
+function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
   const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
   const progressColor =
     resep.persentase > 75 ? 'from-emerald-400 to-emerald-500' :
@@ -27,6 +27,19 @@ function CardResep({ resep, index }) {
       {/* Gambar placeholder */}
       <div className="relative h-44 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
         <span className="text-6xl font-bold text-orange-300/60 select-none">{inisial}</span>
+
+        {/* Ikon hati favorit */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleFavorit(resep.id)
+          }}
+          className="absolute top-3 left-3 text-2xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90"
+          aria-label={isFavorit ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+        >
+          {isFavorit ? '❤️' : '🤍'}
+        </button>
+
         {/* Badge kecocokan */}
         <span className={`absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm ${badgeColor}`}>
           Cocok: {resep.persentase}%
@@ -38,8 +51,13 @@ function CardResep({ resep, index }) {
         {/* Nama resep */}
         <h4 className="text-lg font-bold text-gray-900 truncate">{resep.judul}</h4>
 
-        {/* Meta: kategori, durasi, jumlah bahan */}
-        <div className="flex flex-wrap gap-1.5">
+        {/* Meta: badge Favorit, kategori, durasi, jumlah bahan */}
+        <div className="flex flex-wrap gap-1.5 items-center">
+          {isFavorit && (
+            <span className="text-xs px-2.5 py-1 bg-red-50 text-red-600 rounded-lg font-semibold">
+              Favorit
+            </span>
+          )}
           <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">{resep.kategori}</span>
           <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">
             {resep.durasi || '—'}
@@ -109,6 +127,32 @@ function App() {
   const dropdownRef = useRef(null)
 
   const [searchQuery, setSearchQuery] = useState('')
+
+  // State favorit diinisialisasi dari localStorage
+  const [favoritIds, setFavoritIds] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('skripsi_favorites') || '[]')
+    } catch {
+      return []
+    }
+  })
+
+  // Toggle favorit: update state dan localStorage
+  function handleToggleFavorit(id) {
+    const numId = Number(id)
+    setFavoritIds(function (prev) {
+      var baru
+      var idx = prev.indexOf(numId)
+      if (idx === -1) {
+        baru = prev.concat([numId])
+      } else {
+        baru = prev.slice()
+        baru.splice(idx, 1)
+      }
+      localStorage.setItem('skripsi_favorites', JSON.stringify(baru))
+      return baru
+    })
+  }
 
   useEffect(() => {
     api.ambilDataPublik().then(({ bahan, resep }) => {
@@ -204,7 +248,6 @@ function App() {
       const idBahanResep = resep.recipe_ingredients.map((ri) => ri.ingredient_id)
       const skor = hitungJaccard(kulkasUser, idBahanResep)
 
-      // Ambil kategori unik dari bahan
       const kategoriBahan = resep.recipe_ingredients
         ?.map((ri) => ri.kategori)
         .filter(Boolean) || []
@@ -372,12 +415,29 @@ function App() {
       : setKulkasUser([...kulkasUser, idBahan])
   }
 
-  // Bagian rekomendasi yang dipakai di kedua mode (login dan guest)
+  // Navigasi umum: Favorit & Riwayat
+  const navLinks = (
+    <div className="flex items-center gap-3">
+      <a
+        href="/favorite.html"
+        className="text-sm text-gray-500 hover:text-orange-600 font-medium transition"
+      >
+        Favorit
+      </a>
+      <a
+        href="/history.html"
+        className="text-sm text-gray-500 hover:text-orange-600 font-medium transition"
+      >
+        Riwayat
+      </a>
+    </div>
+  )
+
+  // Bagian rekomendasi (dipakai di kedua mode: login dan guest)
   const rekomendasiSection = (
     <div className="space-y-4">
       <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
 
-      {/* Search bar */}
       {kulkasUser.length > 0 && (
         <div className="relative">
           <svg
@@ -406,16 +466,20 @@ function App() {
         </p>
       )}
 
-      {/* Grid resep */}
       {kulkasUser.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {hasilFilter.map((resep, index) => (
-            <CardResep key={resep.id} resep={resep} index={index} />
+            <CardResep
+              key={resep.id}
+              resep={resep}
+              index={index}
+              isFavorit={favoritIds.indexOf(Number(resep.id)) !== -1}
+              onToggleFavorit={handleToggleFavorit}
+            />
           ))}
         </div>
       )}
 
-      {/* Pesan hasil tidak ditemukan */}
       {kulkasUser.length > 0 && hasilFilter.length === 0 && (
         <div className="text-center py-12">
           <svg
@@ -441,38 +505,41 @@ function App() {
               <h1 className="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
               <p className="text-sm text-gray-500">Pilih bahan di kulkas, dapatkan rekomendasi masakan</p>
             </div>
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowLoginDropdown(!showLoginDropdown)}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm"
-              >
-                Masuk / Daftar
-              </button>
-              {showLoginDropdown && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-5 z-50">
-                  <div className="space-y-3">
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" />
-                    <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleAuth('login')}
-                        disabled={isSubmittingAuth}
-                        className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-2.5 rounded-xl font-semibold text-sm transition"
-                      >
-                        {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
-                      </button>
-                      <button
-                        onClick={() => handleAuth('daftar')}
-                        disabled={isSubmittingAuth}
-                        className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
-                      >
-                        {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
-                      </button>
+            <div className="flex items-center gap-4">
+              {navLinks}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm"
+                >
+                  Masuk / Daftar
+                </button>
+                {showLoginDropdown && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-5 z-50">
+                    <div className="space-y-3">
+                      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" />
+                      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleAuth('login')}
+                          disabled={isSubmittingAuth}
+                          className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-2.5 rounded-xl font-semibold text-sm transition"
+                        >
+                          {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
+                        </button>
+                        <button
+                          onClick={() => handleAuth('daftar')}
+                          disabled={isSubmittingAuth}
+                          className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
+                        >
+                          {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
+                        </button>
+                      </div>
                     </div>
+                    {pesanStatus && <p className="text-center mt-3 text-sm text-red-500">{pesanStatus}</p>}
                   </div>
-                  {pesanStatus && <p className="text-center mt-3 text-sm text-red-500">{pesanStatus}</p>}
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -504,7 +571,10 @@ function App() {
           <h1 className="text-xl font-bold">Buku Resep Pintar</h1>
           <p className="text-xs text-gray-500">User: {session.user.email} <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded capitalize">{userRole}</span></p>
         </div>
-        <button onClick={handleLogout} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm transition font-medium">Keluar</button>
+        <div className="flex items-center gap-4">
+          {navLinks}
+          <button onClick={handleLogout} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm transition font-medium">Keluar</button>
+        </div>
       </nav>
 
       <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8">

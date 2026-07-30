@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat — Buku Resep Pintar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-800">
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b shadow-sm">
+      <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
+          <p class="text-sm text-gray-500">Terakhir Dilihat</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="/" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Beranda</a>
+          <a href="/favorite.html" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Favorit</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="flex-1 flex items-center justify-center">
+      <div class="flex items-center gap-3 text-gray-400">
+        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span>Memuat riwayat...</span>
+      </div>
+    </div>
+
+    <!-- Konten -->
+    <div id="content" class="flex-1 hidden">
+      <main class="max-w-4xl mx-auto px-4 py-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-6">Terakhir Dilihat</h2>
+        <div id="history-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- diisi oleh history.js -->
+        </div>
+      </main>
+    </div>
+
+    <!-- Kosong -->
+    <div id="empty" class="flex-1 hidden">
+      <div class="max-w-xl mx-auto px-4 mt-20 text-center">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-12">
+          <p class="text-5xl mb-4">📖</p>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Riwayat</h2>
+          <p class="text-sm text-gray-500 mb-6">Riwayat resep yang Anda lihat akan muncul di sini.</p>
+          <a href="/" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition shadow-sm">
+            &larr; Jelajahi Resep
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t bg-white mt-auto">
+      <div class="max-w-5xl mx-auto px-6 py-4 text-center text-xs text-gray-400">
+        Buku Resep Pintar &mdash; Rekomendasi Masakan Berdasarkan Bahan
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/storage.js"></script>
+  <script src="/history.js"></script>
+</body>
+</html>
