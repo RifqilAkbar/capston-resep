@@ -104,4 +104,31 @@
       localStorage.setItem(KEY_RIWAYAT, JSON.stringify(list))
     }
   }
+
+  // ==================== KULKAS (Bahan User) ====================
+  // Menyimpan ID bahan yang dipilih user di halaman utama
+  // agar bisa diakses oleh halaman detail resep.
+
+  window.Kulkas = {
+    KEY: 'skripsi_kulkas',
+
+    // Mengembalikan array ID bahan yang dipilih user
+    getAll: function () {
+      try {
+        return JSON.parse(localStorage.getItem(this.KEY) || '[]')
+      } catch (e) {
+        return []
+      }
+    },
+
+    // Simpan daftar ID bahan ke localStorage
+    simpan: function (ids) {
+      localStorage.setItem(this.KEY, JSON.stringify(ids))
+    },
+
+    // Cek apakah user memiliki bahan tertentu berdasarkan ID
+    punya: function (ingredientId) {
+      return this.getAll().indexOf(Number(ingredientId)) !== -1
+    }
+  }
 })()

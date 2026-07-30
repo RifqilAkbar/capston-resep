@@ -6,11 +6,45 @@
   <title>Detail Resep — Buku Resep Pintar</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    /* Animasi hover tombol kembali ke beranda */
+    .btn-home {
+      transition: all 0.3s ease;
+    }
+    .btn-home:hover {
+      transform: translateX(-6px) scale(1.05);
+    }
+
+    /* Animasi progress blocks */
+    .progress-block {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    /* Sembunyikan elemen saat cetak (FITUR 7) */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      #app {
+        padding-top: 0 !important;
+      }
+      body {
+        background: white !important;
+      }
+      .bg-white {
+        box-shadow: none !important;
+        border-color: #ddd !important;
+      }
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-gray-50 text-gray-800">
   <div id="app" class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white border-b shadow-sm">
+    <!-- Header (no-print) -->
+    <header class="bg-white border-b shadow-sm no-print">
       <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
@@ -51,8 +85,8 @@
     <!-- Konten detail resep -->
     <div id="content" class="flex-1 hidden">
       <main class="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        <!-- Tombol kembali -->
-        <a href="/" class="inline-flex items-center gap-2 text-gray-500 hover:text-orange-600 font-medium text-sm transition">
+        <!-- Tombol kembali (no-print) -->
+        <a href="/" class="inline-flex items-center gap-2 text-gray-500 hover:text-orange-600 font-medium text-sm transition no-print">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -70,19 +104,35 @@
             <div class="p-6 md:p-8 flex flex-col justify-center space-y-4">
               <div class="flex items-center gap-3">
                 <h2 id="recipe-judul" class="text-2xl md:text-3xl font-bold text-gray-900">-</h2>
-                <button id="btn-favorit" class="text-3xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90" aria-label="Tambah ke favorit">&#x1F90D;</button>
+                <button id="btn-favorit" class="text-3xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90 no-print" aria-label="Tambah ke favorit">&#x1F90D;</button>
               </div>
               <div class="flex flex-wrap gap-3">
                 <span id="recipe-kategori" class="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-xl text-xs font-bold">-</span>
-                <span id="recipe-durasi" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-xs font-bold">-</span>
+                <span id="recipe-tingkat-kesulitan" class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-xl text-xs font-bold">-</span>
+                <span id="recipe-estimasi-kalori" class="px-3 py-1.5 bg-red-100 text-red-700 rounded-xl text-xs font-bold">-</span>
                 <span id="recipe-porsi" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold">-</span>
+                <span id="recipe-durasi" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-xs font-bold">-</span>
               </div>
               <p id="recipe-deskripsi" class="text-sm text-gray-500 leading-relaxed">-</p>
             </div>
           </div>
         </div>
 
-        <!-- Bahan-bahan -->
+        <!-- Progress Kecocokan (FITUR 3) -->
+        <div id="progress-section" class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8 hidden">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Kecocokan Bahan
+          </h3>
+          <div class="flex items-center gap-3">
+            <div id="progress-blocks" class="flex gap-1.5"></div>
+            <span id="progress-text" class="text-lg font-bold text-gray-700"></span>
+          </div>
+        </div>
+
+        <!-- Bahan-bahan (FITUR 1) -->
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8">
           <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,6 +142,17 @@
           </h3>
           <ul id="bahan-list" class="divide-y divide-gray-100">
           </ul>
+        </div>
+
+        <!-- Bahan Yang Kurang (FITUR 2) -->
+        <div id="bahan-kurang-section" class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8 hidden">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Bahan Yang Kurang
+          </h3>
+          <div id="bahan-kurang-list" class="flex flex-wrap gap-2"></div>
         </div>
 
         <!-- Langkah Memasak -->
@@ -106,8 +167,20 @@
           </ol>
         </div>
 
-        <!-- Tombol Video -->
-        <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Tips Memasak (FITUR 5) -->
+        <div id="tips-section" class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            Tips Memasak
+          </h3>
+          <ul id="tips-list" class="space-y-3">
+          </ul>
+        </div>
+
+        <!-- Tombol Aksi (FITUR 6, 7, 8) - no-print -->
+        <div class="flex flex-col sm:flex-row gap-4 no-print">
           <a id="btn-video" href="#" target="_blank" rel="noopener noreferrer"
              class="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-3.5 rounded-xl font-semibold text-sm transition shadow-sm">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -115,12 +188,33 @@
             </svg>
             Tonton Video Tutorial
           </a>
+          <button id="btn-bagikan"
+                  class="inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3.5 rounded-xl font-semibold text-sm transition shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Bagikan Resep
+          </button>
+          <button id="btn-cetak"
+                  class="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3.5 rounded-xl font-semibold text-sm transition shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Cetak Resep
+          </button>
+          <a href="/"
+             class="btn-home inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3.5 rounded-xl font-semibold text-sm shadow-sm no-print">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Kembali ke Beranda
+          </a>
         </div>
       </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="border-t bg-white mt-auto">
+    <!-- Footer (no-print) -->
+    <footer class="border-t bg-white mt-auto no-print">
       <div class="max-w-5xl mx-auto px-6 py-4 text-center text-xs text-gray-400">
         Buku Resep Pintar &mdash; Rekomendasi Masakan Berdasarkan Bahan
       </div>

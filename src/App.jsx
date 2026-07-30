@@ -123,7 +123,13 @@ function App() {
   const [dataBahan, setDataBahan] = useState([])
   const [bahanTertunda, setBahanTertunda] = useState([])
   const [dataResep, setDataResep] = useState([])
-  const [kulkasUser, setKulkasUser] = useState([])
+  const [kulkasUser, setKulkasUser] = useState(function () {
+    try {
+      return JSON.parse(localStorage.getItem('skripsi_kulkas') || '[]')
+    } catch {
+      return []
+    }
+  })
 
   const [inputNamaBahan, setInputNamaBahan] = useState('')
   const [inputKategori, setInputKategori] = useState('Sayuran')
@@ -246,6 +252,10 @@ function App() {
 
     return () => { aktif = false }
   }, [session])
+
+  useEffect(() => {
+    localStorage.setItem('skripsi_kulkas', JSON.stringify(kulkasUser))
+  }, [kulkasUser])
 
   useEffect(() => {
     if (!session || !token || userRole !== 'admin') return
