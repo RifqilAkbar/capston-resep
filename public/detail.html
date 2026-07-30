@@ -7,25 +7,26 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-800">
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
   <div id="app" class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-white border-b shadow-sm">
+    <header class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
       <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
-          <p class="text-sm text-gray-500">Detail Resep Masakan</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Buku Resep Pintar</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Detail Resep Masakan</p>
         </div>
         <div class="flex items-center gap-3">
-          <a href="/favorite.html" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Favorit</a>
-          <a href="/history.html" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Riwayat</a>
+          <button id="btn-theme" class="text-lg leading-none hover:scale-110 transition-transform duration-200" aria-label="Toggle tema">&#x1F319;</button>
+          <a href="/favorite.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition">Favorit</a>
+          <a href="/history.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition">Riwayat</a>
         </div>
       </div>
     </header>
 
     <!-- Loading state -->
     <div id="loading" class="flex-1 flex items-center justify-center">
-      <div class="flex items-center gap-3 text-gray-400">
+      <div class="flex items-center gap-3 text-gray-400 dark:text-gray-500">
         <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -37,10 +38,10 @@
     <!-- Error / 404 state -->
     <div id="error" class="flex-1 hidden">
       <div class="max-w-xl mx-auto px-4 mt-20 text-center">
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-12">
-          <p class="text-6xl font-bold text-gray-200 mb-4">404</p>
-          <h2 class="text-xl font-bold text-gray-900 mb-2">Resep Tidak Ditemukan</h2>
-          <p class="text-sm text-gray-500 mb-6">Resep yang Anda cari tidak tersedia atau telah dihapus.</p>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-12">
+          <p class="text-6xl font-bold text-gray-200 dark:text-gray-600 mb-4">404</p>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Resep Tidak Ditemukan</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Resep yang Anda cari tidak tersedia atau telah dihapus.</p>
           <a href="/" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition shadow-sm">
             &larr; Kembali ke pencarian
           </a>
@@ -52,7 +53,7 @@
     <div id="content" class="flex-1 hidden">
       <main class="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <!-- Tombol kembali -->
-        <a href="/" class="inline-flex items-center gap-2 text-gray-500 hover:text-orange-600 font-medium text-sm transition">
+        <a href="/" class="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-orange-600 font-medium text-sm transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -60,58 +61,56 @@
         </a>
 
         <!-- Header resep: gambar + info -->
-        <div id="recipe-header" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div id="recipe-header" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
           <div class="grid grid-cols-1 md:grid-cols-2">
             <!-- Gambar placeholder -->
-            <div id="recipe-image" class="bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center p-12 min-h-[250px]">
-              <span id="recipe-initial" class="text-8xl font-bold text-orange-300 select-none">?</span>
+            <div id="recipe-image" class="bg-gradient-to-br from-orange-100 dark:from-orange-900/40 to-orange-200 dark:to-orange-800/40 flex items-center justify-center p-12 min-h-[250px]">
+              <span id="recipe-initial" class="text-8xl font-bold text-orange-300 dark:text-orange-400/40 select-none">?</span>
             </div>
             <!-- Info resep -->
             <div class="p-6 md:p-8 flex flex-col justify-center space-y-4">
               <div class="flex items-center gap-3">
-                <h2 id="recipe-judul" class="text-2xl md:text-3xl font-bold text-gray-900">-</h2>
-                <button id="btn-favorit" class="text-3xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90" aria-label="Tambah ke favorit">🤍</button>
+                <h2 id="recipe-judul" class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">-</h2>
+                <button id="btn-favorit" class="text-3xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90" aria-label="Tambah ke favorit">&#x1F90D;</button>
               </div>
               <div class="flex flex-wrap gap-3">
-                <span id="recipe-kategori" class="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-xl text-xs font-bold">-</span>
-                <span id="recipe-durasi" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-xs font-bold">-</span>
-                <span id="recipe-porsi" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold">-</span>
+                <span id="recipe-kategori" class="px-3 py-1.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 rounded-xl text-xs font-bold">-</span>
+                <span id="recipe-durasi" class="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-bold">-</span>
+                <span id="recipe-porsi" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-xl text-xs font-bold">-</span>
               </div>
-              <p id="recipe-deskripsi" class="text-sm text-gray-500 leading-relaxed">-</p>
+              <p id="recipe-deskripsi" class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">-</p>
             </div>
           </div>
         </div>
 
         <!-- Bahan-bahan -->
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8">
-          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 md:p-8">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
             <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             Bahan-bahan
           </h3>
-          <ul id="bahan-list" class="divide-y divide-gray-100">
-            <!-- diisi oleh detail.js -->
+          <ul id="bahan-list" class="divide-y divide-gray-100 dark:divide-gray-700">
           </ul>
         </div>
 
         <!-- Langkah Memasak -->
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8">
-          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 md:p-8">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
             <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Langkah Memasak
           </h3>
           <ol id="langkah-list" class="space-y-4">
-            <!-- diisi oleh detail.js -->
           </ol>
         </div>
 
         <!-- Tombol Video -->
         <div class="flex flex-col sm:flex-row gap-4">
           <a id="btn-video" href="#" target="_blank" rel="noopener noreferrer"
-             class="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-3.5 rounded-xl font-semibold text-sm transition shadow-sm">
+             class="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3.5 rounded-xl font-semibold text-sm transition shadow-sm">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
@@ -122,13 +121,16 @@
     </div>
 
     <!-- Footer -->
-    <footer class="border-t bg-white mt-auto">
-      <div class="max-w-5xl mx-auto px-6 py-4 text-center text-xs text-gray-400">
+    <footer class="border-t dark:border-gray-700 bg-white dark:bg-gray-800 mt-auto">
+      <div class="max-w-5xl mx-auto px-6 py-4 text-center text-xs text-gray-400 dark:text-gray-500">
         Buku Resep Pintar &mdash; Rekomendasi Masakan Berdasarkan Bahan
       </div>
     </footer>
   </div>
 
+  <script src="/js/theme.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/loading.js"></script>
   <script src="/js/storage.js"></script>
   <script src="/detail.js"></script>
 </body>

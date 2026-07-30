@@ -1,6 +1,4 @@
 // Halaman Resep Favorit
-// Mengambil data resep dari API, memfilter berdasarkan ID favorit di localStorage,
-// lalu menampilkan card resep yang sudah difavoritkan.
 
 var loadingEl = document.getElementById('loading');
 var contentEl = document.getElementById('content');
@@ -25,11 +23,16 @@ function showEmpty() {
   emptyEl.classList.remove('hidden');
 }
 
-// Render satu card resep (sama style dengan halaman utama)
+function updateThemeIcon() {
+  var btn = document.getElementById('btn-theme');
+  if (!btn) return;
+  var isDark = window.Theme && window.Theme.get() === 'dark';
+  btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+}
+
 function tambahCard(container, resep, isFavorit) {
   var inisial = (resep.judul_resep && resep.judul_resep.charAt(0).toUpperCase()) || '?';
 
-  // Tentukan warna progress bar dan badge
   var persentase = resep.persentase || 0;
   var progressColor =
     persentase > 75 ? 'from-emerald-400 to-emerald-500' :
@@ -37,12 +40,11 @@ function tambahCard(container, resep, isFavorit) {
     persentase > 0 ? 'from-yellow-400 to-yellow-500' :
     'from-gray-300 to-gray-400';
   var badgeColor =
-    persentase > 75 ? 'bg-emerald-100 text-emerald-700' :
-    persentase > 50 ? 'bg-orange-100 text-orange-700' :
-    persentase > 0 ? 'bg-yellow-100 text-yellow-700' :
-    'bg-gray-100 text-gray-500';
+    persentase > 75 ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' :
+    persentase > 50 ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' :
+    persentase > 0 ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' :
+    'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
 
-  // Ambil kategori dari bahan
   var kategoriList = [];
   if (resep.recipe_ingredients) {
     resep.recipe_ingredients.forEach(function (ri) {
@@ -52,58 +54,49 @@ function tambahCard(container, resep, isFavorit) {
     });
   }
   var kategori = kategoriList.length > 0 ? kategoriList.join(', ') : 'Makanan';
-
   var jumlahBahan = (resep.recipe_ingredients && resep.recipe_ingredients.length) || 0;
 
   var card = document.createElement('div');
   card.dataset.id = resep.id;
-  card.className = 'card-enter bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden ' +
-                    'hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] cursor-pointer ' +
+  card.className = 'card-enter bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden ' +
+                    'hover:shadow-lg dark:hover:shadow-gray-900/50 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer ' +
                     'transition-all duration-300';
   card.onclick = function () {
     window.location.href = 'detail.html?id=' + resep.id;
   };
 
   card.innerHTML =
-    '<div class="relative h-44 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">' +
-      '<span class="text-6xl font-bold text-orange-300/60 select-none">' + inisial + '</span>' +
-
-      /* Ikon hati */
+    '<div class="relative h-44 bg-gradient-to-br from-orange-100 dark:from-orange-900/40 to-orange-200 dark:to-orange-800/40 flex items-center justify-center">' +
+      '<span class="text-6xl font-bold text-orange-300/60 dark:text-orange-400/40 select-none">' + inisial + '</span>' +
       '<button class="absolute top-3 left-3 text-2xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90" ' +
               'aria-label="Hapus dari favorit" data-fav="' + resep.id + '">' +
-        (isFavorit ? '❤️' : '🤍') +
+        (isFavorit ? '\u2764\uFE0F' : '\u2764') +
       '</button>' +
-
       '<span class="absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm ' + badgeColor + '">' +
         'Cocok: ' + persentase + '%' +
       '</span>' +
     '</div>' +
-
     '<div class="p-5 space-y-3">' +
-      '<h4 class="text-lg font-bold text-gray-900 truncate">' + (resep.judul_resep || '') + '</h4>' +
-
+      '<h4 class="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">' + (resep.judul_resep || '') + '</h4>' +
       '<div class="flex flex-wrap gap-1.5 items-center">' +
-        (isFavorit ? '<span class="text-xs px-2.5 py-1 bg-red-50 text-red-600 rounded-lg font-semibold">Favorit</span>' : '') +
-        '<span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">' + kategori + '</span>' +
-        '<span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">\u2014</span>' +
-        '<span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">' + jumlahBahan + ' bahan</span>' +
+        (isFavorit ? '<span class="text-xs px-2.5 py-1 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-lg font-semibold">Favorit</span>' : '') +
+        '<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">' + kategori + '</span>' +
+        '<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">\u2014</span>' +
+        '<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">' + jumlahBahan + ' bahan</span>' +
       '</div>' +
-
       '<div>' +
         '<div class="flex justify-between text-xs mb-1.5">' +
-          '<span class="text-gray-400">Kecocokan</span>' +
-          '<span class="font-semibold text-gray-600">' + persentase + '%</span>' +
+          '<span class="text-gray-400 dark:text-gray-500">Kecocokan</span>' +
+          '<span class="font-semibold text-gray-600 dark:text-gray-300">' + persentase + '%</span>' +
         '</div>' +
-        '<div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">' +
+        '<div class="w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">' +
           '<div class="h-full bg-gradient-to-r ' + progressColor + ' rounded-full transition-all duration-700" ' +
                'style="width:' + persentase + '%"></div>' +
         '</div>' +
       '</div>' +
-
       '<button class="w-full mt-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 ' +
                     'text-white font-semibold py-2.5 px-4 rounded-xl text-sm ' +
-                    'transition-all duration-200 active:scale-95" ' +
-              'data-detail="' + resep.id + '">' +
+                    'transition-all duration-200 active:scale-95" data-detail="' + resep.id + '">' +
         'Lihat Detail' +
       '</button>' +
     '</div>';
@@ -111,16 +104,33 @@ function tambahCard(container, resep, isFavorit) {
   container.appendChild(card);
 }
 
-// Event delegation untuk klik tombol hati dan tombol detail
+// Event delegation
 document.addEventListener('click', function (e) {
   var favBtn = e.target.closest('[data-fav]');
   if (favBtn) {
     e.stopPropagation();
     var resepId = favBtn.getAttribute('data-fav');
     if (window.Favorit) {
-      window.Favorit.toggle(resepId);
-      // Refresh halaman untuk memperbarui tampilan
+      var ditambahkan = window.Favorit.toggle(resepId);
+      if (window.Toast) {
+        if (ditambahkan) {
+          window.Toast.show('Ditambahkan ke favorit', 'success');
+        } else {
+          window.Toast.show('Dihapus dari favorit', 'info');
+        }
+      }
       init();
+    }
+    return;
+  }
+
+  var themeBtn = e.target.closest('#btn-theme');
+  if (themeBtn) {
+    if (!window.Theme) return;
+    var next = window.Theme.toggle();
+    updateThemeIcon();
+    if (window.Toast) {
+      window.Toast.show('Tema ' + (next === 'dark' ? 'gelap' : 'terang') + ' diterapkan', 'info');
     }
     return;
   }
@@ -132,27 +142,25 @@ document.addEventListener('click', function (e) {
   }
 });
 
-// Inisialisasi: fetch data, filter favorit, render
 async function init() {
   showLoading();
   gridEl.innerHTML = '';
 
   try {
-    // Ambil daftar ID favorit dari localStorage
+    updateThemeIcon();
+
     var favoritIds = window.Favorit ? window.Favorit.getAll() : [];
     if (favoritIds.length === 0) {
       showEmpty();
       return;
     }
 
-    // Fetch semua resep dari API
     var response = await fetch('/api/public/data');
     if (!response.ok) throw new Error('Gagal mengambil data.');
 
     var data = await response.json();
     var semuaResep = data.resep || [];
 
-    // Filter hanya resep favorit
     var favoritResep = semuaResep.filter(function (r) {
       return favoritIds.indexOf(Number(r.id)) !== -1;
     });
@@ -162,7 +170,6 @@ async function init() {
       return;
     }
 
-    // Render setiap card
     favoritResep.forEach(function (resep) {
       tambahCard(gridEl, resep, true);
     });
@@ -174,5 +181,4 @@ async function init() {
   }
 }
 
-// Jalankan
 init();
