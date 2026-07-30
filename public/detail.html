@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detail Resep — Buku Resep Pintar</title>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+    ;(function () {
+      if (localStorage.getItem('skripsi_theme') === 'dark') {
+        document.documentElement.classList.add('dark')
+      }
+    })()
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>

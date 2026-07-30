@@ -50,11 +50,7 @@
     css += '}\n'
 
     // Transisi halus saat berganti tema
-    css += 'body, .theme-transition, .theme-transition *, ' +
-           'header, nav, footer, .bg-white, .border, [class*="bg-"], [class*="text-"], [class*="border-"] {\n' +
-           '  transition: background-color 0.3s ease, color 0.3s ease, ' +
-           'border-color 0.3s ease, box-shadow 0.3s ease !important;\n' +
-           '}'
+    css += 'body { transition: background-color 0.3s ease, color 0.3s ease; }'
 
     style.textContent = css
     document.head.appendChild(style)

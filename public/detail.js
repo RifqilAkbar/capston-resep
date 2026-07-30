@@ -30,16 +30,18 @@ function updateFavoritIcon() {
   var btn = document.getElementById('btn-favorit');
   if (!btn) return;
   var isFav = window.Favorit && window.Favorit.isFavorit(id);
-  btn.textContent = isFav ? '\u2764\uFE0F' : '\u2764';
+  btn.textContent = isFav ? '\u2764\uFE0F' : '\uD83E\uDD0D';
   btn.setAttribute('aria-label', isFav ? 'Hapus dari favorit' : 'Tambah ke favorit');
 }
 
 function updateThemeIcon() {
   var btn = document.getElementById('btn-theme');
   if (!btn) return;
-  var isDark = window.Theme && window.Theme.get() === 'dark';
+  var isDark = document.documentElement.classList.contains('dark');
   btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
 }
+
+updateThemeIcon();
 
 // Render detail resep ke dalam DOM
 function renderRecipe(resep) {
@@ -113,7 +115,6 @@ function renderRecipe(resep) {
   }
 
   updateFavoritIcon();
-  updateThemeIcon();
 
   // Simpan ke riwayat
   if (window.Riwayat) {
@@ -143,10 +144,11 @@ document.addEventListener('click', function (e) {
   var themeBtn = e.target.closest('#btn-theme');
   if (themeBtn) {
     if (!window.Theme) return;
-    var next = window.Theme.toggle();
+    window.Theme.toggle();
     updateThemeIcon();
+    var isDark = document.documentElement.classList.contains('dark');
     if (window.Toast) {
-      window.Toast.show('Tema ' + (next === 'dark' ? 'gelap' : 'terang') + ' diterapkan', 'info');
+      window.Toast.show('Tema ' + (isDark ? 'gelap' : 'terang') + ' diterapkan', 'info');
     }
     return;
   }
