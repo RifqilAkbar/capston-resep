@@ -1,8 +1,6 @@
-// Ambil parameter id dari URL
 var params = new URLSearchParams(window.location.search);
 var id = params.get('id');
 
-// Referensi elemen DOM
 var loadingEl = document.getElementById('loading');
 var errorEl = document.getElementById('error');
 var contentEl = document.getElementById('content');
@@ -25,7 +23,6 @@ function showContent() {
   contentEl.classList.remove('hidden');
 }
 
-// Perbarui ikon hati dan tombol theme sesuai status
 function updateFavoritIcon() {
   var btn = document.getElementById('btn-favorit');
   if (!btn) return;
@@ -34,16 +31,6 @@ function updateFavoritIcon() {
   btn.setAttribute('aria-label', isFav ? 'Hapus dari favorit' : 'Tambah ke favorit');
 }
 
-function updateThemeIcon() {
-  var btn = document.getElementById('btn-theme');
-  if (!btn) return;
-  var isDark = document.documentElement.classList.contains('dark');
-  btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
-}
-
-updateThemeIcon();
-
-// Render detail resep ke dalam DOM
 function renderRecipe(resep) {
   var initial = resep.judul_resep?.charAt(0)?.toUpperCase() || '?';
   document.getElementById('recipe-initial').textContent = initial;
@@ -64,7 +51,6 @@ function renderRecipe(resep) {
   deskripsiEl.textContent = resep.deskripsi ||
     'Resep ' + resep.judul_resep + ' terdiri dari ' + jumlahBahan + ' bahan dan ' + jumlahLangkah + ' langkah memasak.';
 
-  // Bahan-bahan
   var bahanList = document.getElementById('bahan-list');
   bahanList.innerHTML = '';
   if (resep.recipe_ingredients && resep.recipe_ingredients.length > 0) {
@@ -72,19 +58,18 @@ function renderRecipe(resep) {
       var li = document.createElement('li');
       li.className = 'flex items-center justify-between py-3 first:pt-0 last:pb-0';
       li.innerHTML =
-        '<span class="text-sm text-gray-700 dark:text-gray-300">' +
+        '<span class="text-sm text-gray-700">' +
           '<span class="font-medium">' + bahan.nama_bahan + '</span>' +
-          '<span class="text-gray-400 dark:text-gray-500 mx-1">\u2014</span>' +
-          '<span class="text-gray-500 dark:text-gray-400">' + bahan.kuantitas + ' ' + bahan.satuan + '</span>' +
+          '<span class="text-gray-400 mx-1">\u2014</span>' +
+          '<span class="text-gray-500">' + bahan.kuantitas + ' ' + bahan.satuan + '</span>' +
         '</span>' +
-        '<span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-1 rounded-full capitalize">' + (bahan.kategori || '') + '</span>';
+        '<span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full capitalize">' + (bahan.kategori || '') + '</span>';
       bahanList.appendChild(li);
     });
   } else {
     bahanList.innerHTML = '<li class="text-sm text-gray-400 italic py-3">Tidak ada data bahan.</li>';
   }
 
-  // Langkah memasak
   var langkahList = document.getElementById('langkah-list');
   langkahList.innerHTML = '';
   if (resep.langkah_memasak && resep.langkah_memasak.length > 0) {
@@ -92,9 +77,9 @@ function renderRecipe(resep) {
       var li = document.createElement('li');
       li.className = 'flex items-start gap-4';
       li.innerHTML =
-        '<span class="flex-shrink-0 w-8 h-8 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 rounded-full flex items-center justify-center font-bold text-sm">' + (index + 1) + '</span>' +
+        '<span class="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center font-bold text-sm">' + (index + 1) + '</span>' +
         '<div class="flex-1 pt-1">' +
-          '<p class="text-sm text-gray-700 dark:text-gray-300">' + langkah.instruksi + '</p>' +
+          '<p class="text-sm text-gray-700">' + langkah.instruksi + '</p>' +
         '</div>';
       langkahList.appendChild(li);
     });
@@ -102,29 +87,25 @@ function renderRecipe(resep) {
     langkahList.innerHTML = '<li class="text-sm text-gray-400 italic">Tidak ada langkah memasak.</li>';
   }
 
-  // Tombol video
   var btnVideo = document.getElementById('btn-video');
   if (resep.video && resep.video.trim() !== '') {
     btnVideo.href = resep.video;
     btnVideo.removeAttribute('disabled');
-    btnVideo.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'cursor-not-allowed');
+    btnVideo.classList.remove('bg-gray-300', 'cursor-not-allowed');
   } else {
     btnVideo.removeAttribute('href');
     btnVideo.setAttribute('disabled', 'disabled');
-    btnVideo.classList.add('bg-gray-300', 'dark:bg-gray-600', 'cursor-not-allowed');
+    btnVideo.classList.add('bg-gray-300', 'cursor-not-allowed');
   }
 
   updateFavoritIcon();
 
-  // Simpan ke riwayat
   if (window.Riwayat) {
     window.Riwayat.tambah(resep);
   }
 }
 
-// Event delegation
 document.addEventListener('click', function (e) {
-  // Tombol favorit
   var favBtn = e.target.closest('#btn-favorit');
   if (favBtn) {
     if (!window.Favorit) return;
@@ -139,22 +120,8 @@ document.addEventListener('click', function (e) {
     }
     return;
   }
-
-  // Tombol theme
-  var themeBtn = e.target.closest('#btn-theme');
-  if (themeBtn) {
-    if (!window.Theme) return;
-    window.Theme.toggle();
-    updateThemeIcon();
-    var isDark = document.documentElement.classList.contains('dark');
-    if (window.Toast) {
-      window.Toast.show('Tema ' + (isDark ? 'gelap' : 'terang') + ' diterapkan', 'info');
-    }
-    return;
-  }
 });
 
-// Inisialisasi: fetch data resep berdasarkan id
 async function init() {
   if (!id || isNaN(id) || Number(id) <= 0) {
     showError();

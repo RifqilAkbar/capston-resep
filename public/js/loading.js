@@ -15,10 +15,6 @@
       '  animation: skeleton-shimmer 1.5s infinite;' +
       '  border-radius: 0.75rem;' +
       '}' +
-      '.dark .skeleton-pulse {' +
-      '  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);' +
-      '  background-size: 200% 100%;' +
-      '}' +
       '@keyframes skeleton-shimmer {' +
       '  0% { background-position: 200% 0; }' +
       '  100% { background-position: -200% 0; }' +
@@ -33,7 +29,7 @@
       var html = ''
       for (var i = 0; i < count; i++) {
         html +=
-          '<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-sm">' +
+          '<div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">' +
           '  <div class="skeleton-pulse h-44 w-full"></div>' +
           '  <div class="p-5 space-y-3">' +
           '    <div class="skeleton-pulse h-5 w-3/4"></div>' +

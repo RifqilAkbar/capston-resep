@@ -4,37 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Resep Favorit — Buku Resep Pintar</title>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-    ;(function () {
-      if (localStorage.getItem('skripsi_theme') === 'dark') {
-        document.documentElement.classList.add('dark')
-      }
-    })()
-  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
-<body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+<body class="min-h-screen bg-gray-50 text-gray-800">
   <div id="app" class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
+    <header class="bg-white border-b shadow-sm">
       <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Buku Resep Pintar</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Resep Favorit Anda</p>
+          <h1 class="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
+          <p class="text-sm text-gray-500">Resep Favorit Anda</p>
         </div>
         <div class="flex items-center gap-3">
-          <button id="btn-theme" class="text-lg leading-none hover:scale-110 transition-transform duration-200" aria-label="Toggle tema">&#x1F319;</button>
-          <a href="/" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition">Beranda</a>
-          <a href="/history.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition">Riwayat</a>
+          <a href="/" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Beranda</a>
+          <a href="/history.html" class="text-sm text-gray-500 hover:text-orange-600 font-medium transition">Riwayat</a>
         </div>
       </div>
     </header>
 
     <!-- Loading -->
     <div id="loading" class="flex-1 flex items-center justify-center">
-      <div class="flex items-center gap-3 text-gray-400 dark:text-gray-500">
+      <div class="flex items-center gap-3 text-gray-400">
         <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -46,7 +37,7 @@
     <!-- Konten -->
     <div id="content" class="flex-1 hidden">
       <main class="max-w-4xl mx-auto px-4 py-8">
-        <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Resep Favorit</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-6">Resep Favorit</h2>
         <div id="favorit-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </main>
     </div>
@@ -54,10 +45,10 @@
     <!-- Kosong -->
     <div id="empty" class="flex-1 hidden">
       <div class="max-w-xl mx-auto px-4 mt-20 text-center">
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-12">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-12">
           <p class="text-5xl mb-4">&#x1F90D;</p>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Belum Ada Resep Favorit</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Tambahkan resep ke favorit dengan mengklik ikon hati pada card resep.</p>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Resep Favorit</h2>
+          <p class="text-sm text-gray-500 mb-6">Tambahkan resep ke favorit dengan mengklik ikon hati pada card resep.</p>
           <a href="/" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition shadow-sm">
             &larr; Cari Resep
           </a>
@@ -66,14 +57,13 @@
     </div>
 
     <!-- Footer -->
-    <footer class="border-t dark:border-gray-700 bg-white dark:bg-gray-800 mt-auto">
-      <div class="max-w-5xl mx-auto px-6 py-4 text-center text-xs text-gray-400 dark:text-gray-500">
+    <footer class="border-t bg-white mt-auto">
+      <div class="max-w-5xl mx-auto px-6 py-4 text-center text-xs text-gray-400">
         Buku Resep Pintar &mdash; Rekomendasi Masakan Berdasarkan Bahan
       </div>
     </footer>
   </div>
 
-  <script src="/js/theme.js"></script>
   <script src="/js/toast.js"></script>
   <script src="/js/loading.js"></script>
   <script src="/js/storage.js"></script>
