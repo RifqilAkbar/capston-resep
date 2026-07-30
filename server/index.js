@@ -306,8 +306,17 @@ app.get('/api/public/data', async (_req, res) => {
           r.langkah_memasak,
           COALESCE(
             (
-              SELECT JSON_ARRAYAGG(JSON_OBJECT('ingredient_id', ri.ingredient_id))
+              SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                  'ingredient_id', ri.ingredient_id,
+                  'nama_bahan', i.nama_bahan,
+                  'kategori', i.kategori,
+                  'kuantitas', ri.kuantitas,
+                  'satuan', ri.satuan
+                )
+              )
               FROM recipe_ingredients ri
+              JOIN ingredients i ON i.id = ri.ingredient_id
               WHERE ri.recipe_id = r.id
             ),
             JSON_ARRAY()
@@ -319,10 +328,57 @@ app.get('/api/public/data', async (_req, res) => {
 
     res.json({
       bahan: ingredientsResult[0].map(formatBahan),
-      resep: recipesResult[0].map(formatResep),
+      resep:       recipesResult[0].map(formatResep),
     })
   } catch (error) {
     kirimError(res, 500, 'Gagal mengambil data publik.')
+  }
+})
+
+// Endpoint detail resep: mengembalikan satu resep berikut informasi bahan lengkap.
+app.get('/api/public/recipes/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id)
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return kirimError(res, 400, 'ID resep tidak valid.')
+    }
+
+    const [rows] = await pool.query(`
+      SELECT
+        r.id,
+        r.judul_resep,
+        r.porsi_default,
+        r.langkah_memasak,
+        r.created_at,
+        COALESCE(
+          (
+            SELECT JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'ingredient_id', ri.ingredient_id,
+                'nama_bahan', i.nama_bahan,
+                'kategori', i.kategori,
+                'kuantitas', ri.kuantitas,
+                'satuan', ri.satuan
+              )
+            )
+            FROM recipe_ingredients ri
+            JOIN ingredients i ON i.id = ri.ingredient_id
+            WHERE ri.recipe_id = r.id
+          ),
+          JSON_ARRAY()
+        ) AS recipe_ingredients
+      FROM recipes r
+      WHERE r.id = ?
+    `, [id])
+
+    if (rows.length === 0) {
+      return kirimError(res, 404, 'Resep tidak ditemukan.')
+    }
+
+    res.json({ resep: formatResep(rows[0]) })
+  } catch (error) {
+    kirimError(res, 500, 'Gagal mengambil detail resep.')
   }
 })
 

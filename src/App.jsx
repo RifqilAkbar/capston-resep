@@ -331,7 +331,7 @@ function App() {
               <p className="text-sm text-gray-400 italic">Pilih bahan di kulkas untuk melihat rekomendasi</p>
             )}
             {hasilRekomendasi.map((resep) => (
-              <div key={resep.id} className={`border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
+              <div key={resep.id} data-id={resep.id} onClick={() => window.location.href = `detail.html?id=${resep.id}`} className={`cursor-pointer border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
                 <div className="flex justify-between items-start gap-4">
                   <h4 className="text-xl font-bold text-gray-900">{resep.judul}</h4>
                   <span className={`px-3 py-1.5 rounded-xl text-xs font-bold ${resep.persentase > 50 ? 'bg-emerald-100 text-emerald-700' : resep.persentase > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -473,7 +473,7 @@ function App() {
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
           {hasilRekomendasi.map((resep) => (
-            <div key={resep.id} className={`border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
+            <div key={resep.id} data-id={resep.id} onClick={() => window.location.href = `detail.html?id=${resep.id}`} className={`cursor-pointer border p-6 rounded-2xl transition bg-white ${resep.persentase > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-gray-200'}`}>
               <div className="flex justify-between items-start gap-4">
                 <h4 className="text-xl font-bold text-gray-900">{resep.judul}</h4>
                 <span className={`px-3 py-1.5 rounded-xl text-xs font-bold ${resep.persentase > 50 ? 'bg-emerald-100 text-emerald-700' : resep.persentase > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
