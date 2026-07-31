@@ -304,7 +304,7 @@ function App() {
     })
 
     hasil.sort((a, b) => b.persentase - a.persentase)
-    return hasil
+    return hasil.filter((resep) => resep.persentase > 0)
   }, [kulkasUser, dataResep])
 
   const hasilFilter = useMemo(() => {
