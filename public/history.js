@@ -1,3 +1,5 @@
+// Halaman Riwayat Resep — menampilkan resep yang pernah dilihat
+
 var loadingEl = document.getElementById('loading');
 var contentEl = document.getElementById('content');
 var emptyEl = document.getElementById('empty');
@@ -21,6 +23,15 @@ function showEmpty() {
   emptyEl.classList.remove('hidden');
 }
 
+function updateThemeIcon() {
+  var btn = document.getElementById('btn-theme');
+  if (!btn) return;
+  var isDark = document.documentElement.classList.contains('dark');
+  btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+}
+
+updateThemeIcon();
+
 function tambahCard(container, resep, isFavorit) {
   var inisial = (resep.judul_resep && resep.judul_resep.charAt(0).toUpperCase()) || '?';
 
@@ -37,29 +48,29 @@ function tambahCard(container, resep, isFavorit) {
 
   var card = document.createElement('div');
   card.dataset.id = resep.id;
-  card.className = 'card-enter bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden ' +
-                    'hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] cursor-pointer ' +
+  card.className = 'card-enter bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden ' +
+                    'hover:shadow-lg dark:hover:shadow-gray-900/50 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer ' +
                     'transition-all duration-300';
   card.onclick = function () {
     window.location.href = 'detail.html?id=' + resep.id;
   };
 
   card.innerHTML =
-    '<div class="relative h-44 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">' +
-      '<span class="text-6xl font-bold text-orange-300/60 select-none">' + inisial + '</span>' +
+    '<div class="relative h-44 bg-gradient-to-br from-orange-100 dark:from-orange-900/40 to-orange-200 dark:to-orange-800/40 flex items-center justify-center">' +
+      '<span class="text-6xl font-bold text-orange-300/60 dark:text-orange-400/40 select-none">' + inisial + '</span>' +
       '<button class="absolute top-3 left-3 text-2xl leading-none transition-transform duration-200 hover:scale-110 active:scale-90" ' +
               'aria-label="' + (isFavorit ? 'Hapus dari favorit' : 'Tambah ke favorit') + '" data-fav="' + resep.id + '">' +
         (isFavorit ? '\u2764\uFE0F' : '\uD83E\uDD0D') +
       '</button>' +
-      '<span class="absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm bg-gray-100 text-gray-500">Dilihat</span>' +
+      '<span class="absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">Dilihat</span>' +
     '</div>' +
     '<div class="p-5 space-y-3">' +
-      '<h4 class="text-lg font-bold text-gray-900 truncate">' + (resep.judul_resep || '') + '</h4>' +
+      '<h4 class="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">' + (resep.judul_resep || '') + '</h4>' +
       '<div class="flex flex-wrap gap-1.5 items-center">' +
-        (isFavorit ? '<span class="text-xs px-2.5 py-1 bg-red-50 text-red-600 rounded-lg font-semibold">Favorit</span>' : '') +
-        '<span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">' + kategori + '</span>' +
-        '<span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">\u2014</span>' +
-        '<span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">' + jumlahBahan + ' bahan</span>' +
+        (isFavorit ? '<span class="text-xs px-2.5 py-1 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-lg font-semibold">Favorit</span>' : '') +
+        '<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">' + kategori + '</span>' +
+        '<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">\u2014</span>' +
+        '<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">' + jumlahBahan + ' bahan</span>' +
       '</div>' +
       '<button class="w-full mt-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 ' +
                     'text-white font-semibold py-2.5 px-4 rounded-xl text-sm ' +
@@ -86,6 +97,18 @@ document.addEventListener('click', function (e) {
         }
       }
       init();
+    }
+    return;
+  }
+
+  var themeBtn = e.target.closest('#btn-theme');
+  if (themeBtn) {
+    if (!window.Theme) return;
+    window.Theme.toggle();
+    updateThemeIcon();
+    var isDark = document.documentElement.classList.contains('dark');
+    if (window.Toast) {
+      window.Toast.show('Tema ' + (isDark ? 'gelap' : 'terang') + ' diterapkan', 'info');
     }
     return;
   }

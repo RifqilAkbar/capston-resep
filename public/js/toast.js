@@ -49,12 +49,18 @@
         error: 'bg-red-50 border-red-200 text-red-800',
         info: 'bg-blue-50 border-blue-200 text-blue-800',
       }
+      var bgDark = {
+        success: 'dark:bg-emerald-900/60 dark:border-emerald-700 dark:text-emerald-200',
+        error: 'dark:bg-red-900/60 dark:border-red-700 dark:text-red-200',
+        info: 'dark:bg-blue-900/60 dark:border-blue-700 dark:text-blue-200',
+      }
 
       var toast = document.createElement('div')
       toast.className =
         'flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium ' +
         'pointer-events-auto ' +
-        (bgLight[type] || bgLight.info)
+        (bgLight[type] || bgLight.info) + ' ' +
+        (bgDark[type] || bgDark.info)
 
       toast.innerHTML =
         '<span>' + (icons[type] || icons.info) + '</span>' +

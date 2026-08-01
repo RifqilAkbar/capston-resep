@@ -2,6 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
 import './index.css'
 
+// Fungsi tema untuk React — baca dari window.Theme jika tersedia
+function getTheme() {
+  if (window.Theme) return window.Theme.get()
+  return localStorage.getItem('skripsi_theme') || 'light'
+}
+
 function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
   const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
   const progressColor =
@@ -10,24 +16,24 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
     resep.persentase > 0 ? 'from-yellow-400 to-yellow-500' :
     'from-gray-300 to-gray-400'
   const badgeColor =
-    resep.persentase > 75 ? 'bg-emerald-100 text-emerald-700' :
-    resep.persentase > 50 ? 'bg-orange-100 text-orange-700' :
-    resep.persentase > 0 ? 'bg-yellow-100 text-yellow-700' :
-    'bg-gray-100 text-gray-500'
+    resep.persentase > 75 ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' :
+    resep.persentase > 50 ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' :
+    resep.persentase > 0 ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' :
+    'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
 
   return (
     <div
       data-id={resep.id}
       onClick={() => window.location.href = `detail.html?id=${resep.id}`}
-      className="card-enter bg-white border border-gray-200
+      className="card-enter bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
                  rounded-2xl shadow-sm overflow-hidden
-                 hover:shadow-lg
+                 hover:shadow-lg dark:hover:shadow-gray-900/50
                  hover:-translate-y-1 hover:scale-[1.02] cursor-pointer
                  transition-all duration-300"
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className="relative h-44 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
-        <span className="text-6xl font-bold text-orange-300/60 select-none">{inisial}</span>
+      <div className="relative h-44 bg-gradient-to-br from-orange-100 dark:from-orange-900/40 to-orange-200 dark:to-orange-800/40 flex items-center justify-center">
+        <span className="text-6xl font-bold text-orange-300/60 dark:text-orange-400/40 select-none">{inisial}</span>
 
         <button
           onClick={(e) => {
@@ -46,29 +52,29 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
       </div>
 
       <div className="p-5 space-y-3">
-        <h4 className="text-lg font-bold text-gray-900 truncate">{resep.judul}</h4>
+        <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{resep.judul}</h4>
 
         <div className="flex flex-wrap gap-1.5 items-center">
           {isFavorit && (
-            <span className="text-xs px-2.5 py-1 bg-red-50 text-red-600 rounded-lg font-semibold">
+            <span className="text-xs px-2.5 py-1 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-lg font-semibold">
               Favorit
             </span>
           )}
-          <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">{resep.kategori}</span>
-          <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">
+          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">{resep.kategori}</span>
+          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">
             {resep.durasi || '\u2014'}
           </span>
-          <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">
+          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">
             {resep.jumlahBahan} bahan
           </span>
         </div>
 
         <div>
           <div className="flex justify-between text-xs mb-1.5">
-            <span className="text-gray-400">Kecocokan</span>
-            <span className="font-semibold text-gray-600">{resep.persentase}%</span>
+            <span className="text-gray-400 dark:text-gray-500">Kecocokan</span>
+            <span className="font-semibold text-gray-600 dark:text-gray-300">{resep.persentase}%</span>
           </div>
-          <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className={`h-full bg-gradient-to-r ${progressColor} rounded-full transition-all duration-700`}
               style={{ width: `${resep.persentase}%` }}
@@ -92,9 +98,10 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
   )
 }
 
+// Skeleton loading card untuk React
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-sm">
       <div className="skeleton-pulse h-44 w-full" />
       <div className="p-5 space-y-3">
         <div className="skeleton-pulse h-5 w-3/4" />
@@ -148,6 +155,7 @@ function App() {
   const dropdownRef = useRef(null)
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [theme, setTheme] = useState(getTheme)
   const [loading, setLoading] = useState(true)
 
   const [favoritIds, setFavoritIds] = useState(() => {
@@ -171,6 +179,7 @@ function App() {
       }
       localStorage.setItem('skripsi_favorites', JSON.stringify(baru))
 
+      // Tampilkan toast
       if (window.Toast) {
         if (idx === -1) {
           window.Toast.show('Ditambahkan ke favorit', 'success')
@@ -181,6 +190,29 @@ function App() {
       return baru
     })
   }
+
+  function handleToggleTheme() {
+    var next = theme === 'dark' ? 'light' : 'dark'
+    if (window.Theme) {
+      window.Theme.set(next)
+    } else {
+      localStorage.setItem('skripsi_theme', next)
+      document.documentElement.classList.toggle('dark', next === 'dark')
+    }
+    setTheme(next)
+    if (window.Toast) {
+      window.Toast.show('Tema ' + (next === 'dark' ? 'gelap' : 'terang') + ' diterapkan', 'info')
+    }
+  }
+
+  // Dengarkan event themechange dari theme.js
+  useEffect(function () {
+    function handler(e) {
+      setTheme(e.detail)
+    }
+    window.addEventListener('themechange', handler)
+    return function () { window.removeEventListener('themechange', handler) }
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -451,31 +483,45 @@ function App() {
       : setKulkasUser([...kulkasUser, idBahan])
   }
 
+  // Tombol dark mode
+  const themeBtn = (
+    <button
+      onClick={handleToggleTheme}
+      className="text-lg leading-none hover:scale-110 transition-transform duration-200"
+      aria-label="Toggle tema"
+    >
+      {theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19'}
+    </button>
+  )
+
+  // Navigasi umum
   const navLinks = (
     <div className="flex items-center gap-3">
+      {themeBtn}
       <a
         href="/favorite.html"
-        className="text-sm text-gray-500 hover:text-orange-600 font-medium transition"
+        className="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition"
       >
         Favorit
       </a>
       <a
         href="/history.html"
-        className="text-sm text-gray-500 hover:text-orange-600 font-medium transition"
+        className="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition"
       >
         Riwayat
       </a>
     </div>
   )
 
+  // Rekomendasi section
   const rekomendasiSection = (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold text-gray-900">Rekomendasi Menu Masakan</h3>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Rekomendasi Menu Masakan</h3>
 
       {kulkasUser.length > 0 && (
         <div className="relative">
           <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500"
             fill="none" stroke="currentColor" viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -487,28 +533,29 @@ function App() {
             placeholder="Cari resep..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl
                        outline-none focus:ring-2 focus:ring-orange-500 text-sm
-                       bg-white text-gray-900 transition"
+                       bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition"
           />
         </div>
       )}
 
       {kulkasUser.length === 0 && (
-        <div className="text-center py-12 bg-white border border-gray-200 rounded-2xl shadow-sm">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
           <p className="text-5xl mb-4">{'\uD83C\uDF73'}</p>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Belum ada rekomendasi.
           </p>
-          <p className="text-gray-400 text-xs mt-1">
+          <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
             Silakan pilih bahan terlebih dahulu.
           </p>
         </div>
       )}
 
+      {/* Loading skeleton */}
       {kulkasUser.length > 0 && loading && (
         <div className="text-center py-4">
-          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-4">
+          <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-sm mb-4">
             <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -521,6 +568,7 @@ function App() {
         </div>
       )}
 
+      {/* Grid resep */}
       {kulkasUser.length > 0 && !loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {hasilFilter.map((resep, index) => (
@@ -538,14 +586,14 @@ function App() {
       {kulkasUser.length > 0 && !loading && hasilFilter.length === 0 && (
         <div className="text-center py-12">
           <svg
-            className="w-12 h-12 mx-auto text-gray-300 mb-3"
+            className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3"
             fill="none" stroke="currentColor" viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <p className="text-gray-400 text-sm">Resep tidak ditemukan.</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">Resep tidak ditemukan.</p>
         </div>
       )}
     </div>
@@ -553,12 +601,12 @@ function App() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b shadow-sm">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 theme-transition">
+        <header className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
           <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Buku Resep Pintar</h1>
-              <p className="text-sm text-gray-500">Pilih bahan di kulkas, dapatkan rekomendasi masakan</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Buku Resep Pintar</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pilih bahan di kulkas, dapatkan rekomendasi masakan</p>
             </div>
             <div className="flex items-center gap-4">
               {navLinks}
@@ -570,10 +618,10 @@ function App() {
                   Masuk / Daftar
                 </button>
                 {showLoginDropdown && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-5 z-50">
+                  <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl dark:shadow-gray-900/50 p-5 z-50">
                     <div className="space-y-3">
-                      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white text-gray-900" />
-                      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white text-gray-900" />
+                      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+                      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleAuth('login')}
@@ -585,7 +633,7 @@ function App() {
                         <button
                           onClick={() => handleAuth('daftar')}
                           disabled={isSubmittingAuth}
-                          className="flex-1 bg-gray-200 disabled:bg-gray-100 text-gray-700 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
+                          className="flex-1 bg-gray-200 dark:bg-gray-600 disabled:bg-gray-100 text-gray-700 dark:text-gray-300 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
                         >
                           {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
                         </button>
@@ -600,12 +648,12 @@ function App() {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8 pb-12">
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Isi Kulkas Anda</h3>
-            <p className="text-xs text-gray-400 mb-3">Pilih bahan yang tersedia di kulkas Anda</p>
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Isi Kulkas Anda</h3>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Pilih bahan yang tersedia di kulkas Anda</p>
             <div className="flex flex-wrap gap-2">
               {dataBahan.map((bahan) => (
-                <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-200 text-gray-700'}`}>
+                <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300'}`}>
                   <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
                   {bahan.nama_bahan}
                 </label>
@@ -620,59 +668,59 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 pb-12">
-      <nav className="bg-white border-b px-6 py-4 flex justify-between items-center max-w-5xl mx-auto rounded-b-xl shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-12 theme-transition">
+      <nav className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-6 py-4 flex justify-between items-center max-w-5xl mx-auto rounded-b-xl shadow-sm">
         <div>
-          <h1 className="text-xl font-bold">Buku Resep Pintar</h1>
-          <p className="text-xs text-gray-500">User: {session.user.email} <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded capitalize">{userRole}</span></p>
+          <h1 className="text-xl font-bold dark:text-gray-100">Buku Resep Pintar</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">User: {session.user.email} <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold rounded capitalize">{userRole}</span></p>
         </div>
         <div className="flex items-center gap-4">
           {navLinks}
-          <button onClick={handleLogout} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm transition font-medium">Keluar</button>
+          <button onClick={handleLogout} className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm transition font-medium">Keluar</button>
         </div>
       </nav>
 
       <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
         {userRole === 'admin' && (
-          <div className="bg-blue-50 border border-blue-200 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-blue-900 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
-            {bahanTertunda.length === 0 ? <p className="text-sm text-blue-600 italic">Tidak ada usulan bahan.</p> : (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-2xl shadow-sm">
+            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
+            {bahanTertunda.length === 0 ? <p className="text-sm text-blue-600 dark:text-blue-400 italic">Tidak ada usulan bahan.</p> : (
               <div className="space-y-2">{bahanTertunda.map((b) => (
-                <div key={b.id} className="flex justify-between items-center bg-white p-3 rounded-xl border border-blue-100 shadow-xs">
-                  <div><span className="font-semibold">{b.nama_bahan}</span><span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">{b.kategori}</span></div>
+                <div key={b.id} className="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded-xl border border-blue-100 dark:border-blue-800 shadow-xs">
+                  <div><span className="font-semibold dark:text-gray-100">{b.nama_bahan}</span><span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-500 dark:text-gray-400">{b.kategori}</span></div>
                   <button onClick={() => handleSetujuiBahan(b.id)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg">Setujui</button>
                 </div>
               ))}</div>
             )}
             {pesanStatus && (
-              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600' : 'text-red-500'}`}>
+              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
                 {pesanStatus}
               </p>
             )}
           </div>
         )}
 
-        <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Bagikan Resep Masakan Anda</h3>
-          <p className="text-sm text-gray-500 mb-6">Tulis instruksi memasak secara detail agar sistem bisa merekomendasikannya.</p>
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Bagikan Resep Masakan Anda</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Tulis instruksi memasak secara detail agar sistem bisa merekomendasikannya.</p>
 
           <form onSubmit={handleTambahResepBaru} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Nama Menu Masakan</label>
-                <input type="text" placeholder="Contoh: Nasi Goreng Kampung, Sup Ayam" value={judulResep} onChange={(e) => setJudulResep(e.target.value)} className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white text-gray-900" />
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Nama Menu Masakan</label>
+                <input type="text" placeholder="Contoh: Nasi Goreng Kampung, Sup Ayam" value={judulResep} onChange={(e) => setJudulResep(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Estimasi Porsi</label>
-                <input type="number" min="1" value={porsiDefault} onChange={(e) => setPorsiDefault(e.target.value)} className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white text-gray-900" />
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Estimasi Porsi</label>
+                <input type="number" min="1" value={porsiDefault} onChange={(e) => setPorsiDefault(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Bahan Baku yang Digunakan:</label>
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto border p-3 rounded-xl bg-gray-50">
+              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Pilih Bahan Baku yang Digunakan:</label>
+              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
                 {dataBahan.map((bahan) => (
-                  <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${bahanResepDipilih.includes(bahan.id) ? 'bg-orange-100 border-orange-400 text-orange-700' : 'bg-white text-gray-600 border-transparent'}`}>
+                  <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${bahanResepDipilih.includes(bahan.id) ? 'bg-orange-100 dark:bg-orange-900/40 border-orange-400 dark:border-orange-600 text-orange-700 dark:text-orange-300' : 'bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-transparent'}`}>
                     <input type="checkbox" checked={bahanResepDipilih.includes(bahan.id)} onChange={() => handleCheckboxBahanResep(bahan.id)} className="hidden" />
                     {bahan.nama_bahan}
                   </label>
@@ -681,14 +729,14 @@ function App() {
             </div>
 
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Langkah Demi Langkah Memasak:</label>
+              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Langkah Demi Langkah Memasak:</label>
               {langkahResep.map((langkah, index) => (
                 <div key={index} className="flex items-center gap-3">
-                  <span className="bg-gray-200 text-gray-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">{index + 1}</span>
-                  <input type="text" placeholder={`Langkah ke-${index + 1}...`} value={langkah.instruksi} onChange={(e) => handleUbahLangkah(index, e.target.value)} className="flex-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white text-gray-900 text-sm" />
+                  <span className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">{index + 1}</span>
+                  <input type="text" placeholder={`Langkah ke-${index + 1}...`} value={langkah.instruksi} onChange={(e) => handleUbahLangkah(index, e.target.value)} className="flex-1 p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm" />
                 </div>
               ))}
-              <button type="button" onClick={handleTambahInputLangkah} className="text-orange-600 hover:text-orange-700 font-bold text-sm flex items-center gap-1 pt-1 transition">
+              <button type="button" onClick={handleTambahInputLangkah} className="text-orange-600 dark:text-orange-400 hover:text-orange-700 font-bold text-sm flex items-center gap-1 pt-1 transition">
                 + Tambah Langkah Memasak
               </button>
             </div>
@@ -701,14 +749,14 @@ function App() {
               {isSubmittingResep ? 'Sedang Menerbitkan...' : 'Terbitkan Buku Resep'}
             </button>
           </form>
-          {pesanResep && <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600' : 'text-red-500'}`}>{pesanResep}</p>}
+          {pesanResep && <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesanResep}</p>}
         </div>
 
-          <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-amber-900 mb-2">Punya Bahan Unik?</h3>
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-6 rounded-2xl shadow-sm">
+            <h3 className="text-lg font-bold text-amber-900 dark:text-amber-300 mb-2">Punya Bahan Unik?</h3>
             <form onSubmit={handleTambahBahanBaru} className="flex flex-wrap gap-3 items-center">
-              <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white border border-amber-300 rounded-xl outline-none text-sm text-gray-900" />
-              <select value={inputKategori} onChange={(e) => setInputKategori(e.target.value)} className="p-3 bg-white border border-amber-300 rounded-xl text-sm text-gray-900">
+              <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl outline-none text-sm text-gray-900 dark:text-gray-100" />
+              <select value={inputKategori} onChange={(e) => setInputKategori(e.target.value)} className="p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl text-sm text-gray-900 dark:text-gray-100">
                 <option value="Sayuran">Sayuran</option><option value="Protein">Protein</option><option value="Bumbu">Bumbu</option>
               </select>
               <button
@@ -720,17 +768,17 @@ function App() {
               </button>
             </form>
             {pesanStatus && (
-              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600' : 'text-red-500'}`}>
+              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
                 {pesanStatus}
               </p>
             )}
           </div>
 
-        <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">Isi Kulkas Anda</h3>
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Isi Kulkas Anda</h3>
           <div className="flex flex-wrap gap-2 mt-4">
             {dataBahan.map((bahan) => (
-              <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-200 text-gray-700'}`}>
+              <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300'}`}>
                 <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
                 {bahan.nama_bahan}
               </label>

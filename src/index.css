@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @keyframes fade-slide-up {
   0% {
     opacity: 0;
@@ -28,3 +30,7 @@
   border-radius: 0.75rem;
 }
 
+.dark .skeleton-pulse {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
