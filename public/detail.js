@@ -164,6 +164,8 @@ function renderBahanList(resep) {
 // ============================================
 // Render daftar bahan yang kurang (FITUR 2)
 // ============================================
+var bahanKurangTerakhir = [];
+
 function renderBahanKurang(resep) {
   var section = document.getElementById('bahan-kurang-section');
   var list = document.getElementById('bahan-kurang-list');
@@ -178,6 +180,16 @@ function renderBahanKurang(resep) {
   var bahanKurang = resep.recipe_ingredients.filter(function (bahan) {
     return !userPunyaBahan(bahan.ingredient_id);
   });
+
+  // Simpan untuk dipakai tombol "Tambah ke Daftar Belanja"
+  bahanKurangTerakhir = bahanKurang;
+  var btnBelanja = document.getElementById('btn-belanja');
+  if (btnBelanja) {
+    var semuaAda = bahanKurang.length === 0;
+    btnBelanja.disabled = semuaAda;
+    btnBelanja.classList.toggle('opacity-50', semuaAda);
+    btnBelanja.classList.toggle('cursor-not-allowed', semuaAda);
+  }
 
   if (bahanKurang.length === 0) {
     // Semua bahan tersedia
@@ -410,6 +422,51 @@ document.addEventListener('click', function (e) {
   var cetakBtn = e.target.closest('#btn-cetak');
   if (cetakBtn) {
     window.print();
+    return;
+  }
+
+  // --- Daftar Belanja: simpan bahan yang kurang ke localStorage ---
+  var belanjaBtn = e.target.closest('#btn-belanja');
+  if (belanjaBtn) {
+    if (belanjaBtn.disabled) return;
+
+    if (!bahanKurangTerakhir || bahanKurangTerakhir.length === 0) {
+      if (window.Toast) {
+        window.Toast.show('Tidak ada bahan yang perlu dibeli.', 'info');
+      }
+      return;
+    }
+
+    var items = bahanKurangTerakhir.map(function (bahan) {
+      return {
+        id: bahan.ingredient_id,
+        nama: bahan.nama_bahan,
+        kuantitas: bahan.kuantitas,
+        satuan: bahan.satuan
+      };
+    });
+
+    var ditambah = 0;
+    if (window.ShoppingList) {
+      ditambah = window.ShoppingList.tambah(items);
+    }
+
+    belanjaBtn.disabled = true;
+    belanjaBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    belanjaBtn.innerHTML =
+      '<i class="fa-solid fa-check"></i>' +
+      'Sudah di Daftar Belanja';
+
+    if (window.Toast) {
+      if (ditambah > 0) {
+        window.Toast.show(
+          ditambah + ' bahan ditambahkan ke daftar belanja.',
+          'success'
+        );
+      } else {
+        window.Toast.show('Semua bahan ini sudah ada di daftar belanja.', 'info');
+      }
+    }
     return;
   }
 });

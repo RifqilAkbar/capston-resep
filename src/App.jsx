@@ -31,77 +31,108 @@ function ikonBahan(kategori) {
   return 'fa-bowl-food'
 }
 
+// Ikon Font Awesome untuk kategori resep
+const KATEGORI_ICONS = {
+  'Ayam': 'fa-drumstick-bite',
+  'Daging': 'fa-burger',
+  'Sayuran': 'fa-leaf',
+  'Telur': 'fa-egg',
+  'Mie': 'fa-bowl-food',
+  'Pasta': 'fa-utensils',
+  'Western': 'fa-pizza-slice',
+  'Nusantara': 'fa-bowl-rice',
+  'Jepang': 'fa-fish',
+}
+
+// Search bar reusable — icon kiri, tombol clear, focus oranye
+function SearchBar({ value, onChange, placeholder = 'Cari resep, bahan, atau kategori...' }) {
+  return (
+    <div className="searchbar">
+      <i className="fa-solid fa-magnifying-glass searchbar-icon" />
+      <input
+        type="text"
+        className="searchbar-input"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {value ? (
+        <button
+          type="button"
+          className="searchbar-clear"
+          aria-label="Bersihkan pencarian"
+          onClick={() => onChange('')}
+        >
+          <i className="fa-solid fa-xmark" />
+        </button>
+      ) : null}
+    </div>
+  )
+}
+
+// Data dummy untuk section Trending (dipakai jika backend belum tersedia)
+const TRENDING_ICONS = ['fa-fire', 'fa-drumstick-bite', 'fa-bowl-rice', 'fa-leaf', 'fa-utensils']
+const DUMMY_TRENDING = [
+  { id: 90001, nama: 'Nasi Goreng Spesial', rating: '4.9', icon: 'fa-fire' },
+  { id: 90002, nama: 'Sate Ayam Madura', rating: '4.8', icon: 'fa-drumstick-bite' },
+  { id: 90003, nama: 'Mie Goreng Jawa', rating: '4.7', icon: 'fa-bowl-rice' },
+  { id: 90004, nama: 'Rendang Sapi', rating: '4.9', icon: 'fa-utensils' },
+  { id: 90005, nama: 'Gado-Gado', rating: '4.8', icon: 'fa-leaf' },
+]
+
 function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
   const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
-  const progressColor =
-    resep.persentase > 75 ? 'from-emerald-400 to-emerald-500' :
-    resep.persentase > 50 ? 'from-orange-400 to-orange-500' :
-    resep.persentase > 0 ? 'from-yellow-400 to-yellow-500' :
-    'from-gray-300 to-gray-400'
-  const badgeColor =
-    resep.persentase > 75 ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' :
-    resep.persentase > 50 ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' :
-    resep.persentase > 0 ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' :
-    'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+  const rating = (4.3 + (Number(resep.id) % 7) * 0.1).toFixed(1)
+  const durasi = resep.durasi || '30 menit'
+  const porsi = resep.porsi || 2
 
   return (
     <div
       data-id={resep.id}
       onClick={() => window.location.href = `detail.html?id=${resep.id}`}
-      className="card-enter bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-                 rounded-2xl shadow-sm overflow-hidden
-                 hover:shadow-lg dark:hover:shadow-gray-900/50
-                 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer
-                 transition-all duration-300"
-      style={{ animationDelay: `${index * 80}ms` }}
+      className="recipe-card reveal"
+      style={{ '--reveal-delay': `${Math.min(index, 8) * 90}ms` }}
     >
-      <div className="relative h-44 bg-gradient-to-br from-orange-100 dark:from-orange-900/40 to-orange-200 dark:to-orange-800/40 flex items-center justify-center">
-        <span className="text-6xl font-bold text-orange-300/60 dark:text-orange-400/40 select-none">{inisial}</span>
+      {/* Foto makanan / placeholder */}
+      <div className="recipe-photo">
+        <span className="recipe-photo-deco recipe-photo-deco-a" />
+        <span className="recipe-photo-deco recipe-photo-deco-b" />
+        <div className="recipe-photo-plate">
+          <span className="recipe-initial">{inisial}</span>
+          <i className="fa-solid fa-utensils" />
+        </div>
 
         <button
           onClick={(e) => {
             e.stopPropagation()
             onToggleFavorit(resep.id)
           }}
-          className="absolute top-3 left-3 leading-none transition-transform duration-200 hover:scale-110 active:scale-90"
+          className="recipe-fav-btn"
           aria-label={isFavorit ? 'Hapus dari favorit' : 'Tambah ke favorit'}
         >
           {isFavorit ? ICON_HEART_FILLED : ICON_HEART_OUTLINE}
         </button>
 
-        <span className={`absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm ${badgeColor}`}>
-          Cocok: {resep.persentase}%
-        </span>
+        <span className="recipe-match-badge">Cocok {resep.persentase}%</span>
       </div>
 
-      <div className="p-5 space-y-3">
-        <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{resep.judul}</h4>
-
-        <div className="flex flex-wrap gap-1.5 items-center">
-          {isFavorit && (
-            <span className="text-xs px-2.5 py-1 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-lg font-semibold">
-              Favorit
-            </span>
-          )}
-          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">{resep.kategori}</span>
-          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">
-            {resep.durasi || '\u2014'}
-          </span>
-          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">
-            {resep.jumlahBahan} bahan
-          </span>
+      <div className="recipe-body">
+        <div className="recipe-meta">
+          <span><i className="fa-solid fa-star" />{rating}</span>
+          <span><i className="fa-solid fa-clock" />{durasi}</span>
+          <span><i className="fa-solid fa-bowl-food" />{porsi} porsi</span>
         </div>
 
+        <h4 className="recipe-title">{resep.judul}</h4>
+        <span className="recipe-category">{resep.kategori}</span>
+
         <div>
-          <div className="flex justify-between text-xs mb-1.5">
-            <span className="text-gray-400 dark:text-gray-500">Kecocokan</span>
-            <span className="font-semibold text-gray-600 dark:text-gray-300">{resep.persentase}%</span>
+          <div className="recipe-progress-label">
+            <span>Kecocokan</span>
+            <strong>{resep.persentase}%</strong>
           </div>
-          <div className="w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div
-              className={`h-full bg-gradient-to-r ${progressColor} rounded-full transition-all duration-700`}
-              style={{ width: `${resep.persentase}%` }}
-            />
+          <div className="recipe-progress">
+            <div className="recipe-progress-bar" style={{ width: `${resep.persentase}%` }} />
           </div>
         </div>
 
@@ -110,9 +141,7 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
             e.stopPropagation()
             window.location.href = `detail.html?id=${resep.id}`
           }}
-          className="w-full mt-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700
-                     text-white font-semibold py-2.5 px-4 rounded-xl text-sm
-                     transition-all duration-200 active:scale-95"
+          className="recipe-btn"
         >
           Lihat Detail
         </button>
@@ -124,15 +153,16 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
 // Skeleton loading card untuk React
 function SkeletonCard() {
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-sm">
-      <div className="skeleton-pulse h-44 w-full" />
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[20px] overflow-hidden shadow-sm">
+      <div className="skeleton-pulse h-[210px] w-full" />
       <div className="p-5 space-y-3">
-        <div className="skeleton-pulse h-5 w-3/4" />
-        <div className="flex gap-2">
-          <div className="skeleton-pulse h-4 w-16" />
+        <div className="flex gap-4">
           <div className="skeleton-pulse h-4 w-12" />
+          <div className="skeleton-pulse h-4 w-16" />
           <div className="skeleton-pulse h-4 w-14" />
         </div>
+        <div className="skeleton-pulse h-5 w-3/4" />
+        <div className="skeleton-pulse h-4 w-16" />
         <div className="space-y-1.5">
           <div className="skeleton-pulse h-3 w-full" />
           <div className="skeleton-pulse h-2.5 w-full" />
@@ -178,8 +208,11 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef(null)
+  const trendingRef = useRef(null)
 
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(function () {
+    return new URLSearchParams(window.location.search).get('q') || ''
+  })
   const [theme, setTheme] = useState(getTheme)
   const [loading, setLoading] = useState(true)
 
@@ -247,6 +280,18 @@ function App() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return function () { window.removeEventListener('scroll', onScroll) }
+  }, [])
+
+  // Baca kata kunci pencarian dari URL (?q=...) lalu bersihkan parameter
+  useEffect(function () {
+    var params = new URLSearchParams(window.location.search)
+    if (!params.get('q')) return
+    params.delete('q')
+    var url = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
+    window.history.replaceState({}, '', url)
+    setTimeout(function () {
+      document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' })
+    }, 400)
   }, [])
 
   useEffect(() => {
@@ -552,14 +597,8 @@ function App() {
   )
 
   const navbarSearch = (
-    <div className="hidden md:block nav-search w-48 lg:w-64 shrink-0">
-      <i className="fa-solid fa-magnifying-glass nav-search-icon" />
-      <input
-        type="text"
-        placeholder="Cari resep atau bahan..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+    <div className="hidden md:block w-48 lg:w-64 shrink-0">
+      <SearchBar value={searchQuery} onChange={setSearchQuery} />
     </div>
   )
 
@@ -570,14 +609,8 @@ function App() {
         {navItem('/', 'fa-book-open', 'Resep')}
         {navItem('/favorite.html', 'fa-heart', 'Favorit')}
         {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
-        <div className="nav-search mt-2">
-          <i className="fa-solid fa-magnifying-glass nav-search-icon" />
-          <input
-            type="text"
-            placeholder="Cari resep atau bahan..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="mt-2">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
       </nav>
     </div>
@@ -685,22 +718,22 @@ function App() {
 
           <div className="hero-stats">
             <div className="hero-stat">
-              <span className="hero-stat-emoji">🥘</span>
+              <i className="fa-solid fa-bowl-rice hero-stat-icon" />
               <span className="hero-stat-number">1.200+</span>
               <span className="hero-stat-label">Resep</span>
             </div>
             <div className="hero-stat">
-              <span className="hero-stat-emoji">🥦</span>
+              <i className="fa-solid fa-carrot hero-stat-icon" />
               <span className="hero-stat-number">300+</span>
               <span className="hero-stat-label">Bahan</span>
             </div>
             <div className="hero-stat">
-              <span className="hero-stat-emoji">⭐</span>
+              <i className="fa-solid fa-star hero-stat-icon" />
               <span className="hero-stat-number">4.9</span>
               <span className="hero-stat-label">Rating</span>
             </div>
             <div className="hero-stat">
-              <span className="hero-stat-emoji">👨‍🍳</span>
+              <i className="fa-solid fa-users hero-stat-icon" />
               <span className="hero-stat-number">10.000</span>
               <span className="hero-stat-label">Pengguna</span>
             </div>
@@ -708,42 +741,63 @@ function App() {
         </div>
 
         <div className="hero-image" aria-hidden="true">
-          <svg viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#ff9a52" />
-                <stop offset="100%" stopColor="#ff6b00" />
-              </linearGradient>
-            </defs>
+          <span className="hero-blob hero-blob-1" />
+          <span className="hero-blob hero-blob-2" />
+          <div className="hero-float">
+            <svg viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#ff9a52" />
+                  <stop offset="100%" stopColor="#ff6b00" />
+                </linearGradient>
+              </defs>
 
-            <circle cx="210" cy="210" r="190" fill="url(#heroGrad)" opacity="0.1" />
-            <circle cx="210" cy="210" r="150" fill="url(#heroGrad)" opacity="0.16" />
+              <circle cx="210" cy="210" r="190" fill="url(#heroGrad)" opacity="0.1" />
+              <circle cx="210" cy="210" r="150" fill="url(#heroGrad)" opacity="0.16" />
 
-            <path d="M150 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-            <path d="M210 92q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-            <path d="M268 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+              <g className="hero-steam">
+                <path d="M150 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+                <path d="M210 92q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+                <path d="M268 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+              </g>
 
-            <ellipse cx="210" cy="302" rx="134" ry="36" fill="#ffffff" />
-            <ellipse cx="210" cy="302" rx="134" ry="36" stroke="#f6e3d5" strokeWidth="3" />
-            <ellipse cx="210" cy="296" rx="104" ry="27" fill="#fff8f2" />
+              <ellipse cx="210" cy="302" rx="134" ry="36" fill="#ffffff" />
+              <ellipse cx="210" cy="302" rx="134" ry="36" stroke="#f6e3d5" strokeWidth="3" />
+              <ellipse cx="210" cy="296" rx="104" ry="27" fill="#fff8f2" />
 
-            <path d="M152 292q24 -40 60 -40q40 0 60 36q12 20 -22 28q-22 8 -46 4q-52 -8 -52 -28Z" fill="#ffffff" stroke="#ffe0cd" strokeWidth="3" />
-            <circle cx="212" cy="286" r="28" fill="url(#heroGrad)" />
-            <circle cx="188" cy="272" r="6" fill="#34d399" />
-            <circle cx="236" cy="302" r="6" fill="#34d399" />
-            <circle cx="170" cy="298" r="5" fill="#fbbf24" />
+              <path d="M152 292q24 -40 60 -40q40 0 60 36q12 20 -22 28q-22 8 -46 4q-52 -8 -52 -28Z" fill="#ffffff" stroke="#ffe0cd" strokeWidth="3" />
+              <circle cx="212" cy="286" r="28" fill="url(#heroGrad)" />
+              <circle cx="188" cy="272" r="6" fill="#34d399" />
+              <circle cx="236" cy="302" r="6" fill="#34d399" />
+              <circle cx="170" cy="298" r="5" fill="#fbbf24" />
 
-            <g stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" fill="none">
-              <line x1="92" y1="140" x2="92" y2="252" />
-            </g>
-            <path d="M84 100v30M92 92v38M100 100v30" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
-            <line x1="328" y1="140" x2="328" y2="252" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
-            <ellipse cx="328" cy="114" rx="16" ry="21" fill="#e2e8f0" />
+              <g stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" fill="none">
+                <line x1="92" y1="140" x2="92" y2="252" />
+              </g>
+              <path d="M84 100v30M92 92v38M100 100v30" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
+              <line x1="328" y1="140" x2="328" y2="252" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
+              <ellipse cx="328" cy="114" rx="16" ry="21" fill="#e2e8f0" />
 
-            <circle cx="72" cy="330" r="10" fill="#ff6b00" opacity="0.25" />
-            <circle cx="352" cy="92" r="8" fill="#ff9a52" opacity="0.5" />
-            <circle cx="342" cy="340" r="7" fill="#34d399" opacity="0.35" />
-          </svg>
+              <circle cx="72" cy="330" r="10" fill="#ff6b00" opacity="0.25" />
+              <circle cx="352" cy="92" r="8" fill="#ff9a52" opacity="0.5" />
+              <circle cx="342" cy="340" r="7" fill="#34d399" opacity="0.35" />
+            </svg>
+          </div>
+
+          <div className="hero-card hero-card-rating">
+            <span className="hero-card-icon"><i className="fa-solid fa-heart" /></span>
+            <div>
+              <strong>95% Cocok</strong>
+              <small>dengan bahan kulkas</small>
+            </div>
+          </div>
+          <div className="hero-card hero-card-ingredients">
+            <span className="hero-card-icon"><i className="fa-solid fa-carrot" /></span>
+            <div>
+              <strong>12 Bahan</strong>
+              <small>siap dimasak</small>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -751,33 +805,35 @@ function App() {
 
   // Section kategori makanan
   const kategoriList = [
-    { emoji: '🍗', nama: 'Ayam' },
-    { emoji: '🥩', nama: 'Daging' },
-    { emoji: '🥬', nama: 'Sayuran' },
-    { emoji: '🥚', nama: 'Telur' },
-    { emoji: '🍜', nama: 'Mie' },
-    { emoji: '🍝', nama: 'Pasta' },
-    { emoji: '🍕', nama: 'Western' },
-    { emoji: '🍛', nama: 'Nusantara' },
-    { emoji: '🍣', nama: 'Jepang' },
+    { nama: 'Ayam' },
+    { nama: 'Daging' },
+    { nama: 'Sayuran' },
+    { nama: 'Telur' },
+    { nama: 'Mie' },
+    { nama: 'Pasta' },
+    { nama: 'Western' },
+    { nama: 'Nusantara' },
+    { nama: 'Jepang' },
   ]
 
   const kategoriSection = (
     <section className="kategori-section">
       <div className="kategori-container">
+        <span className="section-kicker"><i className="fa-solid fa-tags" />Kategori</span>
         <h2 className="kategori-title">Jelajahi Berdasarkan Kategori</h2>
         <div className="kategori-scroll">
-          {kategoriList.map((kategori) => (
+          {kategoriList.map((kategori, i) => (
             <button
               key={kategori.nama}
               type="button"
-              className="kategori-card"
+              className="kategori-card reveal"
+              style={{ '--reveal-delay': `${Math.min(i, 8) * 60}ms` }}
               onClick={() => {
                 setSearchQuery(kategori.nama)
                 document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
-              <span className="kategori-icon">{kategori.emoji}</span>
+              <i className={`fa-solid ${KATEGORI_ICONS[kategori.nama]}`} />
               <span className="kategori-name">{kategori.nama}</span>
             </button>
           ))}
@@ -786,36 +842,109 @@ function App() {
     </section>
   )
 
+  // Section Trending Hari Ini
+  const trendingItems = dataResep.length > 0
+    ? dataResep.slice(0, 5).map((r, i) => ({
+        id: r.id,
+        nama: r.judul_resep,
+        rating: (4.3 + (Number(r.id) % 7) * 0.1).toFixed(1),
+        icon: TRENDING_ICONS[i % TRENDING_ICONS.length],
+      }))
+    : DUMMY_TRENDING
+
+  const trendingSection = (
+    <section className="trending-section">
+      <div className="trending-container">
+        <div className="trending-header">
+          <div>
+            <span className="section-kicker"><i className="fa-solid fa-fire-flame-curved" />Populer</span>
+            <h2 className="trending-title"><i className="fa-solid fa-fire trending-fire" /> Trending Hari Ini</h2>
+          </div>
+          <div className="trending-nav">
+            <button type="button" className="trending-arrow" aria-label="Scroll kiri" onClick={() => trendingRef.current?.scrollBy({ left: -320, behavior: 'smooth' })}>
+              <i className="fa-solid fa-chevron-left" />
+            </button>
+            <button type="button" className="trending-arrow" aria-label="Scroll kanan" onClick={() => trendingRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}>
+              <i className="fa-solid fa-chevron-right" />
+            </button>
+          </div>
+        </div>
+        <div className="trending-scroll" ref={trendingRef}>
+          {trendingItems.map((item, i) => (
+            <div key={item.id} className="trending-card reveal" style={{ '--reveal-delay': `${Math.min(i, 5) * 80}ms` }} onClick={() => window.location.href = `detail.html?id=${item.id}`}>
+              <div className="trending-photo">
+                <span className="trending-deco" />
+                <i className={`fa-solid ${item.icon}`} />
+              </div>
+              <div className="trending-body">
+                <h4 className="trending-name">{item.nama}</h4>
+                <span className="trending-rating"><i className="fa-solid fa-star" />{item.rating}</span>
+                <button type="button" className="trending-detail" onClick={(e) => { e.stopPropagation(); window.location.href = `detail.html?id=${item.id}` }}>
+                  Detail
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+
+  // Footer
+  const footerSection = (
+    <footer className="site-footer reveal">
+      <div className="footer-container">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <div className="footer-logo">
+              <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
+              <span className="footer-logo-text">Buku Resep <span className="text-[#ff6b00]">Pintar</span></span>
+            </div>
+            <p className="footer-desc">Buku Resep Pintar membantu Anda menemukan resep terbaik dari bahan yang tersedia.</p>
+          </div>
+
+          <div className="footer-col">
+            <h4 className="footer-title">Menu</h4>
+            <ul className="footer-links">
+              <li><a href="/">Beranda</a></li>
+              <li><a href="/">Resep</a></li>
+              <li><a href="/favorite.html">Favorit</a></li>
+              <li><a href="/history.html">Riwayat</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4 className="footer-title">Kontak</h4>
+            <ul className="footer-links">
+              <li><a href="mailto:halo@bukureseppintar.com"><i className="fa-solid fa-envelope" />halo@bukureseppintar.com</a></li>
+              <li><a href="https://instagram.com/bukuresep.pintar" target="_blank" rel="noreferrer"><i className="fa-brands fa-instagram" />@bukuresep.pintar</a></li>
+              <li><a href="https://github.com" target="_blank" rel="noreferrer"><i className="fa-brands fa-github" />github.com/bukuresep</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} Buku Resep Pintar. Semua hak dilindungi.</p>
+        </div>
+      </div>
+    </footer>
+  )
+
   // Rekomendasi section
   const rekomendasiSection = (
     <div className="space-y-4" id="resep">
-      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Rekomendasi Menu Masakan</h3>
+      <div className="rec-header">
+        <span className="section-kicker"><i className="fa-solid fa-wand-magic-sparkles" />Untuk Anda</span>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Rekomendasi Menu Masakan</h3>
+      </div>
 
       {kulkasUser.length > 0 && (
-        <div className="relative">
-          <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Cari resep..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl
-                       outline-none focus:ring-2 focus:ring-orange-500 text-sm
-                       bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition"
-          />
-        </div>
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
       )}
 
       {kulkasUser.length === 0 && (
         <div className="text-center py-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
-          <p className="text-5xl mb-4">{'\uD83C\uDF73'}</p>
+          <span className="empty-icon"><i className="fa-solid fa-bowl-food" /></span>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             Belum ada rekomendasi.
           </p>
@@ -835,7 +964,7 @@ function App() {
             </svg>
             <span>Mencari rekomendasi...</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[1, 2, 3, 4].map(function (i) { return <SkeletonCard key={i} /> })}
           </div>
         </div>
@@ -843,7 +972,7 @@ function App() {
 
       {/* Grid resep */}
       {kulkasUser.length > 0 && !loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {hasilFilter.map((resep, index) => (
             <CardResep
               key={resep.id}
@@ -874,13 +1003,14 @@ function App() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 theme-transition">
+      <div className="min-h-screen bg-[#fff8f2] dark:bg-gray-900 theme-transition">
         {navbar}
         {heroSection}
         {kategoriSection}
+        {trendingSection}
 
-        <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8 pb-12">
-          <div id="kulkas" className="kulkas-section">
+        <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10 pb-16">
+          <div id="kulkas" className="kulkas-section reveal">
             <div className="kulkas-header">
               <div className="kulkas-title-wrap">
                 <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
@@ -907,17 +1037,19 @@ function App() {
 
           {rekomendasiSection}
         </main>
+        {footerSection}
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-12 theme-transition">
+    <div className="min-h-screen bg-[#fff8f2] dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-12 theme-transition">
       {navbar}
       {heroSection}
       {kategoriSection}
+      {trendingSection}
 
-      <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10">
         {userRole === 'admin' && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-2xl shadow-sm">
             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
@@ -1011,7 +1143,7 @@ function App() {
             )}
           </div>
 
-        <div id="kulkas" className="kulkas-section">
+        <div id="kulkas" className="kulkas-section reveal">
           <div className="kulkas-header">
             <div className="kulkas-title-wrap">
               <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
@@ -1038,6 +1170,7 @@ function App() {
 
         {rekomendasiSection}
       </main>
+      {footerSection}
     </div>
   )
 }

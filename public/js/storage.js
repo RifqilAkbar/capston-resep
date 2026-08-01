@@ -131,4 +131,68 @@
       return this.getAll().indexOf(Number(ingredientId)) !== -1
     }
   }
+
+  // ==================== DAFTAR BELANJA (Shopping List) ====================
+  // Menyimpan bahan yang belum dimiliki user (dari halaman detail resep)
+  // di localStorage karena backend belum menyediakan endpoint khusus.
+
+  window.ShoppingList = {
+    KEY: 'skripsi_shopping_list',
+
+    // Mengembalikan array item { id, nama, kuantitas, satuan }
+    getAll: function () {
+      try {
+        return JSON.parse(localStorage.getItem(this.KEY) || '[]')
+      } catch (e) {
+        return []
+      }
+    },
+
+    // Tambahkan daftar item. Item dengan id yang sama tidak akan duplikat.
+    // Kembalikan jumlah item baru yang benar-benar ditambahkan.
+    tambah: function (items) {
+      if (!items || !items.length) return 0
+      var list = this.getAll()
+      var ditambah = 0
+      items.forEach(function (item) {
+        if (!item || !item.id) return
+        var ada = list.some(function (existing) {
+          return Number(existing.id) === Number(item.id)
+        })
+        if (!ada) {
+          list.push({
+            id: Number(item.id),
+            nama: item.nama || 'Bahan',
+            kuantitas: item.kuantitas || 0,
+            satuan: item.satuan || ''
+          })
+          ditambah++
+        }
+      })
+      localStorage.setItem(this.KEY, JSON.stringify(list))
+      return ditambah
+    },
+
+    // Hapus item dari daftar belanja berdasarkan id
+    hapus: function (id) {
+      var list = this.getAll()
+      var numId = Number(id)
+      list = list.filter(function (item) {
+        return Number(item.id) !== numId
+      })
+      localStorage.setItem(this.KEY, JSON.stringify(list))
+    },
+
+    // Kosongkan seluruh daftar belanja
+    clear: function () {
+      localStorage.setItem(this.KEY, JSON.stringify([]))
+    },
+
+    // Cek apakah item sudah ada di daftar belanja
+    cek: function (id) {
+      return this.getAll().some(function (item) {
+        return Number(item.id) === Number(id)
+      })
+    }
+  }
 })()
