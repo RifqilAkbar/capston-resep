@@ -1,4 +1,12 @@
 // ============================================
+// Ikon SVG 2D (bukan emoji)
+// ============================================
+var ICON_HEART_OUTLINE = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.04 3 5.5l7 7Z"/></svg>';
+var ICON_HEART_FILLED = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.04 3 5.5l7 7Z"/></svg>';
+var ICON_MOON = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+var ICON_SUN = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+
+// ============================================
 // Inisialisasi parameter dan elemen DOM
 // ============================================
 var params = new URLSearchParams(window.location.search);
@@ -49,7 +57,7 @@ function updateFavoritIcon() {
   var btn = document.getElementById('btn-favorit');
   if (!btn) return;
   var isFav = window.Favorit && window.Favorit.isFavorit(id);
-  btn.textContent = isFav ? '\u2764\uFE0F' : '\uD83E\uDD0D';
+  btn.innerHTML = isFav ? ICON_HEART_FILLED : ICON_HEART_OUTLINE;
   btn.setAttribute('aria-label', isFav ? 'Hapus dari favorit' : 'Tambah ke favorit');
 }
 
@@ -60,7 +68,7 @@ function updateThemeIcon() {
   var btn = document.getElementById('btn-theme');
   if (!btn) return;
   var isDark = document.documentElement.classList.contains('dark');
-  btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+  btn.innerHTML = isDark ? ICON_SUN : ICON_MOON;
 }
 
 updateThemeIcon();
