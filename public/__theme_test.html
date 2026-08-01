@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -235,5 +235,90 @@
   <script src="/js/loading.js"></script>
   <script src="/js/storage.js"></script>
   <script src="/detail.js"></script>
+<script>
+window.__result = [];
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    var html = document.documentElement;
+    var sels = [];
+    var styles = document.querySelectorAll('style');
+    styles.forEach(function(s){ sels.push(s.textContent); });
+    var allCss = sels.join(' ');
+    window.__result.push('classVariant=' + (allCss.indexOf('dark\\:bg-gray-900:is(.dark') !== -1));
+    window.__result.push('mediaVariant=' + (allCss.indexOf('prefers-color-scheme') !== -1));
+    window.__result.push('init dark=' + html.classList.contains('dark'));
+    var btn = document.getElementById('btn-theme');
+    btn.click();
+    window.__result.push('after 1st click dark=' + html.classList.contains('dark') + ' storage=' + localStorage.getItem('skripsi_theme'));
+    btn.click();
+    window.__result.push('after 2nd click dark=' + html.classList.contains('dark') + ' storage=' + localStorage.getItem('skripsi_theme'));
+    document.body.setAttribute('data-result', window.__result.join(' | '));
+  }, 800);
+});
+</script>
+<script>
+window.__result = [];
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    var body = document.body;
+    var btn = document.getElementById('btn-theme');
+    var bg1 = getComputedStyle(body).backgroundColor;
+    btn.click();
+    var bg2 = getComputedStyle(body).backgroundColor;
+    btn.click();
+    var bg3 = getComputedStyle(body).backgroundColor;
+    window.__result.push('lightBg=' + bg1 + ' darkBg=' + bg2 + ' backLight=' + bg3);
+    document.body.setAttribute('data-result', window.__result.join(' | '));
+  }, 800);
+});
+</script>
+<script>
+window.__result = [];
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    var body = document.body;
+    var btn = document.getElementById('btn-theme');
+    var bg1 = getComputedStyle(body).backgroundColor;
+    btn.click();
+    setTimeout(function () {
+      var bg2 = getComputedStyle(body).backgroundColor;
+      btn.click();
+      setTimeout(function () {
+        var bg3 = getComputedStyle(body).backgroundColor;
+        window.__result.push('lightBg=' + bg1 + ' darkBg=' + bg2 + ' backLight=' + bg3);
+        document.body.setAttribute('data-result', window.__result.join(' | '));
+      }, 300);
+    }, 300);
+  }, 800);
+});
+</script>
+<script>
+window.__result = [];
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    var body = document.body;
+    var btn = document.getElementById('btn-theme');
+    void body.offsetHeight;
+    var bg1 = getComputedStyle(body).backgroundColor;
+    btn.click();
+    setTimeout(function () {
+      void body.offsetHeight;
+      var bg2 = getComputedStyle(body).backgroundColor;
+      var htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+      btn.click();
+      setTimeout(function () {
+        void body.offsetHeight;
+        var bg3 = getComputedStyle(body).backgroundColor;
+        window.__result.push('light=' + bg1 + ' darkBody=' + bg2 + ' htmlBg=' + htmlBg + ' back=' + bg3);
+        document.body.setAttribute('data-result', window.__result.join(' | '));
+      }, 300);
+    }, 300);
+  }, 800);
+});
+</script>
 </body>
 </html>
+
+
+
+
