@@ -22,6 +22,15 @@ const ICON_SUN = (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
 )
 
+// Ikon Font Awesome untuk chip bahan berdasarkan kategori
+function ikonBahan(kategori) {
+  const k = (kategori || '').toLowerCase()
+  if (k.includes('sayur')) return 'fa-leaf'
+  if (k.includes('protein')) return 'fa-drumstick-bite'
+  if (k.includes('bumbu')) return 'fa-mortar-pestle'
+  return 'fa-bowl-food'
+}
+
 function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
   const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
   const progressColor =
@@ -166,6 +175,8 @@ function App() {
   const [isSubmittingResep, setIsSubmittingResep] = useState(false)
   const [isSubmittingBahan, setIsSubmittingBahan] = useState(false)
   const [showLoginDropdown, setShowLoginDropdown] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef(null)
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -226,6 +237,16 @@ function App() {
     }
     window.addEventListener('themechange', handler)
     return function () { window.removeEventListener('themechange', handler) }
+  }, [])
+
+  // Tambahkan shadow halus saat halaman di-scroll
+  useEffect(function () {
+    function onScroll() {
+      setScrolled(window.scrollY > 8)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return function () { window.removeEventListener('scroll', onScroll) }
   }, [])
 
   useEffect(() => {
@@ -501,7 +522,7 @@ function App() {
   const themeBtn = (
     <button
       onClick={handleToggleTheme}
-      className="leading-none hover:scale-110 transition-transform duration-200"
+      className="theme-btn"
       aria-label="Toggle tema"
     >
       {theme === 'dark' ? ICON_SUN : ICON_MOON}
@@ -509,27 +530,265 @@ function App() {
   )
 
   // Navigasi umum
-  const navLinks = (
-    <div className="flex items-center gap-3">
-      {themeBtn}
-      <a
-        href="/favorite.html"
-        className="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition"
-      >
-        Favorit
-      </a>
-      <a
-        href="/history.html"
-        className="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition"
-      >
-        Riwayat
-      </a>
+  const currentPath = window.location.pathname
+  const isPageActive = (href) => {
+    if (href === '/') return currentPath === '/' || currentPath === '/index.html'
+    return currentPath === href
+  }
+  const navItem = (href, icon, label) => (
+    <a href={href} className={`nav-link ${isPageActive(href) ? 'active' : ''}`}>
+      <i className={`fa-solid ${icon}`} />
+      <span>{label}</span>
+    </a>
+  )
+
+  const desktopNav = (
+    <nav className="hidden lg:flex items-center gap-1 mx-auto">
+      {navItem('/', 'fa-house', 'Beranda')}
+      {navItem('/', 'fa-book-open', 'Resep')}
+      {navItem('/favorite.html', 'fa-heart', 'Favorit')}
+      {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
+    </nav>
+  )
+
+  const navbarSearch = (
+    <div className="hidden md:block nav-search w-48 lg:w-64 shrink-0">
+      <i className="fa-solid fa-magnifying-glass nav-search-icon" />
+      <input
+        type="text"
+        placeholder="Cari resep atau bahan..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
     </div>
+  )
+
+  const mobileNav = (
+    <div className={`mobile-menu lg:hidden ${mobileOpen ? 'open' : ''}`}>
+      <nav className="px-4 pb-4 pt-2 flex flex-col gap-1">
+        {navItem('/', 'fa-house', 'Beranda')}
+        {navItem('/', 'fa-book-open', 'Resep')}
+        {navItem('/favorite.html', 'fa-heart', 'Favorit')}
+        {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
+        <div className="nav-search mt-2">
+          <i className="fa-solid fa-magnifying-glass nav-search-icon" />
+          <input
+            type="text"
+            placeholder="Cari resep atau bahan..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </nav>
+    </div>
+  )
+
+  const loginArea = session ? (
+    <div className="flex items-center gap-2">
+      <div className="hidden sm:block text-right leading-tight">
+        <p className="text-xs font-bold text-gray-800 dark:text-gray-100">{session.user.email}</p>
+        <span className="text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold rounded capitalize">{userRole}</span>
+      </div>
+      <button onClick={handleLogout} className="btn-outline-danger">
+        <i className="fa-solid fa-right-from-bracket" />
+        <span className="hidden sm:inline">Keluar</span>
+      </button>
+    </div>
+  ) : (
+    <div className="relative" ref={dropdownRef}>
+      <button onClick={() => setShowLoginDropdown(!showLoginDropdown)} className="btn-primary">
+        <i className="fa-solid fa-right-to-bracket" />
+        <span className="hidden sm:inline">Masuk / Daftar</span>
+      </button>
+      {showLoginDropdown && (
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl dark:shadow-gray-900/50 p-5 z-50">
+          <div className="space-y-3">
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAuth('login')}
+                disabled={isSubmittingAuth}
+                className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-2.5 rounded-xl font-semibold text-sm transition"
+              >
+                {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
+              </button>
+              <button
+                onClick={() => handleAuth('daftar')}
+                disabled={isSubmittingAuth}
+                className="flex-1 bg-gray-200 dark:bg-gray-600 disabled:bg-gray-100 text-gray-700 dark:text-gray-300 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
+              >
+                {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
+              </button>
+            </div>
+          </div>
+          {pesanStatus && <p className="text-center mt-3 text-sm text-red-500">{pesanStatus}</p>}
+        </div>
+      )}
+    </div>
+  )
+
+  const navbar = (
+    <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
+      <div className="max-w-6xl mx-auto px-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4 h-16 lg:h-20">
+          <a href="/" className="flex items-center gap-2.5 shrink-0 group">
+            <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
+            <span className="leading-tight">
+              <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Pintar</span></span>
+              <span className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Temukan resep dari bahan di kulkas Anda</span>
+            </span>
+          </a>
+
+          {desktopNav}
+          {navbarSearch}
+
+          <div className="flex items-center gap-2 shrink-0">
+            {themeBtn}
+            {loginArea}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="menu-btn lg:hidden"
+              aria-label="Menu"
+            >
+              <i className={`fa-solid ${mobileOpen ? 'fa-xmark' : 'fa-bars'}`} />
+            </button>
+          </div>
+        </div>
+      </div>
+      {mobileNav}
+    </header>
+  )
+
+  // Hero section
+  const heroSection = (
+    <section className="hero">
+      <div className="hero-container">
+        <div>
+          <span className="hero-badge">
+            <i className="fa-solid fa-fire-flame-curved" />
+            Rekomendasi Resep Pintar
+          </span>
+          <h1 className="hero-title">Mau Masak Apa <span className="hero-highlight">Hari Ini?</span></h1>
+          <p className="hero-subtitle">Pilih bahan yang tersedia di kulkas dan dapatkan rekomendasi resep yang paling cocok.</p>
+
+          <div className="hero-actions">
+            <a href="#kulkas" className="btn-primary btn-lg">
+              <i className="fa-solid fa-magnifying-glass" />
+              Cari Resep
+            </a>
+            <a href="#resep" className="btn-secondary">
+              <i className="fa-solid fa-book-open" />
+              Lihat Semua Resep
+            </a>
+          </div>
+
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <span className="hero-stat-emoji">🥘</span>
+              <span className="hero-stat-number">1.200+</span>
+              <span className="hero-stat-label">Resep</span>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-emoji">🥦</span>
+              <span className="hero-stat-number">300+</span>
+              <span className="hero-stat-label">Bahan</span>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-emoji">⭐</span>
+              <span className="hero-stat-number">4.9</span>
+              <span className="hero-stat-label">Rating</span>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-emoji">👨‍🍳</span>
+              <span className="hero-stat-number">10.000</span>
+              <span className="hero-stat-label">Pengguna</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-image" aria-hidden="true">
+          <svg viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ff9a52" />
+                <stop offset="100%" stopColor="#ff6b00" />
+              </linearGradient>
+            </defs>
+
+            <circle cx="210" cy="210" r="190" fill="url(#heroGrad)" opacity="0.1" />
+            <circle cx="210" cy="210" r="150" fill="url(#heroGrad)" opacity="0.16" />
+
+            <path d="M150 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+            <path d="M210 92q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+            <path d="M268 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
+
+            <ellipse cx="210" cy="302" rx="134" ry="36" fill="#ffffff" />
+            <ellipse cx="210" cy="302" rx="134" ry="36" stroke="#f6e3d5" strokeWidth="3" />
+            <ellipse cx="210" cy="296" rx="104" ry="27" fill="#fff8f2" />
+
+            <path d="M152 292q24 -40 60 -40q40 0 60 36q12 20 -22 28q-22 8 -46 4q-52 -8 -52 -28Z" fill="#ffffff" stroke="#ffe0cd" strokeWidth="3" />
+            <circle cx="212" cy="286" r="28" fill="url(#heroGrad)" />
+            <circle cx="188" cy="272" r="6" fill="#34d399" />
+            <circle cx="236" cy="302" r="6" fill="#34d399" />
+            <circle cx="170" cy="298" r="5" fill="#fbbf24" />
+
+            <g stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" fill="none">
+              <line x1="92" y1="140" x2="92" y2="252" />
+            </g>
+            <path d="M84 100v30M92 92v38M100 100v30" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
+            <line x1="328" y1="140" x2="328" y2="252" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
+            <ellipse cx="328" cy="114" rx="16" ry="21" fill="#e2e8f0" />
+
+            <circle cx="72" cy="330" r="10" fill="#ff6b00" opacity="0.25" />
+            <circle cx="352" cy="92" r="8" fill="#ff9a52" opacity="0.5" />
+            <circle cx="342" cy="340" r="7" fill="#34d399" opacity="0.35" />
+          </svg>
+        </div>
+      </div>
+    </section>
+  )
+
+  // Section kategori makanan
+  const kategoriList = [
+    { emoji: '🍗', nama: 'Ayam' },
+    { emoji: '🥩', nama: 'Daging' },
+    { emoji: '🥬', nama: 'Sayuran' },
+    { emoji: '🥚', nama: 'Telur' },
+    { emoji: '🍜', nama: 'Mie' },
+    { emoji: '🍝', nama: 'Pasta' },
+    { emoji: '🍕', nama: 'Western' },
+    { emoji: '🍛', nama: 'Nusantara' },
+    { emoji: '🍣', nama: 'Jepang' },
+  ]
+
+  const kategoriSection = (
+    <section className="kategori-section">
+      <div className="kategori-container">
+        <h2 className="kategori-title">Jelajahi Berdasarkan Kategori</h2>
+        <div className="kategori-scroll">
+          {kategoriList.map((kategori) => (
+            <button
+              key={kategori.nama}
+              type="button"
+              className="kategori-card"
+              onClick={() => {
+                setSearchQuery(kategori.nama)
+                document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+            >
+              <span className="kategori-icon">{kategori.emoji}</span>
+              <span className="kategori-name">{kategori.nama}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 
   // Rekomendasi section
   const rekomendasiSection = (
-    <div className="space-y-4">
+    <div className="space-y-4" id="resep">
       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Rekomendasi Menu Masakan</h3>
 
       {kulkasUser.length > 0 && (
@@ -616,59 +875,30 @@ function App() {
   if (!session) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 theme-transition">
-        <header className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
-          <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Buku Resep Pintar</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Pilih bahan di kulkas, dapatkan rekomendasi masakan</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {navLinks}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm"
-                >
-                  Masuk / Daftar
-                </button>
-                {showLoginDropdown && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl dark:shadow-gray-900/50 p-5 z-50">
-                    <div className="space-y-3">
-                      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-                      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleAuth('login')}
-                          disabled={isSubmittingAuth}
-                          className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-2.5 rounded-xl font-semibold text-sm transition"
-                        >
-                          {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
-                        </button>
-                        <button
-                          onClick={() => handleAuth('daftar')}
-                          disabled={isSubmittingAuth}
-                          className="flex-1 bg-gray-200 dark:bg-gray-600 disabled:bg-gray-100 text-gray-700 dark:text-gray-300 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
-                        >
-                          {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
-                        </button>
-                      </div>
-                    </div>
-                    {pesanStatus && <p className="text-center mt-3 text-sm text-red-500">{pesanStatus}</p>}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
+        {navbar}
+        {heroSection}
+        {kategoriSection}
 
         <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8 pb-12">
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Isi Kulkas Anda</h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Pilih bahan yang tersedia di kulkas Anda</p>
-            <div className="flex flex-wrap gap-2">
+          <div id="kulkas" className="kulkas-section">
+            <div className="kulkas-header">
+              <div className="kulkas-title-wrap">
+                <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
+                <div>
+                  <h3 className="kulkas-title">Isi Kulkas Anda</h3>
+                  <p className="kulkas-subtitle">Pilih semua bahan yang tersedia di rumah.</p>
+                </div>
+              </div>
+              <button type="button" className="btn-primary" onClick={() => setShowLoginDropdown(true)}>
+                <i className="fa-solid fa-plus" />
+                Tambah Bahan
+              </button>
+            </div>
+            <div className="kulkas-grid">
               {dataBahan.map((bahan) => (
-                <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300'}`}>
+                <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
                   <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+                  <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
                   {bahan.nama_bahan}
                 </label>
               ))}
@@ -683,16 +913,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-12 theme-transition">
-      <nav className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-6 py-4 flex justify-between items-center max-w-5xl mx-auto rounded-b-xl shadow-sm">
-        <div>
-          <h1 className="text-xl font-bold dark:text-gray-100">Buku Resep Pintar</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">User: {session.user.email} <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold rounded capitalize">{userRole}</span></p>
-        </div>
-        <div className="flex items-center gap-4">
-          {navLinks}
-          <button onClick={handleLogout} className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm transition font-medium">Keluar</button>
-        </div>
-      </nav>
+      {navbar}
+      {heroSection}
+      {kategoriSection}
 
       <main className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
         {userRole === 'admin' && (
@@ -766,7 +989,7 @@ function App() {
           {pesanResep && <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesanResep}</p>}
         </div>
 
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-6 rounded-2xl shadow-sm">
+          <div id="tambah-bahan" className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-6 rounded-2xl shadow-sm">
             <h3 className="text-lg font-bold text-amber-900 dark:text-amber-300 mb-2">Punya Bahan Unik?</h3>
             <form onSubmit={handleTambahBahanBaru} className="flex flex-wrap gap-3 items-center">
               <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl outline-none text-sm text-gray-900 dark:text-gray-100" />
@@ -788,12 +1011,25 @@ function App() {
             )}
           </div>
 
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Isi Kulkas Anda</h3>
-          <div className="flex flex-wrap gap-2 mt-4">
+        <div id="kulkas" className="kulkas-section">
+          <div className="kulkas-header">
+            <div className="kulkas-title-wrap">
+              <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
+              <div>
+                <h3 className="kulkas-title">Isi Kulkas Anda</h3>
+                <p className="kulkas-subtitle">Pilih semua bahan yang tersedia di rumah.</p>
+              </div>
+            </div>
+            <button type="button" className="btn-primary" onClick={() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' })}>
+              <i className="fa-solid fa-plus" />
+              Tambah Bahan
+            </button>
+          </div>
+          <div className="kulkas-grid">
             {dataBahan.map((bahan) => (
-              <label key={bahan.id} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium cursor-pointer transition ${kulkasUser.includes(bahan.id) ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300'}`}>
+              <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
                 <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+                <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
                 {bahan.nama_bahan}
               </label>
             ))}

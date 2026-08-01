@@ -14,20 +14,250 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' }</script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    /* Navbar premium */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.85);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      transition: box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+    .dark .site-header {
+      background: rgba(17, 24, 39, 0.85);
+      border-bottom-color: rgba(55, 65, 81, 0.6);
+    }
+    .site-header.scrolled {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    .dark .site-header.scrolled {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    }
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff6b00, #ff8c3b);
+      color: #fff;
+      font-size: 1.05rem;
+      box-shadow: 0 6px 16px rgba(255, 107, 0, 0.35);
+    }
+    .nav-link {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4b5563;
+      transition: color 0.3s ease;
+    }
+    .dark .nav-link {
+      color: #9ca3af;
+    }
+    .nav-link i {
+      color: #9ca3af;
+      transition: color 0.3s ease;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: 0.2rem;
+      height: 2px;
+      border-radius: 2px;
+      background: #ff6b00;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.3s ease;
+    }
+    .nav-link:hover,
+    .nav-link.active {
+      color: #ff6b00;
+    }
+    .nav-link:hover i,
+    .nav-link.active i {
+      color: #ff6b00;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      transform: scaleX(1);
+    }
+    .nav-search {
+      position: relative;
+    }
+    .nav-search-icon {
+      position: absolute;
+      left: 0.95rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: #9ca3af;
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+    .nav-search input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.4rem;
+      border-radius: 9999px;
+      background: #f3f4f6;
+      border: 1px solid transparent;
+      font-size: 0.875rem;
+      color: #111827;
+      outline: none;
+      transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .nav-search input::placeholder {
+      color: #9ca3af;
+    }
+    .nav-search input:focus {
+      border-color: #ff6b00;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.12);
+    }
+    .nav-search:focus-within .nav-search-icon {
+      color: #ff6b00;
+    }
+    .dark .nav-search input {
+      background: #1f2937;
+      color: #e5e7eb;
+    }
+    .dark .nav-search input::placeholder {
+      color: #6b7280;
+    }
+    .theme-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: #f3f4f6;
+      color: #374151;
+      transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+    }
+    .theme-btn:hover {
+      background: #ffe9d8;
+      color: #ff6b00;
+      transform: scale(1.05);
+    }
+    .dark .theme-btn {
+      background: #1f2937;
+      color: #e5e7eb;
+    }
+    .dark .theme-btn:hover {
+      background: rgba(255, 107, 0, 0.15);
+      color: #ff6b00;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #ff6b00, #ff8c3b);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: 9999px;
+      box-shadow: 0 6px 16px rgba(255, 107, 0, 0.3);
+      transition: box-shadow 0.3s ease, transform 0.2s ease, filter 0.3s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 22px rgba(255, 107, 0, 0.4);
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+    .menu-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 1rem;
+      transition: color 0.3s ease, background-color 0.3s ease;
+    }
+    .menu-btn:hover {
+      background: #ffe9d8;
+      color: #ff6b00;
+    }
+    .dark .menu-btn {
+      background: #1f2937;
+      color: #e5e7eb;
+    }
+    .mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+      background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .dark .mobile-menu {
+      background: rgba(17, 24, 39, 0.95);
+    }
+    .mobile-menu.open {
+      max-height: 500px;
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
   <div id="app" class="min-h-screen flex flex-col">
-    <header class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
-      <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Buku Resep Pintar</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Terakhir Dilihat</p>
+    <header class="site-header">
+      <div class="max-w-6xl mx-auto px-4 lg:px-6">
+        <div class="flex items-center justify-between gap-4 h-16 lg:h-20">
+          <a href="/" class="flex items-center gap-2.5 shrink-0 group">
+            <span class="logo-badge"><i class="fa-solid fa-utensils"></i></span>
+            <span class="leading-tight">
+              <span class="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span class="text-[#ff6b00]">Pintar</span></span>
+              <span class="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Temukan resep dari bahan di kulkas Anda</span>
+            </span>
+          </a>
+
+          <nav class="hidden lg:flex items-center gap-1 mx-auto">
+            <a href="/" class="nav-link"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+            <a href="/" class="nav-link"><i class="fa-solid fa-book-open"></i><span>Resep</span></a>
+            <a href="/favorite.html" class="nav-link"><i class="fa-solid fa-heart"></i><span>Favorit</span></a>
+            <a href="/history.html" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i><span>Riwayat</span></a>
+          </nav>
+
+          <div class="hidden md:block nav-search w-48 lg:w-64 shrink-0">
+            <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
+            <input type="text" placeholder="Cari resep atau bahan...">
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="btn-theme" class="theme-btn" aria-label="Toggle tema"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+            <a href="/" class="btn-primary"><i class="fa-solid fa-right-to-bracket"></i><span class="hidden sm:inline">Masuk / Daftar</span></a>
+            <button id="menu-toggle" class="menu-btn lg:hidden" aria-label="Menu">
+              <i id="menu-icon" class="fa-solid fa-bars"></i>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
-          <button id="btn-theme" class="leading-none hover:scale-110 transition-transform duration-200" aria-label="Toggle tema"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
-          <a href="/" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition">Beranda</a>
-          <a href="/favorite.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 font-medium transition">Favorit</a>
-        </div>
+      </div>
+      <div class="mobile-menu lg:hidden" id="mobile-menu">
+        <nav class="px-4 pb-4 pt-2 flex flex-col gap-1">
+          <a href="/" class="nav-link"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+          <a href="/" class="nav-link"><i class="fa-solid fa-book-open"></i><span>Resep</span></a>
+          <a href="/favorite.html" class="nav-link"><i class="fa-solid fa-heart"></i><span>Favorit</span></a>
+          <a href="/history.html" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i><span>Riwayat</span></a>
+          <div class="nav-search mt-2">
+            <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
+            <input type="text" placeholder="Cari resep atau bahan...">
+          </div>
+        </nav>
       </div>
     </header>
 
@@ -73,5 +303,25 @@
   <script src="/js/loading.js"></script>
   <script src="/js/storage.js"></script>
   <script src="/history.js"></script>
+  <script>
+    (function () {
+      var header = document.querySelector('.site-header');
+      var menu = document.getElementById('mobile-menu');
+      var toggle = document.getElementById('menu-toggle');
+      var icon = document.getElementById('menu-icon');
+      function onScroll() {
+        if (window.scrollY > 8) header.classList.add('scrolled');
+        else header.classList.remove('scrolled');
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+      if (toggle && menu) {
+        toggle.addEventListener('click', function () {
+          var open = menu.classList.toggle('open');
+          if (icon) icon.className = 'fa-solid ' + (open ? 'fa-xmark' : 'fa-bars');
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
