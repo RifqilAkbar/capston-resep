@@ -426,6 +426,11 @@ function App() {
     })
   }, [kulkasUser, dataResep])
 
+  // Mode jelajah aktif saat pengguna mencari atau memilih kategori. Saat mode
+  // jelajah aktif, semua resep yang cocok ditampilkan; filter kulkas (persentase > 0)
+  // hanya berlaku di mode rekomendasi murni.
+  const modeJelajah = searchQuery.trim() !== '' || kategoriAktif !== 'Semua'
+
   const hasilFilter = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     return resepLengkap
@@ -434,10 +439,11 @@ function App() {
         resep.judul.toLowerCase().includes(q) ||
         resep.kategori.toLowerCase().includes(q) ||
         resep.bahan.some((b) => b.nama_bahan?.toLowerCase().includes(q)))
-      // Kecocokan bahan: saat kulkas diisi, hanya tampilkan resep yang memakai minimal 1 bahan terpilih.
-      .filter((resep) => kulkasUser.length === 0 || resep.persentase > 0)
+      // Kecocokan bahan: hanya mode rekomendasi murni yang menyaring resep
+      // berdasarkan isi kulkas, agar pencarian/kategori selalu menampilkan hasil.
+      .filter((resep) => modeJelajah || kulkasUser.length === 0 || resep.persentase > 0)
       .sort((a, b) => b.persentase - a.persentase)
-  }, [resepLengkap, kategoriAktif, searchQuery, kulkasUser])
+  }, [resepLengkap, kategoriAktif, searchQuery, kulkasUser, modeJelajah])
 
   const handleUbahLangkah = (index, value) => {
     const listLangkahBaru = [...langkahResep]
@@ -1044,9 +1050,11 @@ function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <p className="text-gray-400 dark:text-gray-500 text-sm">
-              {kulkasUser.length > 0
-                ? 'Tidak ada resep yang memakai bahan di kulkas Anda. Tambahkan bahan lain atau ubah kategori.'
-                : 'Resep tidak ditemukan. Coba kategori atau kata kunci lain.'}
+              {modeJelajah
+                ? 'Resep tidak ditemukan. Coba kata kunci atau kategori lain.'
+                : kulkasUser.length > 0
+                  ? 'Tidak ada resep yang memakai bahan di kulkas Anda. Tambahkan bahan lain.'
+                  : 'Belum ada resep untuk ditampilkan.'}
             </p>
           </div>
         )}
