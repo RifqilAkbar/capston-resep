@@ -1,5 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
+import { CardResep, SkeletonCard } from './components/CardResep'
+import { SearchBar } from './components/SearchBar'
+import Beranda from './views/Beranda'
+import DetailResep from './views/DetailResep'
+import Favorit from './views/Favorit'
+import Riwayat from './views/Riwayat'
 import './index.css'
 
 // Fungsi tema untuk React — baca dari window.Theme jika tersedia
@@ -8,13 +14,6 @@ function getTheme() {
   return localStorage.getItem('skripsi_theme') || 'light'
 }
 
-// Ikon SVG 2D (bukan emoji)
-const ICON_HEART_OUTLINE = (
-  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.04 3 5.5l7 7Z" /></svg>
-)
-const ICON_HEART_FILLED = (
-  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.04 3 5.5l7 7Z" /></svg>
-)
 const ICON_MOON = (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
 )
@@ -31,150 +30,14 @@ function ikonBahan(kategori) {
   return 'fa-bowl-food'
 }
 
-// Ikon Font Awesome untuk kategori resep
-const KATEGORI_ICONS = {
-  'Ayam': 'fa-drumstick-bite',
-  'Daging': 'fa-burger',
-  'Sayuran': 'fa-leaf',
-  'Telur': 'fa-egg',
-  'Mie': 'fa-bowl-food',
-  'Pasta': 'fa-utensils',
-  'Western': 'fa-pizza-slice',
-  'Nusantara': 'fa-bowl-rice',
-  'Jepang': 'fa-fish',
-}
-
-// Search bar reusable — icon kiri, tombol clear, focus oranye
-function SearchBar({ value, onChange, placeholder = 'Cari resep, bahan, atau kategori...' }) {
-  return (
-    <div className="searchbar">
-      <i className="fa-solid fa-magnifying-glass searchbar-icon" />
-      <input
-        type="text"
-        className="searchbar-input"
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      {value ? (
-        <button
-          type="button"
-          className="searchbar-clear"
-          aria-label="Bersihkan pencarian"
-          onClick={() => onChange('')}
-        >
-          <i className="fa-solid fa-xmark" />
-        </button>
-      ) : null}
-    </div>
-  )
-}
-
-// Data dummy untuk section Trending (dipakai jika backend belum tersedia)
-const TRENDING_ICONS = ['fa-fire', 'fa-drumstick-bite', 'fa-bowl-rice', 'fa-leaf', 'fa-utensils']
-const DUMMY_TRENDING = [
-  { id: 90001, nama: 'Nasi Goreng Spesial', rating: '4.9', icon: 'fa-fire' },
-  { id: 90002, nama: 'Sate Ayam Madura', rating: '4.8', icon: 'fa-drumstick-bite' },
-  { id: 90003, nama: 'Mie Goreng Jawa', rating: '4.7', icon: 'fa-bowl-rice' },
-  { id: 90004, nama: 'Rendang Sapi', rating: '4.9', icon: 'fa-utensils' },
-  { id: 90005, nama: 'Gado-Gado', rating: '4.8', icon: 'fa-leaf' },
-]
-
-function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
-  const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
-  const rating = (4.3 + (Number(resep.id) % 7) * 0.1).toFixed(1)
-  const durasi = resep.durasi || '30 menit'
-  const porsi = resep.porsi || 2
-
-  return (
-    <div
-      data-id={resep.id}
-      onClick={() => window.location.href = `detail.html?id=${resep.id}`}
-      className="recipe-card reveal"
-      style={{ '--reveal-delay': `${Math.min(index, 8) * 90}ms` }}
-    >
-      {/* Foto makanan / placeholder */}
-      <div className="recipe-photo">
-        <span className="recipe-photo-deco recipe-photo-deco-a" />
-        <span className="recipe-photo-deco recipe-photo-deco-b" />
-        <div className="recipe-photo-plate">
-          <span className="recipe-initial">{inisial}</span>
-          <i className="fa-solid fa-utensils" />
-        </div>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggleFavorit(resep.id)
-          }}
-          className="recipe-fav-btn"
-          aria-label={isFavorit ? 'Hapus dari favorit' : 'Tambah ke favorit'}
-        >
-          {isFavorit ? ICON_HEART_FILLED : ICON_HEART_OUTLINE}
-        </button>
-
-        {resep.persentase > 0 && (
-          <span className="recipe-match-badge">Cocok {resep.persentase}%</span>
-        )}
-      </div>
-
-      <div className="recipe-body">
-        <div className="recipe-meta">
-          <span><i className="fa-solid fa-star" />{rating}</span>
-          <span><i className="fa-solid fa-clock" />{durasi}</span>
-          <span><i className="fa-solid fa-bowl-food" />{porsi} porsi</span>
-        </div>
-
-        <h4 className="recipe-title">{resep.judul}</h4>
-        <span className="recipe-category">{resep.kategori}</span>
-
-        {resep.persentase > 0 && (
-          <div>
-            <div className="recipe-progress-label">
-              <span>Kecocokan</span>
-              <strong>{resep.persentase}%</strong>
-            </div>
-            <div className="recipe-progress">
-              <div className="recipe-progress-bar" style={{ width: `${resep.persentase}%` }} />
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            window.location.href = `detail.html?id=${resep.id}`
-          }}
-          className="recipe-btn"
-        >
-          Lihat Detail
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// Skeleton loading card untuk React
-function SkeletonCard() {
-  return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[20px] overflow-hidden shadow-sm">
-      <div className="skeleton-pulse h-[210px] w-full" />
-      <div className="p-5 space-y-3">
-        <div className="flex gap-4">
-          <div className="skeleton-pulse h-4 w-12" />
-          <div className="skeleton-pulse h-4 w-16" />
-          <div className="skeleton-pulse h-4 w-14" />
-        </div>
-        <div className="skeleton-pulse h-5 w-3/4" />
-        <div className="skeleton-pulse h-4 w-16" />
-        <div className="space-y-1.5">
-          <div className="skeleton-pulse h-3 w-full" />
-          <div className="skeleton-pulse h-2.5 w-full" />
-        </div>
-        <div className="skeleton-pulse h-10 w-full" />
-      </div>
-    </div>
-  )
+// Terjemahkan hash ke rute aplikasi: #/ , #/resep , #/resep/:id , #/favorit , #/riwayat
+function parseHash() {
+  const path = window.location.hash.replace(/^#/, '').split('/').filter(Boolean)
+  if (!path.length) return { view: 'beranda' }
+  if (path[0] === 'resep') return path[1] ? { view: 'detail', id: path[1] } : { view: 'resep' }
+  if (path[0] === 'favorit') return { view: 'favorit' }
+  if (path[0] === 'riwayat') return { view: 'riwayat' }
+  return { view: 'beranda' }
 }
 
 function App() {
@@ -183,10 +46,13 @@ function App() {
   const [userRole, setUserRole] = useState('user')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
+  const [pesanStatus, setPesanStatus] = useState('')
 
   const [dataBahan, setDataBahan] = useState([])
-  const [bahanTertunda, setBahanTertunda] = useState([])
   const [dataResep, setDataResep] = useState([])
+  const [loading, setLoading] = useState(true)
+
   const [kulkasUser, setKulkasUser] = useState(function () {
     try {
       return JSON.parse(localStorage.getItem('skripsi_kulkas') || '[]')
@@ -195,36 +61,16 @@ function App() {
     }
   })
 
-  const [inputNamaBahan, setInputNamaBahan] = useState('')
-  const [inputKategori, setInputKategori] = useState('Sayuran')
-  const [pesanStatus, setPesanStatus] = useState('')
-
-  const [judulResep, setJudulResep] = useState('')
-  const [porsiDefault, setPorsiDefault] = useState(2)
-  const [langkahResep, setLangkahResep] = useState([{ instruksi: '' }])
-  const [bahanResepDipilih, setBahanResepDipilih] = useState([])
-  const [pesanResep, setPesanResep] = useState('')
-
-  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
-  const [isSubmittingResep, setIsSubmittingResep] = useState(false)
-  const [isSubmittingBahan, setIsSubmittingBahan] = useState(false)
-  const [showLoginDropdown, setShowLoginDropdown] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const dropdownRef = useRef(null)
-  const trendingRef = useRef(null)
-
   const [searchQuery, setSearchQuery] = useState(function () {
-    return new URLSearchParams(window.location.search).get('q') || ''
+    return new URLSearchParams(window.location.search).get('q') || sessionStorage.getItem('skripsi_cari') || ''
   })
-  const [kategoriAktif, setKategoriAktif] = useState('Semua')
-  const [halaman, setHalaman] = useState(function () {
-    return window.location.hash === '#/resep' ? 'resep' : 'beranda'
+  const [kategoriAktif, setKategoriAktif] = useState(function () {
+    return sessionStorage.getItem('skripsi_kategori') || 'Semua'
   })
+  const [route, setRoute] = useState(parseHash)
   const [theme, setTheme] = useState(getTheme)
-  const [loading, setLoading] = useState(true)
 
-  const [favoritIds, setFavoritIds] = useState(() => {
+  const [favoritIds, setFavoritIds] = useState(function () {
     try {
       return JSON.parse(localStorage.getItem('skripsi_favorites') || '[]')
     } catch {
@@ -232,11 +78,18 @@ function App() {
     }
   })
 
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [bagianBuka, setBagianBuka] = useState('resep')
+  const dropdownRef = useRef(null)
+  const searchQueryRef = useRef(searchQuery)
+
   function handleToggleFavorit(id) {
-    var numId = Number(id)
+    const numId = Number(id)
     setFavoritIds(function (prev) {
-      var baru
-      var idx = prev.indexOf(numId)
+      const idx = prev.indexOf(numId)
+      let baru
       if (idx === -1) {
         baru = prev.concat([numId])
       } else {
@@ -244,21 +97,15 @@ function App() {
         baru.splice(idx, 1)
       }
       localStorage.setItem('skripsi_favorites', JSON.stringify(baru))
-
-      // Tampilkan toast
       if (window.Toast) {
-        if (idx === -1) {
-          window.Toast.show('Ditambahkan ke favorit', 'success')
-        } else {
-          window.Toast.show('Dihapus dari favorit', 'info')
-        }
+        window.Toast.show(idx === -1 ? 'Ditambahkan ke favorit' : 'Dihapus dari favorit', idx === -1 ? 'success' : 'info')
       }
       return baru
     })
   }
 
   function handleToggleTheme() {
-    var next = theme === 'dark' ? 'light' : 'dark'
+    const next = theme === 'dark' ? 'light' : 'dark'
     if (window.Theme) {
       window.Theme.set(next)
     } else {
@@ -271,64 +118,143 @@ function App() {
     }
   }
 
-  // Dengarkan navigasi hash agar Beranda dan Resep jadi dua halaman terpisah.
-  useEffect(function () {
+  const handleCheckboxChange = (idBahan) => {
+    setKulkasUser((prev) => prev.includes(idBahan) ? prev.filter((id) => id !== idBahan) : [...prev, idBahan])
+  }
+
+  const handlePilihKategori = (nama) => {
+    setKategoriAktif(nama)
+    window.location.hash = '#/resep'
+  }
+
+  const handleHapusFilter = () => {
+    setKategoriAktif('Semua')
+    setSearchQuery('')
+  }
+
+  const handleTambahBahanKlik = () => {
+    if (!session) {
+      setShowLoginDropdown(true)
+      return
+    }
+    setBagianBuka('bahan')
+    window.location.hash = '#/'
+    setTimeout(() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' }), 250)
+  }
+
+  const handleAuth = async (tipe) => {
+    if (isSubmittingAuth) return
+    setPesanStatus('')
+    setIsSubmittingAuth(true)
+
+    try {
+      if (tipe === 'daftar') {
+        await api.daftar(email, password)
+        setPesanStatus('Pendaftaran berhasil! Silakan coba login.')
+        return
+      }
+
+      const { session: sessionBaru } = await api.login(email, password)
+      simpanToken(sessionBaru.token)
+      setToken(sessionBaru.token)
+      setSession(sessionBaru)
+      setUserRole(sessionBaru.user.role)
+      setPesanStatus('Login sukses!')
+    } catch (error) {
+      setPesanStatus('Gagal: ' + error.message)
+    } finally {
+      setIsSubmittingAuth(false)
+    }
+  }
+
+  const handleLogout = () => {
+    hapusToken()
+    setToken('')
+    setSession(null)
+    setEmail('')
+    setPassword('')
+    setPesanStatus('')
+    setKulkasUser([])
+    setUserRole('user')
+  }
+
+  async function initData() {
+    try {
+      const { bahan, resep } = await api.ambilDataPublik()
+      setDataBahan(bahan || [])
+      setDataResep(resep || [])
+    } catch { /* biarkan data lama */ }
+  }
+
+  // ===== Effects =====
+
+  // Dengarkan navigasi hash agar setiap rute menjadi halaman terpisah.
+  useEffect(() => {
     function onHashChange() {
-      setHalaman(window.location.hash === '#/resep' ? 'resep' : 'beranda')
+      const r = parseHash()
+      setRoute(r)
+      if (searchQueryRef.current.trim() && r.view === 'resep') {
+        setTimeout(() => document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' }), 150)
+      } else {
+        window.scrollTo(0, 0)
+      }
     }
     window.addEventListener('hashchange', onHashChange)
-    return function () { window.removeEventListener('hashchange', onHashChange) }
+    return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   // Dengarkan event themechange dari theme.js
-  useEffect(function () {
+  useEffect(() => {
     function handler(e) {
       setTheme(e.detail)
     }
     window.addEventListener('themechange', handler)
-    return function () { window.removeEventListener('themechange', handler) }
+    return () => window.removeEventListener('themechange', handler)
   }, [])
 
   // Tambahkan shadow halus saat halaman di-scroll
-  useEffect(function () {
+  useEffect(() => {
     function onScroll() {
       setScrolled(window.scrollY > 8)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return function () { window.removeEventListener('scroll', onScroll) }
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => { searchQueryRef.current = searchQuery }, [searchQuery])
+  useEffect(() => { sessionStorage.setItem('skripsi_cari', searchQuery) }, [searchQuery])
+  useEffect(() => { sessionStorage.setItem('skripsi_kategori', kategoriAktif) }, [kategoriAktif])
 
   // Baca kata kunci pencarian dari URL (?q=...) lalu bersihkan parameter
-  useEffect(function () {
-    var params = new URLSearchParams(window.location.search)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
     if (!params.get('q')) return
     params.delete('q')
-    var url = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
+    const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
     window.history.replaceState({}, '', url)
-    setTimeout(function () {
-      document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' })
-    }, 400)
   }, [])
 
+  // Muat data publik (bahan + resep) satu kali saat aplikasi dibuka
   useEffect(() => {
-    setLoading(true)
+    let aktif = true
     api.ambilDataPublik().then(({ bahan, resep }) => {
+      if (!aktif) return
       setDataBahan(bahan || [])
       setDataResep(resep || [])
       setLoading(false)
     }).catch(() => {
-      setLoading(false)
+      if (aktif) setLoading(false)
     })
+    return () => { aktif = false }
   }, [])
 
+  // Pulihkan sesi dari token yang tersimpan
   useEffect(() => {
     const tokenTersimpan = ambilTokenTersimpan()
-
     if (!tokenTersimpan) return
 
     let aktif = true
-
     api.cekSession(tokenTersimpan)
       .then(({ session: sessionValid }) => {
         if (!aktif) return
@@ -340,63 +266,39 @@ function App() {
         hapusToken()
         if (aktif) setSession(null)
       })
-
     return () => { aktif = false }
   }, [])
 
-  async function initData() {
-    const { bahan, resep } = await api.ambilDataPublik()
-    setDataBahan(bahan || [])
-    setDataResep(resep || [])
-  }
-
-  async function ambilBahanTertunda(tokenAktif = token) {
-    const { bahan } = await api.ambilBahanTertunda(tokenAktif)
-    setBahanTertunda(bahan || [])
-  }
-
-  useEffect(() => {
-    if (!showLoginDropdown) return
-
-    function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowLoginDropdown(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [showLoginDropdown])
-
+  // Muat ulang data saat login agar daftar bahan terbaru (mis. admin)
   useEffect(() => {
     if (!session) return
-
     let aktif = true
-
     api.ambilDataPublik().then(({ bahan, resep }) => {
       if (!aktif) return
       setDataBahan(bahan || [])
       setDataResep(resep || [])
     })
-
     return () => { aktif = false }
   }, [session])
 
+  // Simpan isi kulkas ke localStorage
   useEffect(() => {
     localStorage.setItem('skripsi_kulkas', JSON.stringify(kulkasUser))
   }, [kulkasUser])
 
+  // Tutup dropdown login saat klik di luar
   useEffect(() => {
-    if (!session || !token || userRole !== 'admin') return
+    if (!showLoginDropdown) return
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowLoginDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showLoginDropdown])
 
-    let aktif = true
-
-    api.ambilBahanTertunda(token).then(({ bahan }) => {
-      if (aktif) setBahanTertunda(bahan || [])
-    })
-
-    return () => { aktif = false }
-  }, [session, token, userRole])
+  // ===== Logika rekomendasi =====
 
   function hitungJaccard(bahanUser, bahanResep) {
     const setA = new Set(bahanUser)
@@ -418,7 +320,6 @@ function App() {
         langkah: resep.langkah_memasak,
         kategori: resep.kategori || 'Lainnya',
         persentase: Math.round(skor * 100),
-        durasi: resep.durasi || null,
         jumlahBahan: resep.recipe_ingredients?.length || 0,
         bahan: resep.recipe_ingredients || [],
         porsi: resep.porsi_default,
@@ -445,159 +346,28 @@ function App() {
       .sort((a, b) => b.persentase - a.persentase)
   }, [resepLengkap, kategoriAktif, searchQuery, kulkasUser, modeJelajah])
 
-  const handleUbahLangkah = (index, value) => {
-    const listLangkahBaru = [...langkahResep]
-    listLangkahBaru[index].instruksi = value
-    setLangkahResep(listLangkahBaru)
-  }
+  const daftarKategori = useMemo(() => {
+    const set = new Set()
+    dataResep.forEach((r) => { if (r.kategori) set.add(r.kategori) })
+    return [...set]
+  }, [dataResep])
 
-  const handleTambahInputLangkah = () => {
-    setLangkahResep([...langkahResep, { instruksi: '' }])
-  }
+  // ===== Chrome (navbar + footer) =====
 
-  const handleCheckboxBahanResep = (idBahan) => {
-    bahanResepDipilih.includes(idBahan)
-      ? setBahanResepDipilih(bahanResepDipilih.filter((id) => id !== idBahan))
-      : setBahanResepDipilih([...bahanResepDipilih, idBahan])
-  }
-
-  const handleTambahResepBaru = async (e) => {
-    e.preventDefault()
-    if (isSubmittingResep) return
-
-    setPesanResep('')
-
-    if (!judulResep.trim() || bahanResepDipilih.length === 0) {
-      setPesanResep('Gagal: Judul resep dan minimal 1 bahan wajib diisi!')
-      return
-    }
-
-    setIsSubmittingResep(true)
-
-    try {
-      const langkahValid = langkahResep.filter((l) => l.instruksi.trim() !== '')
-
-      await api.tambahResep(token, {
-        judul_resep: judulResep.trim(),
-        porsi_default: porsiDefault,
-        langkah_memasak: langkahValid,
-        ingredient_ids: bahanResepDipilih,
-      })
-
-      setPesanResep('Sukses! Resep baru berhasil diterbitkan ke sistem.')
-      setJudulResep('')
-      setLangkahResep([{ instruksi: '' }])
-      setBahanResepDipilih([])
-      await initData()
-    } catch (error) {
-      setPesanResep('Error input resep: ' + error.message)
-    } finally {
-      setIsSubmittingResep(false)
-    }
-  }
-
-  const handleTambahBahanBaru = async (e) => {
-    e.preventDefault()
-    if (isSubmittingBahan) return
-
-    setPesanStatus('')
-    if (!inputNamaBahan.trim()) return
-
-    setIsSubmittingBahan(true)
-
-    try {
-      await api.tambahBahan(token, {
-        nama_bahan: inputNamaBahan.trim(),
-        kategori: inputKategori,
-      })
-
-      setPesanStatus('Sukses mengusulkan bahan baru!')
-      setInputNamaBahan('')
-      if (userRole === 'admin') await ambilBahanTertunda()
-    } catch (error) {
-      setPesanStatus(error.message)
-    } finally {
-      setIsSubmittingBahan(false)
-    }
-  }
-
-  const handleAuth = async (tipe) => {
-    if (isSubmittingAuth) return
-
-    setPesanStatus('')
-    setIsSubmittingAuth(true)
-
-    try {
-      if (tipe === 'daftar') {
-        await api.daftar(email, password)
-        setPesanStatus('Pendaftaran berhasil! Silakan coba login.')
-        return
-      }
-
-      const { session: sessionBaru } = await api.login(email, password)
-      simpanToken(sessionBaru.token)
-      setToken(sessionBaru.token)
-      setSession(sessionBaru)
-      setUserRole(sessionBaru.user.role)
-      setPesanStatus('Login sukses!')
-    } catch (error) {
-      setPesanStatus('Gagal: ' + error.message)
-    } finally {
-      setIsSubmittingAuth(false)
-    }
-  }
-
-  const handleSetujuiBahan = async (idBahan) => {
-    setPesanStatus('')
-    try {
-      await api.setujuiBahan(token, idBahan)
-      await initData()
-      await ambilBahanTertunda()
-      setPesanStatus('Sukses menyetujui bahan!')
-    } catch (error) {
-      setPesanStatus(error.message)
-    }
-  }
-
-  const handleLogout = () => {
-    hapusToken()
-    setToken('')
-    setSession(null)
-    setEmail('')
-    setPassword('')
-    setPesanStatus('')
-    setKulkasUser([])
-    setUserRole('user')
-  }
-
-  const handleCheckboxChange = (idBahan) => {
-    kulkasUser.includes(idBahan)
-      ? setKulkasUser(kulkasUser.filter((id) => id !== idBahan))
-      : setKulkasUser([...kulkasUser, idBahan])
-  }
-
-  // Tombol dark mode
   const themeBtn = (
-    <button
-      onClick={handleToggleTheme}
-      className="theme-btn"
-      aria-label="Toggle tema"
-    >
+    <button onClick={handleToggleTheme} className="theme-btn" aria-label="Toggle tema">
       {theme === 'dark' ? ICON_SUN : ICON_MOON}
     </button>
   )
 
-  // Navigasi umum
-  const currentPath = window.location.pathname
   const isPageActive = (href) => {
-    if (href.startsWith('#')) {
-      return window.location.hash === href || (href === '#/' && window.location.hash === '')
-    }
-    if (href === '/') return currentPath === '/' || currentPath === '/index.html'
-    return currentPath === href
+    const target = href.replace(/^#\//, '')
+    if (target === '') return route.view === 'beranda'
+    if (target === 'resep') return route.view === 'resep' || route.view === 'detail'
+    return route.view === target
   }
   const navItem = (href, icon, label) => (
-    <a href={href} className={`nav-link ${isPageActive(href) ? 'active' : ''}`}>
+    <a href={href} onClick={() => setMobileOpen(false)} className={`nav-link ${isPageActive(href) ? 'active' : ''}`}>
       <i className={`fa-solid ${icon}`} />
       <span>{label}</span>
     </a>
@@ -607,14 +377,18 @@ function App() {
     <nav className="hidden lg:flex items-center gap-1 mx-auto">
       {navItem('#/', 'fa-house', 'Beranda')}
       {navItem('#/resep', 'fa-book-open', 'Resep')}
-      {navItem('/favorite.html', 'fa-heart', 'Favorit')}
-      {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
+      {navItem('#/favorit', 'fa-heart', 'Favorit')}
+      {navItem('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
     </nav>
   )
 
   const navbarSearch = (
     <div className="hidden md:block w-48 lg:w-64 shrink-0">
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      <SearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onEnter={() => { if (route.view !== 'resep') window.location.hash = '#/resep' }}
+      />
     </div>
   )
 
@@ -623,10 +397,14 @@ function App() {
       <nav className="px-4 pb-4 pt-2 flex flex-col gap-1">
         {navItem('#/', 'fa-house', 'Beranda')}
         {navItem('#/resep', 'fa-book-open', 'Resep')}
-        {navItem('/favorite.html', 'fa-heart', 'Favorit')}
-        {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
+        {navItem('#/favorit', 'fa-heart', 'Favorit')}
+        {navItem('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
         <div className="mt-2">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onEnter={() => { if (route.view !== 'resep') window.location.hash = '#/resep' }}
+          />
         </div>
       </nav>
     </div>
@@ -681,7 +459,7 @@ function App() {
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="max-w-6xl mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between gap-4 h-16 lg:h-20">
-          <a href="/" className="flex items-center gap-2.5 shrink-0 group">
+          <a href="#/" className="flex items-center gap-2.5 shrink-0 group">
             <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
             <span className="leading-tight">
               <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Pintar</span></span>
@@ -709,212 +487,6 @@ function App() {
     </header>
   )
 
-  // Hero section
-  const heroSection = (
-    <section className="hero">
-      <div className="hero-container">
-        <div>
-          <span className="hero-badge">
-            <i className="fa-solid fa-fire-flame-curved" />
-            Rekomendasi Resep Pintar
-          </span>
-          <h1 className="hero-title">Mau Masak Apa <span className="hero-highlight">Hari Ini?</span></h1>
-          <p className="hero-subtitle">Pilih bahan yang tersedia di kulkas dan dapatkan rekomendasi resep yang paling cocok.</p>
-
-          <div className="hero-actions">
-            <a href="#/resep" className="btn-primary btn-lg">
-              <i className="fa-solid fa-magnifying-glass" />
-              Cari Resep
-            </a>
-            <a href="#/resep" className="btn-secondary">
-              <i className="fa-solid fa-book-open" />
-              Lihat Semua Resep
-            </a>
-          </div>
-
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <i className="fa-solid fa-bowl-rice hero-stat-icon" />
-              <span className="hero-stat-number">1.200+</span>
-              <span className="hero-stat-label">Resep</span>
-            </div>
-            <div className="hero-stat">
-              <i className="fa-solid fa-carrot hero-stat-icon" />
-              <span className="hero-stat-number">300+</span>
-              <span className="hero-stat-label">Bahan</span>
-            </div>
-            <div className="hero-stat">
-              <i className="fa-solid fa-star hero-stat-icon" />
-              <span className="hero-stat-number">4.9</span>
-              <span className="hero-stat-label">Rating</span>
-            </div>
-            <div className="hero-stat">
-              <i className="fa-solid fa-users hero-stat-icon" />
-              <span className="hero-stat-number">10.000</span>
-              <span className="hero-stat-label">Pengguna</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="hero-image" aria-hidden="true">
-          <span className="hero-blob hero-blob-1" />
-          <span className="hero-blob hero-blob-2" />
-          <div className="hero-float">
-            <svg viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#ff9a52" />
-                  <stop offset="100%" stopColor="#ff6b00" />
-                </linearGradient>
-              </defs>
-
-              <circle cx="210" cy="210" r="190" fill="url(#heroGrad)" opacity="0.1" />
-              <circle cx="210" cy="210" r="150" fill="url(#heroGrad)" opacity="0.16" />
-
-              <g className="hero-steam">
-                <path d="M150 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-                <path d="M210 92q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-                <path d="M268 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-              </g>
-
-              <ellipse cx="210" cy="302" rx="134" ry="36" fill="#ffffff" />
-              <ellipse cx="210" cy="302" rx="134" ry="36" stroke="#f6e3d5" strokeWidth="3" />
-              <ellipse cx="210" cy="296" rx="104" ry="27" fill="#fff8f2" />
-
-              <path d="M152 292q24 -40 60 -40q40 0 60 36q12 20 -22 28q-22 8 -46 4q-52 -8 -52 -28Z" fill="#ffffff" stroke="#ffe0cd" strokeWidth="3" />
-              <circle cx="212" cy="286" r="28" fill="url(#heroGrad)" />
-              <circle cx="188" cy="272" r="6" fill="#34d399" />
-              <circle cx="236" cy="302" r="6" fill="#34d399" />
-              <circle cx="170" cy="298" r="5" fill="#fbbf24" />
-
-              <g stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" fill="none">
-                <line x1="92" y1="140" x2="92" y2="252" />
-              </g>
-              <path d="M84 100v30M92 92v38M100 100v30" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
-              <line x1="328" y1="140" x2="328" y2="252" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
-              <ellipse cx="328" cy="114" rx="16" ry="21" fill="#e2e8f0" />
-
-              <circle cx="72" cy="330" r="10" fill="#ff6b00" opacity="0.25" />
-              <circle cx="352" cy="92" r="8" fill="#ff9a52" opacity="0.5" />
-              <circle cx="342" cy="340" r="7" fill="#34d399" opacity="0.35" />
-            </svg>
-          </div>
-
-          <div className="hero-card hero-card-rating">
-            <span className="hero-card-icon"><i className="fa-solid fa-heart" /></span>
-            <div>
-              <strong>95% Cocok</strong>
-              <small>dengan bahan kulkas</small>
-            </div>
-          </div>
-          <div className="hero-card hero-card-ingredients">
-            <span className="hero-card-icon"><i className="fa-solid fa-carrot" /></span>
-            <div>
-              <strong>12 Bahan</strong>
-              <small>siap dimasak</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-
-  // Section kategori makanan — daftar diambil dari data resep agar filter selalu cocok.
-  const daftarKategori = useMemo(() => {
-    const set = new Set()
-    dataResep.forEach((r) => { if (r.kategori) set.add(r.kategori) })
-    return [...set]
-  }, [dataResep])
-
-  const kategoriList = daftarKategori.length > 0
-    ? daftarKategori.map((nama) => ({ nama }))
-    : [
-        { nama: 'Ayam' },
-        { nama: 'Daging' },
-        { nama: 'Sayuran' },
-        { nama: 'Telur' },
-        { nama: 'Mie' },
-        { nama: 'Pasta' },
-        { nama: 'Western' },
-        { nama: 'Nusantara' },
-        { nama: 'Jepang' },
-      ]
-
-  const kategoriSection = (
-    <section className="kategori-section">
-      <div className="kategori-container">
-        <span className="section-kicker"><i className="fa-solid fa-tags" />Kategori</span>
-        <h2 className="kategori-title">Jelajahi Berdasarkan Kategori</h2>
-        <div className="kategori-scroll">
-          {kategoriList.map((kategori, i) => (
-            <button
-              key={kategori.nama}
-              type="button"
-              className="kategori-card reveal"
-              style={{ '--reveal-delay': `${Math.min(i, 8) * 60}ms` }}
-              onClick={() => {
-                setKategoriAktif(kategori.nama)
-                window.location.hash = '#/resep'
-              }}
-            >
-              <i className={`fa-solid ${KATEGORI_ICONS[kategori.nama] || 'fa-bowl-food'}`} />
-              <span className="kategori-name">{kategori.nama}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-
-  // Section Trending Hari Ini
-  const trendingItems = dataResep.length > 0
-    ? dataResep.slice(0, 5).map((r, i) => ({
-        id: r.id,
-        nama: r.judul_resep,
-        rating: (4.3 + (Number(r.id) % 7) * 0.1).toFixed(1),
-        icon: TRENDING_ICONS[i % TRENDING_ICONS.length],
-      }))
-    : DUMMY_TRENDING
-
-  const trendingSection = (
-    <section className="trending-section">
-      <div className="trending-container">
-        <div className="trending-header">
-          <div>
-            <span className="section-kicker"><i className="fa-solid fa-fire-flame-curved" />Populer</span>
-            <h2 className="trending-title"><i className="fa-solid fa-fire trending-fire" /> Trending Hari Ini</h2>
-          </div>
-          <div className="trending-nav">
-            <button type="button" className="trending-arrow" aria-label="Scroll kiri" onClick={() => trendingRef.current?.scrollBy({ left: -320, behavior: 'smooth' })}>
-              <i className="fa-solid fa-chevron-left" />
-            </button>
-            <button type="button" className="trending-arrow" aria-label="Scroll kanan" onClick={() => trendingRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}>
-              <i className="fa-solid fa-chevron-right" />
-            </button>
-          </div>
-        </div>
-        <div className="trending-scroll" ref={trendingRef}>
-          {trendingItems.map((item, i) => (
-            <div key={item.id} className="trending-card reveal" style={{ '--reveal-delay': `${Math.min(i, 5) * 80}ms` }} onClick={() => window.location.href = `detail.html?id=${item.id}`}>
-              <div className="trending-photo">
-                <span className="trending-deco" />
-                <i className={`fa-solid ${item.icon}`} />
-              </div>
-              <div className="trending-body">
-                <h4 className="trending-name">{item.nama}</h4>
-                <span className="trending-rating"><i className="fa-solid fa-star" />{item.rating}</span>
-                <button type="button" className="trending-detail" onClick={(e) => { e.stopPropagation(); window.location.href = `detail.html?id=${item.id}` }}>
-                  Detail
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-
-  // Footer
   const footerSection = (
     <footer className="site-footer reveal">
       <div className="footer-container">
@@ -930,10 +502,10 @@ function App() {
           <div className="footer-col">
             <h4 className="footer-title">Menu</h4>
             <ul className="footer-links">
-              <li><a href="/">Beranda</a></li>
-              <li><a href="/">Resep</a></li>
-              <li><a href="/favorite.html">Favorit</a></li>
-              <li><a href="/history.html">Riwayat</a></li>
+              <li><a href="#/">Beranda</a></li>
+              <li><a href="#/resep">Resep</a></li>
+              <li><a href="#/favorit">Favorit</a></li>
+              <li><a href="#/riwayat">Riwayat</a></li>
             </ul>
           </div>
 
@@ -954,15 +526,17 @@ function App() {
     </footer>
   )
 
-  // Halaman Resep: isi kulkas + filter kategori + daftar resep.
-  const handleTambahBahanKlik = () => {
-    if (!session) {
-      setShowLoginDropdown(true)
-      return
-    }
-    window.location.hash = '#/'
-    setTimeout(() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' }), 250)
-  }
+  // ===== Halaman Resep =====
+
+  const pillKategori = (nama) => (
+    <button
+      type="button"
+      onClick={() => setKategoriAktif(nama)}
+      className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${kategoriAktif === nama ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-400'}`}
+    >
+      {nama}
+    </button>
+  )
 
   const kulkasSection = (
     <div id="kulkas" className="kulkas-section reveal">
@@ -974,10 +548,22 @@ function App() {
             <p className="kulkas-subtitle">Pilih semua bahan yang tersedia di rumah.</p>
           </div>
         </div>
-        <button type="button" className="btn-primary" onClick={handleTambahBahanKlik}>
-          <i className="fa-solid fa-plus" />
-          Tambah Bahan
-        </button>
+        <div className="flex items-center gap-3">
+          {kulkasUser.length > 0 && (
+            <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-xs font-bold rounded-full flex items-center gap-1.5">
+              <i className="fa-solid fa-kitchen-set" /> {kulkasUser.length} dipilih
+            </span>
+          )}
+          {kulkasUser.length > 0 && (
+            <button type="button" onClick={() => setKulkasUser([])} className="text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+              <i className="fa-solid fa-broom" /> Bersihkan
+            </button>
+          )}
+          <button type="button" className="btn-primary" onClick={handleTambahBahanKlik}>
+            <i className="fa-solid fa-plus" />
+            Tambah Bahan
+          </button>
+        </div>
       </div>
       <div className="kulkas-grid">
         {dataBahan.map((bahan) => (
@@ -991,59 +577,78 @@ function App() {
     </div>
   )
 
-  const pillKategori = (nama) => (
-    <button
-      type="button"
-      onClick={() => setKategoriAktif(nama)}
-      className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${kategoriAktif === nama ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-400'}`}
-    >
-      {nama}
-    </button>
-  )
+  const autoFocusSearch = typeof window !== 'undefined' && window.innerWidth >= 768
 
   const resepPage = (
-    <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10 pb-16">
+    <main className="max-w-5xl mx-auto px-4 mt-10 space-y-8 pb-16">
       <div>
         <span className="section-kicker"><i className="fa-solid fa-book-open" />Resep</span>
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Jelajahi Resep</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih bahan di kulkas Anda, lalu jelajahi berdasarkan kategori.</p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {pillKategori('Semua')}
-        {daftarKategori.map((nama) => pillKategori(nama))}
-      </div>
+      {kulkasUser.length === 0 && (
+        <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+          <i className="fa-solid fa-lightbulb text-blue-500 dark:text-blue-300 mt-0.5" />
+          <p className="text-sm text-blue-800 dark:text-blue-300">
+            Pilih bahan dari <strong>"Isi Kulkas Anda"</strong> di bawah untuk melihat resep yang paling cocok dengan stok di rumah.
+          </p>
+        </div>
+      )}
 
       {kulkasSection}
 
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      {/* Filter sticky: kategori + pencarian */}
+      <div className="sticky top-16 lg:top-20 z-30 -mx-4 px-4 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+            {pillKategori('Semua')}
+            {daftarKategori.map((nama) => pillKategori(nama))}
+          </div>
+          <div className="w-full md:w-64 shrink-0">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              autoFocus={autoFocusSearch}
+              placeholder={kategoriAktif !== 'Semua' ? `Cari dalam "${kategoriAktif}"...` : 'Cari resep, bahan, atau kategori...'}
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="space-y-4" id="resep">
         {loading ? (
-          <div className="text-center py-4">
-            <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-sm mb-4">
-              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <span>Memuat resep...</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {[1, 2, 3, 4].map(function (i) { return <SkeletonCard key={i} /> })}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
           </div>
         ) : hasilFilter.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {hasilFilter.map((resep, index) => (
-              <CardResep
-                key={resep.id}
-                resep={resep}
-                index={index}
-                isFavorit={favoritIds.indexOf(Number(resep.id)) !== -1}
-                onToggleFavorit={handleToggleFavorit}
-              />
-            ))}
-          </div>
+          <>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {modeJelajah
+                  ? `${hasilFilter.length} resep ditemukan`
+                  : kulkasUser.length > 0
+                    ? `${hasilFilter.length} resep cocok dengan bahan kulkas Anda`
+                    : `${hasilFilter.length} resep tersedia`}
+              </p>
+              {(kategoriAktif !== 'Semua' || searchQuery.trim() !== '') && (
+                <button type="button" onClick={handleHapusFilter} className="text-sm font-semibold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1">
+                  <i className="fa-solid fa-xmark" /> Hapus filter
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {hasilFilter.map((resep, index) => (
+                <CardResep
+                  key={resep.id}
+                  resep={resep}
+                  index={index}
+                  isFavorit={favoritIds.indexOf(Number(resep.id)) !== -1}
+                  onToggleFavorit={handleToggleFavorit}
+                />
+              ))}
+            </div>
+          </>
         ) : (
           <div className="text-center py-12">
             <svg className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1056,138 +661,58 @@ function App() {
                   ? 'Tidak ada resep yang memakai bahan di kulkas Anda. Tambahkan bahan lain.'
                   : 'Belum ada resep untuk ditampilkan.'}
             </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              {modeJelajah ? (
+                <button type="button" onClick={handleHapusFilter} className="btn-primary">
+                  <i className="fa-solid fa-rotate-left" /> Hapus pencarian & filter
+                </button>
+              ) : kulkasUser.length > 0 ? (
+                <button type="button" onClick={() => setKulkasUser([])} className="btn-secondary">
+                  <i className="fa-solid fa-broom" /> Bersihkan Kulkas
+                </button>
+              ) : null}
+            </div>
           </div>
         )}
       </div>
     </main>
   )
 
-  // CTA beranda untuk pengguna yang belum masuk.
-  const ctaBeranda = (
-    <div className="text-center py-14 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
-      <span className="empty-icon"><i className="fa-solid fa-book-open" /></span>
-      <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-gray-100">Siap Memasak?</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Buka halaman Resep untuk memilih bahan di kulkas Anda dan temukan rekomendasi masakan.</p>
-      <a href="#/resep" className="btn-primary inline-flex mt-4"><i className="fa-solid fa-book-open" />Buka Halaman Resep</a>
-    </div>
-  )
+  // ===== Rute =====
 
-  if (halaman === 'resep') {
-    return (
-      <div className="min-h-screen bg-[#fff8f2] dark:bg-gray-900 theme-transition">
-        {navbar}
-        {resepPage}
-        {footerSection}
-      </div>
+  let konten
+  if (route.view === 'resep') {
+    konten = resepPage
+  } else if (route.view === 'detail') {
+    konten = <DetailResep key={route.id} id={route.id} kulkasUser={kulkasUser} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
+  } else if (route.view === 'favorit') {
+    konten = <Favorit semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
+  } else if (route.view === 'riwayat') {
+    konten = <Riwayat semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
+  } else {
+    konten = (
+      <Beranda
+        session={session}
+        userRole={userRole}
+        token={token}
+        dataResep={dataResep}
+        dataBahan={dataBahan}
+        loading={loading}
+        semuaResep={resepLengkap}
+        favoritIds={favoritIds}
+        onToggleFavorit={handleToggleFavorit}
+        onPilihKategori={handlePilihKategori}
+        onDataRefresh={initData}
+        bagianBuka={bagianBuka}
+        setBagianBuka={setBagianBuka}
+      />
     )
   }
 
   return (
     <div className="min-h-screen bg-[#fff8f2] dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-12 theme-transition">
       {navbar}
-      {heroSection}
-      {kategoriSection}
-      {trendingSection}
-
-      <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10">
-        {session ? (
-          <>
-        {userRole === 'admin' && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
-            {bahanTertunda.length === 0 ? <p className="text-sm text-blue-600 dark:text-blue-400 italic">Tidak ada usulan bahan.</p> : (
-              <div className="space-y-2">{bahanTertunda.map((b) => (
-                <div key={b.id} className="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded-xl border border-blue-100 dark:border-blue-800 shadow-xs">
-                  <div><span className="font-semibold dark:text-gray-100">{b.nama_bahan}</span><span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-500 dark:text-gray-400">{b.kategori}</span></div>
-                  <button onClick={() => handleSetujuiBahan(b.id)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg">Setujui</button>
-                </div>
-              ))}</div>
-            )}
-            {pesanStatus && (
-              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                {pesanStatus}
-              </p>
-            )}
-          </div>
-        )}
-
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Bagikan Resep Masakan Anda</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Tulis instruksi memasak secara detail agar sistem bisa merekomendasikannya.</p>
-
-          <form onSubmit={handleTambahResepBaru} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Nama Menu Masakan</label>
-                <input type="text" placeholder="Contoh: Nasi Goreng Kampung, Sup Ayam" value={judulResep} onChange={(e) => setJudulResep(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Estimasi Porsi</label>
-                <input type="number" min="1" value={porsiDefault} onChange={(e) => setPorsiDefault(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Pilih Bahan Baku yang Digunakan:</label>
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
-                {dataBahan.map((bahan) => (
-                  <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${bahanResepDipilih.includes(bahan.id) ? 'bg-orange-100 dark:bg-orange-900/40 border-orange-400 dark:border-orange-600 text-orange-700 dark:text-orange-300' : 'bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-transparent'}`}>
-                    <input type="checkbox" checked={bahanResepDipilih.includes(bahan.id)} onChange={() => handleCheckboxBahanResep(bahan.id)} className="hidden" />
-                    {bahan.nama_bahan}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Langkah Demi Langkah Memasak:</label>
-              {langkahResep.map((langkah, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <span className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">{index + 1}</span>
-                  <input type="text" placeholder={`Langkah ke-${index + 1}...`} value={langkah.instruksi} onChange={(e) => handleUbahLangkah(index, e.target.value)} className="flex-1 p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm" />
-                </div>
-              ))}
-              <button type="button" onClick={handleTambahInputLangkah} className="text-orange-600 dark:text-orange-400 hover:text-orange-700 font-bold text-sm flex items-center gap-1 pt-1 transition">
-                + Tambah Langkah Memasak
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmittingResep}
-              className="w-full bg-orange-500 disabled:bg-orange-300 hover:bg-orange-600 text-white font-bold p-3.5 rounded-xl transition shadow-sm"
-            >
-              {isSubmittingResep ? 'Sedang Menerbitkan...' : 'Terbitkan Buku Resep'}
-            </button>
-          </form>
-          {pesanResep && <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesanResep}</p>}
-        </div>
-
-          <div id="tambah-bahan" className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold text-amber-900 dark:text-amber-300 mb-2">Punya Bahan Unik?</h3>
-            <form onSubmit={handleTambahBahanBaru} className="flex flex-wrap gap-3 items-center">
-              <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl outline-none text-sm text-gray-900 dark:text-gray-100" />
-              <select value={inputKategori} onChange={(e) => setInputKategori(e.target.value)} className="p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl text-sm text-gray-900 dark:text-gray-100">
-                <option value="Sayuran">Sayuran</option><option value="Protein">Protein</option><option value="Bumbu">Bumbu</option>
-              </select>
-              <button
-                type="submit"
-                disabled={isSubmittingBahan}
-                className="bg-amber-500 disabled:bg-amber-300 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
-              >
-                {isSubmittingBahan ? 'Mengirim...' : 'Usulkan'}
-              </button>
-            </form>
-            {pesanStatus && (
-              <p className={`mt-3 font-semibold text-center text-sm ${pesanStatus.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                {pesanStatus}
-              </p>
-            )}
-          </div>
-
-          </>
-        ) : ctaBeranda}
-      </main>
+      {konten}
       {footerSection}
     </div>
   )
