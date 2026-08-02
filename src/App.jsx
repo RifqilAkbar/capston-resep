@@ -113,7 +113,9 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
           {isFavorit ? ICON_HEART_FILLED : ICON_HEART_OUTLINE}
         </button>
 
-        <span className="recipe-match-badge">Cocok {resep.persentase}%</span>
+        {resep.persentase > 0 && (
+          <span className="recipe-match-badge">Cocok {resep.persentase}%</span>
+        )}
       </div>
 
       <div className="recipe-body">
@@ -126,15 +128,17 @@ function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
         <h4 className="recipe-title">{resep.judul}</h4>
         <span className="recipe-category">{resep.kategori}</span>
 
-        <div>
-          <div className="recipe-progress-label">
-            <span>Kecocokan</span>
-            <strong>{resep.persentase}%</strong>
+        {resep.persentase > 0 && (
+          <div>
+            <div className="recipe-progress-label">
+              <span>Kecocokan</span>
+              <strong>{resep.persentase}%</strong>
+            </div>
+            <div className="recipe-progress">
+              <div className="recipe-progress-bar" style={{ width: `${resep.persentase}%` }} />
+            </div>
           </div>
-          <div className="recipe-progress">
-            <div className="recipe-progress-bar" style={{ width: `${resep.persentase}%` }} />
-          </div>
-        </div>
+        )}
 
         <button
           onClick={(e) => {
@@ -213,6 +217,10 @@ function App() {
   const [searchQuery, setSearchQuery] = useState(function () {
     return new URLSearchParams(window.location.search).get('q') || ''
   })
+  const [kategoriAktif, setKategoriAktif] = useState('Semua')
+  const [halaman, setHalaman] = useState(function () {
+    return window.location.hash === '#/resep' ? 'resep' : 'beranda'
+  })
   const [theme, setTheme] = useState(getTheme)
   const [loading, setLoading] = useState(true)
 
@@ -262,6 +270,15 @@ function App() {
       window.Toast.show('Tema ' + (next === 'dark' ? 'gelap' : 'terang') + ' diterapkan', 'info')
     }
   }
+
+  // Dengarkan navigasi hash agar Beranda dan Resep jadi dua halaman terpisah.
+  useEffect(function () {
+    function onHashChange() {
+      setHalaman(window.location.hash === '#/resep' ? 'resep' : 'beranda')
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return function () { window.removeEventListener('hashchange', onHashChange) }
+  }, [])
 
   // Dengarkan event themechange dari theme.js
   useEffect(function () {
@@ -389,48 +406,38 @@ function App() {
     return gabungan.size === 0 ? 0 : irisan.size / gabungan.size
   }
 
-  const hasilRekomendasi = useMemo(() => {
-    if (dataResep.length === 0) return []
-
-    const hasil = dataResep.map((resep) => {
-      const idBahanResep = resep.recipe_ingredients.map((ri) => ri.ingredient_id)
+  // Semua resep dihitung skor kecocokannya terhadap isi kulkas.
+  const resepLengkap = useMemo(() => {
+    return dataResep.map((resep) => {
+      const idBahanResep = (resep.recipe_ingredients || []).map((ri) => ri.ingredient_id)
       const skor = hitungJaccard(kulkasUser, idBahanResep)
-
-      const kategoriBahan = resep.recipe_ingredients
-        ?.map((ri) => ri.kategori)
-        .filter(Boolean) || []
-      const kategoriUnik = [...new Set(kategoriBahan)]
-      const kategori = kategoriUnik.length > 0 ? kategoriUnik.join(', ') : 'Makanan'
 
       return {
         id: resep.id,
         judul: resep.judul_resep,
         langkah: resep.langkah_memasak,
+        kategori: resep.kategori || 'Lainnya',
         persentase: Math.round(skor * 100),
-        kategori,
-        durasi: null,
+        durasi: resep.durasi || null,
         jumlahBahan: resep.recipe_ingredients?.length || 0,
         bahan: resep.recipe_ingredients || [],
         porsi: resep.porsi_default,
       }
     })
-
-    hasil.sort((a, b) => b.persentase - a.persentase)
-    return hasil.filter((resep) => resep.persentase > 0)
   }, [kulkasUser, dataResep])
 
   const hasilFilter = useMemo(() => {
-    if (!searchQuery.trim()) return hasilRekomendasi
-    const q = searchQuery.toLowerCase()
-    return hasilRekomendasi.filter((resep) => {
-      const namaMatch = resep.judul.toLowerCase().includes(q)
-      const kategoriMatch = resep.kategori.toLowerCase().includes(q)
-      const bahanMatch = resep.bahan.some((b) =>
-        b.nama_bahan?.toLowerCase().includes(q)
-      )
-      return namaMatch || kategoriMatch || bahanMatch
-    })
-  }, [searchQuery, hasilRekomendasi])
+    const q = searchQuery.trim().toLowerCase()
+    return resepLengkap
+      .filter((resep) => kategoriAktif === 'Semua' || resep.kategori === kategoriAktif)
+      .filter((resep) => !q ||
+        resep.judul.toLowerCase().includes(q) ||
+        resep.kategori.toLowerCase().includes(q) ||
+        resep.bahan.some((b) => b.nama_bahan?.toLowerCase().includes(q)))
+      // Kecocokan bahan: saat kulkas diisi, hanya tampilkan resep yang memakai minimal 1 bahan terpilih.
+      .filter((resep) => kulkasUser.length === 0 || resep.persentase > 0)
+      .sort((a, b) => b.persentase - a.persentase)
+  }, [resepLengkap, kategoriAktif, searchQuery, kulkasUser])
 
   const handleUbahLangkah = (index, value) => {
     const listLangkahBaru = [...langkahResep]
@@ -577,6 +584,9 @@ function App() {
   // Navigasi umum
   const currentPath = window.location.pathname
   const isPageActive = (href) => {
+    if (href.startsWith('#')) {
+      return window.location.hash === href || (href === '#/' && window.location.hash === '')
+    }
     if (href === '/') return currentPath === '/' || currentPath === '/index.html'
     return currentPath === href
   }
@@ -589,8 +599,8 @@ function App() {
 
   const desktopNav = (
     <nav className="hidden lg:flex items-center gap-1 mx-auto">
-      {navItem('/', 'fa-house', 'Beranda')}
-      {navItem('/', 'fa-book-open', 'Resep')}
+      {navItem('#/', 'fa-house', 'Beranda')}
+      {navItem('#/resep', 'fa-book-open', 'Resep')}
       {navItem('/favorite.html', 'fa-heart', 'Favorit')}
       {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
     </nav>
@@ -605,8 +615,8 @@ function App() {
   const mobileNav = (
     <div className={`mobile-menu lg:hidden ${mobileOpen ? 'open' : ''}`}>
       <nav className="px-4 pb-4 pt-2 flex flex-col gap-1">
-        {navItem('/', 'fa-house', 'Beranda')}
-        {navItem('/', 'fa-book-open', 'Resep')}
+        {navItem('#/', 'fa-house', 'Beranda')}
+        {navItem('#/resep', 'fa-book-open', 'Resep')}
         {navItem('/favorite.html', 'fa-heart', 'Favorit')}
         {navItem('/history.html', 'fa-clock-rotate-left', 'Riwayat')}
         <div className="mt-2">
@@ -706,11 +716,11 @@ function App() {
           <p className="hero-subtitle">Pilih bahan yang tersedia di kulkas dan dapatkan rekomendasi resep yang paling cocok.</p>
 
           <div className="hero-actions">
-            <a href="#kulkas" className="btn-primary btn-lg">
+            <a href="#/resep" className="btn-primary btn-lg">
               <i className="fa-solid fa-magnifying-glass" />
               Cari Resep
             </a>
-            <a href="#resep" className="btn-secondary">
+            <a href="#/resep" className="btn-secondary">
               <i className="fa-solid fa-book-open" />
               Lihat Semua Resep
             </a>
@@ -803,18 +813,26 @@ function App() {
     </section>
   )
 
-  // Section kategori makanan
-  const kategoriList = [
-    { nama: 'Ayam' },
-    { nama: 'Daging' },
-    { nama: 'Sayuran' },
-    { nama: 'Telur' },
-    { nama: 'Mie' },
-    { nama: 'Pasta' },
-    { nama: 'Western' },
-    { nama: 'Nusantara' },
-    { nama: 'Jepang' },
-  ]
+  // Section kategori makanan — daftar diambil dari data resep agar filter selalu cocok.
+  const daftarKategori = useMemo(() => {
+    const set = new Set()
+    dataResep.forEach((r) => { if (r.kategori) set.add(r.kategori) })
+    return [...set]
+  }, [dataResep])
+
+  const kategoriList = daftarKategori.length > 0
+    ? daftarKategori.map((nama) => ({ nama }))
+    : [
+        { nama: 'Ayam' },
+        { nama: 'Daging' },
+        { nama: 'Sayuran' },
+        { nama: 'Telur' },
+        { nama: 'Mie' },
+        { nama: 'Pasta' },
+        { nama: 'Western' },
+        { nama: 'Nusantara' },
+        { nama: 'Jepang' },
+      ]
 
   const kategoriSection = (
     <section className="kategori-section">
@@ -829,11 +847,11 @@ function App() {
               className="kategori-card reveal"
               style={{ '--reveal-delay': `${Math.min(i, 8) * 60}ms` }}
               onClick={() => {
-                setSearchQuery(kategori.nama)
-                document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' })
+                setKategoriAktif(kategori.nama)
+                window.location.hash = '#/resep'
               }}
             >
-              <i className={`fa-solid ${KATEGORI_ICONS[kategori.nama]}`} />
+              <i className={`fa-solid ${KATEGORI_ICONS[kategori.nama] || 'fa-bowl-food'}`} />
               <span className="kategori-name">{kategori.nama}</span>
             </button>
           ))}
@@ -930,113 +948,127 @@ function App() {
     </footer>
   )
 
-  // Rekomendasi section
-  const rekomendasiSection = (
-    <div className="space-y-4" id="resep">
-      <div className="rec-header">
-        <span className="section-kicker"><i className="fa-solid fa-wand-magic-sparkles" />Untuk Anda</span>
-        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Rekomendasi Menu Masakan</h3>
+  // Halaman Resep: isi kulkas + filter kategori + daftar resep.
+  const handleTambahBahanKlik = () => {
+    if (!session) {
+      setShowLoginDropdown(true)
+      return
+    }
+    window.location.hash = '#/'
+    setTimeout(() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' }), 250)
+  }
+
+  const kulkasSection = (
+    <div id="kulkas" className="kulkas-section reveal">
+      <div className="kulkas-header">
+        <div className="kulkas-title-wrap">
+          <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
+          <div>
+            <h3 className="kulkas-title">Isi Kulkas Anda</h3>
+            <p className="kulkas-subtitle">Pilih semua bahan yang tersedia di rumah.</p>
+          </div>
+        </div>
+        <button type="button" className="btn-primary" onClick={handleTambahBahanKlik}>
+          <i className="fa-solid fa-plus" />
+          Tambah Bahan
+        </button>
       </div>
-
-      {kulkasUser.length > 0 && (
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-      )}
-
-      {kulkasUser.length === 0 && (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
-          <span className="empty-icon"><i className="fa-solid fa-bowl-food" /></span>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Belum ada rekomendasi.
-          </p>
-          <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
-            Silakan pilih bahan terlebih dahulu.
-          </p>
-        </div>
-      )}
-
-      {/* Loading skeleton */}
-      {kulkasUser.length > 0 && loading && (
-        <div className="text-center py-4">
-          <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-sm mb-4">
-            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <span>Mencari rekomendasi...</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {[1, 2, 3, 4].map(function (i) { return <SkeletonCard key={i} /> })}
-          </div>
-        </div>
-      )}
-
-      {/* Grid resep */}
-      {kulkasUser.length > 0 && !loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {hasilFilter.map((resep, index) => (
-            <CardResep
-              key={resep.id}
-              resep={resep}
-              index={index}
-              isFavorit={favoritIds.indexOf(Number(resep.id)) !== -1}
-              onToggleFavorit={handleToggleFavorit}
-            />
-          ))}
-        </div>
-      )}
-
-      {kulkasUser.length > 0 && !loading && hasilFilter.length === 0 && (
-        <div className="text-center py-12">
-          <svg
-            className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <p className="text-gray-400 dark:text-gray-500 text-sm">Resep tidak ditemukan.</p>
-        </div>
-      )}
+      <div className="kulkas-grid">
+        {dataBahan.map((bahan) => (
+          <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
+            <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+            <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
+            {bahan.nama_bahan}
+          </label>
+        ))}
+      </div>
     </div>
   )
 
-  if (!session) {
+  const pillKategori = (nama) => (
+    <button
+      type="button"
+      onClick={() => setKategoriAktif(nama)}
+      className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${kategoriAktif === nama ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-400'}`}
+    >
+      {nama}
+    </button>
+  )
+
+  const resepPage = (
+    <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10 pb-16">
+      <div>
+        <span className="section-kicker"><i className="fa-solid fa-book-open" />Resep</span>
+        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Jelajahi Resep</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih bahan di kulkas Anda, lalu jelajahi berdasarkan kategori.</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {pillKategori('Semua')}
+        {daftarKategori.map((nama) => pillKategori(nama))}
+      </div>
+
+      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+
+      {kulkasSection}
+
+      <div className="space-y-4" id="resep">
+        {loading ? (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-sm mb-4">
+              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span>Memuat resep...</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[1, 2, 3, 4].map(function (i) { return <SkeletonCard key={i} /> })}
+            </div>
+          </div>
+        ) : hasilFilter.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {hasilFilter.map((resep, index) => (
+              <CardResep
+                key={resep.id}
+                resep={resep}
+                index={index}
+                isFavorit={favoritIds.indexOf(Number(resep.id)) !== -1}
+                onToggleFavorit={handleToggleFavorit}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <svg className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">
+              {kulkasUser.length > 0
+                ? 'Tidak ada resep yang memakai bahan di kulkas Anda. Tambahkan bahan lain atau ubah kategori.'
+                : 'Resep tidak ditemukan. Coba kategori atau kata kunci lain.'}
+            </p>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+
+  // CTA beranda untuk pengguna yang belum masuk.
+  const ctaBeranda = (
+    <div className="text-center py-14 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
+      <span className="empty-icon"><i className="fa-solid fa-book-open" /></span>
+      <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-gray-100">Siap Memasak?</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Buka halaman Resep untuk memilih bahan di kulkas Anda dan temukan rekomendasi masakan.</p>
+      <a href="#/resep" className="btn-primary inline-flex mt-4"><i className="fa-solid fa-book-open" />Buka Halaman Resep</a>
+    </div>
+  )
+
+  if (halaman === 'resep') {
     return (
       <div className="min-h-screen bg-[#fff8f2] dark:bg-gray-900 theme-transition">
         {navbar}
-        {heroSection}
-        {kategoriSection}
-        {trendingSection}
-
-        <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10 pb-16">
-          <div id="kulkas" className="kulkas-section reveal">
-            <div className="kulkas-header">
-              <div className="kulkas-title-wrap">
-                <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
-                <div>
-                  <h3 className="kulkas-title">Isi Kulkas Anda</h3>
-                  <p className="kulkas-subtitle">Pilih semua bahan yang tersedia di rumah.</p>
-                </div>
-              </div>
-              <button type="button" className="btn-primary" onClick={() => setShowLoginDropdown(true)}>
-                <i className="fa-solid fa-plus" />
-                Tambah Bahan
-              </button>
-            </div>
-            <div className="kulkas-grid">
-              {dataBahan.map((bahan) => (
-                <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
-                  <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
-                  <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
-                  {bahan.nama_bahan}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {rekomendasiSection}
-        </main>
+        {resepPage}
         {footerSection}
       </div>
     )
@@ -1050,6 +1082,8 @@ function App() {
       {trendingSection}
 
       <main className="max-w-5xl mx-auto px-4 mt-10 space-y-10">
+        {session ? (
+          <>
         {userRole === 'admin' && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-2xl shadow-sm">
             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
@@ -1143,32 +1177,8 @@ function App() {
             )}
           </div>
 
-        <div id="kulkas" className="kulkas-section reveal">
-          <div className="kulkas-header">
-            <div className="kulkas-title-wrap">
-              <span className="kulkas-icon"><i className="fa-solid fa-kitchen-set" /></span>
-              <div>
-                <h3 className="kulkas-title">Isi Kulkas Anda</h3>
-                <p className="kulkas-subtitle">Pilih semua bahan yang tersedia di rumah.</p>
-              </div>
-            </div>
-            <button type="button" className="btn-primary" onClick={() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' })}>
-              <i className="fa-solid fa-plus" />
-              Tambah Bahan
-            </button>
-          </div>
-          <div className="kulkas-grid">
-            {dataBahan.map((bahan) => (
-              <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
-                <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
-                <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
-                {bahan.nama_bahan}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {rekomendasiSection}
+          </>
+        ) : ctaBeranda}
       </main>
       {footerSection}
     </div>

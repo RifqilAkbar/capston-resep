@@ -179,6 +179,7 @@ app.get('/api/initial-data', wajibLogin, async (_req, res) => {
       SELECT
         r.id,
         r.judul_resep,
+        r.kategori,
         r.langkah_memasak,
         COALESCE(
           (
@@ -251,6 +252,7 @@ app.patch('/api/ingredients/:id/approve', wajibLogin, wajibAdmin, async (req, re
 
 app.post('/api/recipes', wajibLogin, async (req, res) => {
   const judulResep = String(req.body.judul_resep || '').trim()
+  const kategori = String(req.body.kategori || 'Lainnya').trim()
   const porsiDefault = Number.parseInt(req.body.porsi_default, 10) || 1
   const langkahMemasak = Array.isArray(req.body.langkah_memasak) ? req.body.langkah_memasak : []
   const ingredientIds = Array.isArray(req.body.ingredient_ids) ? req.body.ingredient_ids : []
@@ -266,8 +268,8 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
     await client.beginTransaction()
 
     const [recipeResult] = await client.query(
-      'INSERT INTO recipes (judul_resep, porsi_default, langkah_memasak) VALUES (?, ?, ?)',
-      [judulResep, porsiDefault, JSON.stringify(langkahMemasak)],
+      'INSERT INTO recipes (judul_resep, kategori, porsi_default, langkah_memasak) VALUES (?, ?, ?, ?)',
+      [judulResep, kategori, porsiDefault, JSON.stringify(langkahMemasak)],
     )
 
     const resepId = recipeResult.insertId
@@ -281,7 +283,7 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
 
     await client.commit()
     const [rows] = await pool.query(
-      'SELECT id, judul_resep, langkah_memasak FROM recipes WHERE id = ?',
+      'SELECT id, judul_resep, kategori, langkah_memasak FROM recipes WHERE id = ?',
       [resepId],
     )
     res.status(201).json({ resep: formatResep({ ...rows[0], recipe_ingredients: [] }) })
@@ -303,6 +305,7 @@ app.get('/api/public/data', async (_req, res) => {
         SELECT
           r.id,
           r.judul_resep,
+          r.kategori,
           r.langkah_memasak,
           COALESCE(
             (
@@ -348,6 +351,7 @@ app.get('/api/public/recipes/:id', async (req, res) => {
       SELECT
         r.id,
         r.judul_resep,
+        r.kategori,
         r.porsi_default,
         r.langkah_memasak,
         r.created_at,

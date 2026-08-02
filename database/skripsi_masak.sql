@@ -33,6 +33,7 @@ CREATE TABLE ingredients (
 CREATE TABLE recipes (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   judul_resep VARCHAR(255) NOT NULL,
+  kategori VARCHAR(100) NOT NULL DEFAULT 'Lainnya',
   porsi_default INT NOT NULL DEFAULT 1,
   langkah_memasak JSON NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -69,10 +70,10 @@ INSERT INTO ingredients (id, nama_bahan, kategori, status_validasi) VALUES
 (7, 'Wortel', 'Sayuran', TRUE),
 (8, 'Bayam', 'Sayuran', TRUE);
 
-INSERT INTO recipes (id, judul_resep, porsi_default, langkah_memasak) VALUES
-(1, 'Nasi Goreng Telur', 2, '[{"instruksi":"Tumis bawang merah, bawang putih, dan cabai sampai harum."},{"instruksi":"Masukkan telur lalu orak-arik sampai matang."},{"instruksi":"Masukkan nasi, aduk rata, lalu koreksi rasa."}]'),
-(2, 'Sup Ayam Wortel', 3, '[{"instruksi":"Rebus ayam sampai keluar kaldu."},{"instruksi":"Masukkan bawang putih dan wortel."},{"instruksi":"Masak sampai wortel empuk, lalu sajikan hangat."}]'),
-(3, 'Tumis Bayam Bawang Putih', 2, '[{"instruksi":"Tumis bawang putih sampai harum."},{"instruksi":"Masukkan bayam dan sedikit air."},{"instruksi":"Masak sebentar sampai bayam layu."}]');
+INSERT INTO recipes (id, judul_resep, kategori, porsi_default, langkah_memasak) VALUES
+(1, 'Nasi Goreng Telur', 'Nusantara', 2, '[{"instruksi":"Tumis bawang merah, bawang putih, dan cabai sampai harum."},{"instruksi":"Masukkan telur lalu orak-arik sampai matang."},{"instruksi":"Masukkan nasi, aduk rata, lalu koreksi rasa."}]'),
+(2, 'Sup Ayam Wortel', 'Nusantara', 3, '[{"instruksi":"Rebus ayam sampai keluar kaldu."},{"instruksi":"Masukkan bawang putih dan wortel."},{"instruksi":"Masak sampai wortel empuk, lalu sajikan hangat."}]'),
+(3, 'Tumis Bayam Bawang Putih', 'Sayuran', 2, '[{"instruksi":"Tumis bawang putih sampai harum."},{"instruksi":"Masukkan bayam dan sedikit air."},{"instruksi":"Masak sebentar sampai bayam layu."}]');
 
 INSERT INTO recipe_ingredients (recipe_id, ingredient_id, kuantitas, satuan) VALUES
 (1, 1, 1, 'piring'),
