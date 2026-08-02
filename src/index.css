@@ -2,6 +2,13 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Warna aksen dashboard Freshly (setelah login). */
+@theme {
+  --color-accent: #ff5722;
+  --color-accent-dark: #e64a19;
+  --color-accent-light: #ff8a50;
+}
+
 html {
   scroll-behavior: smooth;
 }
