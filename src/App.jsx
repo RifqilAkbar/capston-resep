@@ -1014,9 +1014,9 @@ function App() {
         {daftarKategori.map((nama) => pillKategori(nama))}
       </div>
 
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
-
       {kulkasSection}
+
+      <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
       <div className="space-y-4" id="resep">
         {loading ? (
