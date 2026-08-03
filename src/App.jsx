@@ -464,13 +464,13 @@ function App() {
 
   const navbar = (
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
-      <div className="max-w-6xl mx-auto px-4 lg:px-6">
+      <div className="page-container">
         <div className="flex items-center justify-between gap-4 h-16 lg:h-20">
           <a href="#/" className="flex items-center gap-2.5 shrink-0 group">
             <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
             <span className="leading-tight">
-              <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Pintar</span></span>
-              <span className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Temukan resep dari bahan di kulkas Anda</span>
+              <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
+              <span className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Jelajahi cita rasa Nusantara</span>
             </span>
           </a>
 
@@ -496,14 +496,14 @@ function App() {
 
   const footerSection = (
     <footer className="site-footer reveal">
-      <div className="footer-container">
+      <div className="footer-container page-container">
         <div className="footer-grid">
           <div className="footer-brand">
             <div className="footer-logo">
               <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
-              <span className="footer-logo-text">Buku Resep <span className="text-[#ff6b00]">Pintar</span></span>
+              <span className="footer-logo-text">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
             </div>
-            <p className="footer-desc">Buku Resep Pintar membantu Anda menemukan resep terbaik dari bahan yang tersedia.</p>
+            <p className="footer-desc">Buku Resep Nusantara membantu Anda menemukan resep terbaik dari bahan yang tersedia di dapur.</p>
           </div>
 
           <div className="footer-col">
@@ -519,15 +519,15 @@ function App() {
           <div className="footer-col">
             <h4 className="footer-title">Kontak</h4>
             <ul className="footer-links">
-              <li><a href="mailto:halo@bukureseppintar.com"><i className="fa-solid fa-envelope" />halo@bukureseppintar.com</a></li>
-              <li><a href="https://instagram.com/bukuresep.pintar" target="_blank" rel="noreferrer"><i className="fa-brands fa-instagram" />@bukuresep.pintar</a></li>
-              <li><a href="https://github.com" target="_blank" rel="noreferrer"><i className="fa-brands fa-github" />github.com/bukuresep</a></li>
+              <li><a href="mailto:halo@bukuresepnusantara.com"><i className="fa-solid fa-envelope" />halo@bukuresepnusantara.com</a></li>
+              <li><a href="https://instagram.com/bukuresep.nusantara" target="_blank" rel="noreferrer"><i className="fa-brands fa-instagram" />@bukuresep.nusantara</a></li>
+              <li><a href="https://github.com" target="_blank" rel="noreferrer"><i className="fa-brands fa-github" />github.com/bukuresepnusantara</a></li>
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} Buku Resep Pintar. Semua hak dilindungi.</p>
+          <p>© {new Date().getFullYear()} Buku Resep Nusantara. Semua hak dilindungi.</p>
         </div>
       </div>
     </footer>
@@ -602,7 +602,7 @@ function App() {
   const autoFocusSearch = typeof window !== 'undefined' && window.innerWidth >= 768
 
   const resepPage = (
-    <main className="max-w-5xl mx-auto px-4 mt-10 space-y-8 pb-16">
+    <main className="page-container mt-10 space-y-8 pb-16">
       <div>
         <span className="section-kicker"><i className="fa-solid fa-book-open" />Resep Nusantara</span>
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Jelajahi Kuliner Nusantara</h1>
@@ -621,7 +621,7 @@ function App() {
       {kulkasSection}
 
       {/* Filter sticky: kategori + pencarian */}
-      <div className="sticky top-16 lg:top-20 z-30 -mx-4 px-4 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
+      <div className="sticky top-16 lg:top-20 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
             {['Semua', ...daftarDaerah].map((nama) => pillKategori(nama))}

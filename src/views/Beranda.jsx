@@ -108,14 +108,14 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
 
   const heroSection = (
     <section className="hero">
-      <div className="hero-container">
+      <div className="page-container hero-container">
         <div>
           <span className="hero-badge">
             <i className="fa-solid fa-fire-flame-curved" />
-            Rekomendasi Resep Pintar
+Rekomendasi Resep Nusantara
           </span>
           <h1 className="hero-title">Resep Masakan <span className="hero-highlight">Nusantara</span></h1>
-          <p className="hero-subtitle">Temukan resep makanan khas Indonesia berdasarkan bahan yang tersedia di dapurmu.</p>
+          <p className="hero-subtitle">Temukan resep masakan khas Nusantara dari bahan yang tersedia di dapur Anda.</p>
 
           <div className="hero-actions">
             <a href="#/resep" className="btn-primary btn-lg">
@@ -212,7 +212,7 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
 
   const trendingSection = (
     <section className="trending-section reveal">
-      <div className="trending-container">
+      <div className="page-container trending-container">
         <div className="trending-header">
           <div>
             <span className="section-kicker"><i className="fa-solid fa-fire" />Trending</span>
@@ -232,7 +232,7 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
 
   const caraKerjaSection = (
     <section className="kategori-section">
-      <div className="kategori-container">
+      <div className="page-container kategori-container">
         <span className="section-kicker"><i className="fa-solid fa-lightbulb" />Cara Menggunakan</span>
         <h2 className="kategori-title">Cara Menggunakan</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
@@ -256,7 +256,7 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
 
   const kategoriSection = (
     <section className="kategori-section reveal">
-      <div className="kategori-container">
+      <div className="page-container kategori-container">
         <div>
           <span className="section-kicker"><i className="fa-solid fa-map-location-dot" />Jelajahi</span>
           <h2 className="kategori-title">🗺 Jelajahi Kuliner Nusantara</h2>
@@ -307,7 +307,7 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
       {kategoriSection}
       {caraKerjaSection}
 
-      <main className="max-w-5xl mx-auto px-4 mt-10 space-y-6">
+      <main className="page-container mt-10 space-y-6">
         {ctaBeranda}
       </main>
     </>
@@ -510,9 +510,9 @@ export default function Beranda({
   return (
     <>
       {/* ===== Hero ===== */}
-      <section className="max-w-6xl mx-auto px-4 lg:px-6 pt-12 md:pt-16 pb-2">
+      <section className="page-container pt-12 md:pt-16 pb-2">
         <span className="inline-flex items-center gap-2 bg-orange-100 dark:bg-orange-900/30 text-accent text-xs font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full">
-          <i className="fa-solid fa-fire-flame-curved" /> Rekomendasi Resep Pintar
+          <i className="fa-solid fa-fire-flame-curved" /> Rekomendasi Resep Nusantara
         </span>
         <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight">
           Mau Masak Apa <span className="text-accent">Hari Ini?</span>
@@ -543,7 +543,7 @@ export default function Beranda({
       </section>
 
       {/* ===== Resep Populer ===== */}
-      <section className="max-w-6xl mx-auto px-4 lg:px-6 py-8">
+      <section className="page-container py-8">
         {judulSection(
           'Populer', 'fa-fire', 'Resep Populer',
           <a href="#/resep" className="btn-secondary text-sm !px-4 !py-2"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>,
@@ -561,7 +561,7 @@ export default function Beranda({
       </section>
 
       {/* ===== Kategori Populer ===== */}
-      <section id="kategori-populer" className="max-w-6xl mx-auto px-4 lg:px-6 py-8">
+      <section id="kategori-populer" className="page-container py-8">
         {judulSection('Kategori', 'fa-tags', 'Kategori Populer', null)}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {daftarKategoriPopuler.map((nama) => (
@@ -584,7 +584,7 @@ export default function Beranda({
       </section>
 
       {/* ===== Di Bawah 30 Menit ===== */}
-      <section className="max-w-6xl mx-auto px-4 lg:px-6 py-8">
+      <section className="page-container py-8">
         {judulSection(
           'Cepat & Mudah', 'fa-bolt', 'Di Bawah 30 Menit',
           <a href="#/resep" className="text-accent font-bold text-sm hover:underline shrink-0">Lihat Semua</a>,
@@ -593,7 +593,7 @@ export default function Beranda({
       </section>
 
       {/* ===== Pengguna Teratas ===== */}
-      <section className="max-w-6xl mx-auto px-4 lg:px-6 py-8">
+      <section className="page-container py-8">
         {judulSection('Komunitas', 'fa-users', 'Pengguna Teratas', null)}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {DAFTAR_USER_POPULER.map((u) => (
@@ -628,7 +628,7 @@ export default function Beranda({
       </section>
 
       {/* ===== Konten untuk pengguna login ===== */}
-      <main className="max-w-5xl mx-auto px-4 mt-4 space-y-6">
+      <main className="page-container mt-4 space-y-6">
         {adminPanel}
 
         <div id="bagikan-resep" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">

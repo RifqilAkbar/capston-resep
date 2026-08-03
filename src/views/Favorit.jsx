@@ -4,7 +4,7 @@ export default function Favorit({ semuaResep, favoritIds, onToggleFavorit }) {
   const daftar = semuaResep.filter((r) => favoritIds.includes(Number(r.id)))
 
   return (
-    <main className="max-w-5xl mx-auto px-4 mt-10 space-y-8 pb-16">
+    <main className="page-container mt-10 space-y-8 pb-16">
       <div>
         <span className="section-kicker"><i className="fa-solid fa-heart" />Favorit</span>
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Resep Favorit</h1>

@@ -9,7 +9,7 @@ export default function Trending({ semuaResep, favoritIds, onToggleFavorit }) {
   )
 
   return (
-    <main className="max-w-5xl mx-auto px-4 mt-10 space-y-8 pb-16">
+    <main className="page-container mt-10 space-y-8 pb-16">
       <div>
         <span className="section-kicker"><i className="fa-solid fa-fire" />Trending</span>
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Masakan yang Sedang Populer</h1>

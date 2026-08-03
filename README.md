@@ -1,4 +1,4 @@
-# Buku Resep Pintar
+# Buku Resep Nusantara
 
 Aplikasi ini dibuat dengan `React`, `Vite`, `Express`, dan `MySQL/MariaDB`.
 

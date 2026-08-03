@@ -28,7 +28,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
 
   const handleBagikan = async () => {
     const url = window.location.href
-    const teks = `Lihat resep ${resep?.judul_resep} di Buku Resep Pintar!`
+    const teks = `Lihat resep ${resep?.judul_resep} di Buku Resep Nusantara!`
 
     if (navigator.share) {
       try { await navigator.share({ title: resep?.judul_resep, text: teks, url }) } catch { /* batal */ }
@@ -45,7 +45,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
 
   if (loading) {
     return (
-      <main className="max-w-3xl mx-auto px-4 mt-10 pb-16">
+      <main className="page-container mt-10 pb-16">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-8">
           <div className="skeleton-pulse h-8 w-2/3 mb-4" />
           <div className="skeleton-pulse h-4 w-1/3 mb-6" />
@@ -60,7 +60,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
 
   if (error || !resep) {
     return (
-      <main className="max-w-3xl mx-auto px-4 mt-10 pb-16">
+      <main className="page-container mt-10 pb-16">
         <div className="text-center py-16 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
           <i className="fa-solid fa-triangle-exclamation text-4xl text-red-400 mb-4" />
           <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Resep tidak ditemukan</h1>
@@ -101,7 +101,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 mt-8 pb-16">
+    <main className="page-container mt-8 pb-16">
       <button onClick={kembali} className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition flex items-center gap-2">
         <i className="fa-solid fa-arrow-left" /> Kembali ke Resep
       </button>
