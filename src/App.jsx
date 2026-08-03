@@ -6,6 +6,7 @@ import Beranda from './views/Beranda'
 import DetailResep from './views/DetailResep'
 import Favorit from './views/Favorit'
 import Riwayat from './views/Riwayat'
+import Trending from './views/Trending'
 import './index.css'
 
 // Fungsi tema untuk React — baca dari window.Theme jika tersedia
@@ -30,13 +31,14 @@ function ikonBahan(kategori) {
   return 'fa-bowl-food'
 }
 
-// Terjemahkan hash ke rute aplikasi: #/ , #/resep , #/resep/:id , #/favorit , #/riwayat
+// Terjemahkan hash ke rute aplikasi: #/ , #/resep , #/resep/:id , #/favorit , #/riwayat , #/trending
 function parseHash() {
   const path = window.location.hash.replace(/^#/, '').split('/').filter(Boolean)
   if (!path.length) return { view: 'beranda' }
   if (path[0] === 'resep') return path[1] ? { view: 'detail', id: path[1] } : { view: 'resep' }
   if (path[0] === 'favorit') return { view: 'favorit' }
   if (path[0] === 'riwayat') return { view: 'riwayat' }
+  if (path[0] === 'trending') return { view: 'trending' }
   return { view: 'beranda' }
 }
 
@@ -618,7 +620,7 @@ function App() {
 
       <div className="space-y-4" id="resep">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
           </div>
         ) : hasilFilter.length > 0 ? (
@@ -637,7 +639,7 @@ function App() {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {hasilFilter.map((resep, index) => (
                 <CardResep
                   key={resep.id}
@@ -689,6 +691,8 @@ function App() {
     konten = <Favorit semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
   } else if (route.view === 'riwayat') {
     konten = <Riwayat semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
+  } else if (route.view === 'trending') {
+    konten = <Trending semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
   } else {
     konten = (
       <Beranda

@@ -99,6 +99,70 @@ function formatAngka(n) {
   return n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + 'rb' : String(n)
 }
 
+function formatRibuan(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
+const TRENDING_DUMMY = [
+  { id: 'trend-1', judul: 'Ayam Geprek Crispy', kategori: 'Ayam', rating: '4.9', waktu: 25, bahan: 8, dimasak: 2345 },
+  { id: 'trend-2', judul: 'Nasi Goreng Spesial', kategori: 'Nasi', rating: '4.8', waktu: 20, bahan: 10, dimasak: 1980 },
+  { id: 'trend-3', judul: 'Mie Goreng Jawa', kategori: 'Mie', rating: '4.9', waktu: 18, bahan: 7, dimasak: 1720 },
+  { id: 'trend-4', judul: 'Soto Ayam', kategori: 'Sup', rating: '4.8', waktu: 40, bahan: 12, dimasak: 1540 },
+]
+
+function KartuTrending({ item, index }) {
+  const [gagal, setGagal] = useState(false)
+  const inisial = item.judul?.charAt(0)?.toUpperCase() || '?'
+  const bukaDetail = () => {
+    window.location.hash = typeof item.id === 'number' ? `#/resep/${item.id}` : '#/resep'
+  }
+
+  return (
+    <div className="reveal" style={{ '--reveal-delay': `${index * 100}ms` }}>
+      <article
+        onClick={bukaDetail}
+        className="trending-pop-card group relative cursor-pointer rounded-[18px] overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_16px_36px_rgba(255,107,0,0.18)] hover:-translate-y-1.5 transition-all duration-300"
+      >
+        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-orange-100 to-[#ffe3cd] dark:from-orange-900/40 dark:to-[#3a2416]">
+          {gagal ? (
+            <span className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-400 to-[#ff6b00] text-white text-4xl font-extrabold">{inisial}</span>
+          ) : (
+            <img
+              src={fotoResep(item.id, 480, 360)}
+              alt={item.judul}
+              loading="lazy"
+              onError={() => setGagal(true)}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
+          <span className="trending-pop-badge absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[11px] font-bold text-white bg-[#ff6b00] px-2.5 py-1 rounded-full shadow-sm">
+            <i className="fa-solid fa-fire" /> Trending
+          </span>
+        </div>
+
+        <div className="p-4">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#ff6b00]">{item.kategori}</span>
+          <h3 className="mt-1 font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-1">{item.judul}</h3>
+
+          <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-star text-amber-400" /> {item.rating}</span>
+            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-clock text-gray-400" /> {item.waktu} mnt</span>
+            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-carrot text-green-500" /> {item.bahan} bahan</span>
+            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-user-chef text-orange-400" /> {formatRibuan(item.dimasak)} dimasak</span>
+          </div>
+
+          <button
+            type="button"
+            className="mt-4 w-full bg-[#ff6b00] hover:bg-[#e65f00] text-white text-sm font-bold py-2.5 rounded-xl transition-colors duration-300"
+          >
+            <i className="fa-solid fa-utensils mr-1" /> Lihat Detail
+          </button>
+        </div>
+      </article>
+    </div>
+  )
+}
+
 function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onToggleFavorit, onPilihKategori }) {
   const daftarKategori = useMemo(
     () => [...new Set(dataResep.map((r) => r.kategori).filter(Boolean))],
@@ -110,6 +174,22 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
         { nama: 'Ayam' }, { nama: 'Daging' }, { nama: 'Sayuran' }, { nama: 'Telur' },
         { nama: 'Mie' }, { nama: 'Pasta' }, { nama: 'Western' }, { nama: 'Nusantara' }, { nama: 'Jepang' },
       ]
+
+  const dataTrending = useMemo(() => {
+    if (semuaResep.length === 0) return TRENDING_DUMMY
+    return [...semuaResep]
+      .sort((a, b) => mockLike(b.id) - mockLike(a.id))
+      .slice(0, 4)
+      .map((r) => ({
+        id: r.id,
+        judul: r.judul,
+        kategori: r.kategori,
+        rating: (4.5 + (Number(r.id) % 5) * 0.1).toFixed(1),
+        waktu: mockDurasi(r.id),
+        bahan: r.jumlahBahan || 0,
+        dimasak: mockLike(r.id),
+      }))
+  }, [semuaResep])
 
   const heroSection = (
     <section className="hero">
@@ -215,6 +295,26 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
     </section>
   )
 
+  const trendingSection = (
+    <section className="trending-section reveal">
+      <div className="trending-container">
+        <div className="trending-header">
+          <div>
+            <span className="section-kicker"><i className="fa-solid fa-fire" />Trending</span>
+            <h2 className="trending-title">Masakan yang Sedang Populer</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Temukan resep yang sedang banyak dimasak oleh pengguna hari ini.</p>
+          </div>
+          <a href="#/trending" className="btn-secondary shrink-0"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>
+        </div>
+        <div className="trending-pop-scroll">
+          {dataTrending.map((item, i) => (
+            <KartuTrending key={item.id} item={item} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+
   const caraKerjaSection = (
     <section className="kategori-section">
       <div className="kategori-container">
@@ -300,6 +400,7 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
   return (
     <>
       {heroSection}
+      {trendingSection}
       {caraKerjaSection}
       {kategoriSection}
       {terbaruSection}
