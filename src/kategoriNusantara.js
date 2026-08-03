@@ -1,6 +1,7 @@
 // Kategori Daerah Masakan Nusantara — pemetaan tampilan tanpa mengubah database.
-// Sumber kebenaran tunggal: dipakai Beranda ("Jelajahi Berdasarkan Daerah")
-// dan filter halaman Resep.
+// Sumber kebenaran tunggal: dipakai Beranda ("Jelajahi Kuliner Nusantara")
+// dan filter halaman Resep. Judul resep dipetakan ke daerah via kata kunci.
+
 export const KATEGORI_DAERAH = [
   { nama: 'Jawa Tengah', emoji: '🏛️' },
   { nama: 'Yogyakarta', emoji: '🏯' },
@@ -9,91 +10,143 @@ export const KATEGORI_DAERAH = [
   { nama: 'Padang', emoji: '🌋' },
   { nama: 'Betawi', emoji: '🕌' },
   { nama: 'Bali', emoji: '🏖️' },
+  { nama: 'Sumatera', emoji: '🌴' },
+  { nama: 'Sulawesi', emoji: '🗻' },
+  { nama: 'Kalimantan', emoji: '🌿' },
 ]
 
 const KATEGORI_DEFAULT = 'Jawa Tengah'
 
-// Pasangan [kata kunci, daerah]. Urut lebih spesifik dulu agar misalnya
-// "Soto Lamongan" tidak tertangkap sebagai soto umum. Dicocokkan pada judul resep.
+// Pasangan [kata kunci, daerah]. Dicocokkan pada judul resep, kata yang lebih
+// spesifik diletakkan lebih dulu agar tidak tertangkap kata umum (mis. "gudeg
+// jogja" sebelum "gudeg", "gulai ikan patin" sebelum "gulai").
 const PEMETAAN = [
-  // Jawa Tengah
-  ['tempe mendoan', 'Jawa Tengah'],
+  // ---- Penghindar ambiguitas (spesifik dulu) ----
+  ['gudeg jogja', 'Yogyakarta'],
+  ['gulai ikan patin', 'Sumatera'],
+  ['oseng mercon', 'Yogyakarta'],
+  ['nasi tutug oncom', 'Jawa Barat'],
+
+  // ---- Jawa Tengah ----
+  ['gudeg', 'Jawa Tengah'],
+  ['soto kudus', 'Jawa Tengah'],
+  ['garang asem', 'Jawa Tengah'],
+  ['nasi liwet', 'Jawa Tengah'],
+  ['tengkleng', 'Jawa Tengah'],
+  ['mangut', 'Jawa Tengah'],
+  ['selat solo', 'Jawa Tengah'],
+  ['tahu gimbal', 'Jawa Tengah'],
+  ['lumpia', 'Jawa Tengah'],
   ['mendoan', 'Jawa Tengah'],
+  ['tempe mendoan', 'Jawa Tengah'],
   ['krecek', 'Jawa Tengah'],
   ['sayur lodeh', 'Jawa Tengah'],
   ['lodeh', 'Jawa Tengah'],
   ['tongseng', 'Jawa Tengah'],
-  ['nasi liwet', 'Jawa Tengah'],
-  ['garang asem', 'Jawa Tengah'],
   ['lentog', 'Jawa Tengah'],
   ['buntil', 'Jawa Tengah'],
 
-  // Yogyakarta
-  ['gudeg', 'Yogyakarta'],
-  ['sate klatak', 'Yogyakarta'],
-  ['klatak', 'Yogyakarta'],
-  ['mangut', 'Yogyakarta'],
+  // ---- Yogyakarta ----
+  ['mercon', 'Yogyakarta'],
+  ['sate klathak', 'Yogyakarta'],
+  ['klathak', 'Yogyakarta'],
+  ['brongkos', 'Yogyakarta'],
+  ['bakpia', 'Yogyakarta'],
+  ['geplak', 'Yogyakarta'],
   ['nasi kucing', 'Yogyakarta'],
 
-  // Jawa Timur
+  // ---- Jawa Timur ----
   ['rawon', 'Jawa Timur'],
   ['soto lamongan', 'Jawa Timur'],
-  ['pecel', 'Jawa Timur'],
+  ['rujak cingur', 'Jawa Timur'],
   ['rujak', 'Jawa Timur'],
+  ['pecel', 'Jawa Timur'],
   ['lontong balap', 'Jawa Timur'],
   ['tahu campur', 'Jawa Timur'],
   ['tahu tek', 'Jawa Timur'],
+  ['nasi krawu', 'Jawa Timur'],
+  ['semanggi', 'Jawa Timur'],
+  ['soto madura', 'Jawa Timur'],
+  ['bebek sinjay', 'Jawa Timur'],
   ['sate madura', 'Jawa Timur'],
   ['sambal tumpang', 'Jawa Timur'],
   ['nasi kuning', 'Jawa Timur'],
 
-  // Jawa Barat
+  // ---- Jawa Barat ----
   ['karedok', 'Jawa Barat'],
+  ['lotek', 'Jawa Barat'],
+  ['oncom', 'Jawa Barat'],
+  ['empal gentong', 'Jawa Barat'],
+  ['seblak', 'Jawa Barat'],
+  ['batagor', 'Jawa Barat'],
+  ['cuanki', 'Jawa Barat'],
+  ['mie kocok', 'Jawa Barat'],
+  ['surabi', 'Jawa Barat'],
+  ['soto bandung', 'Jawa Barat'],
   ['pepes', 'Jawa Barat'],
   ['nasi timbel', 'Jawa Barat'],
-  ['seblak', 'Jawa Barat'],
-  ['mie kocok', 'Jawa Barat'],
-  ['batagor', 'Jawa Barat'],
   ['tahu sumedang', 'Jawa Barat'],
   ['cilok', 'Jawa Barat'],
   ['bandrek', 'Jawa Barat'],
   ['sate bandung', 'Jawa Barat'],
-  ['oncom', 'Jawa Barat'],
-  ['lotek', 'Jawa Barat'],
 
-  // Padang (Sumatera Barat)
+  // ---- Padang ----
   ['rendang', 'Padang'],
-  ['gulai', 'Padang'],
   ['dendeng', 'Padang'],
-  ['sate padang', 'Padang'],
+  ['gulai tunjang', 'Padang'],
+  ['gulai kepala ikan', 'Padang'],
+  ['gulai', 'Padang'],
   ['ayam pop', 'Padang'],
+  ['sambal ijo', 'Padang'],
+  ['soto padang', 'Padang'],
+  ['sate padang', 'Padang'],
   ['nasi padang', 'Padang'],
   ['balado', 'Padang'],
   ['talua', 'Padang'],
   ['ketupat sayur', 'Padang'],
 
-  // Betawi (Jakarta)
+  // ---- Betawi ----
   ['soto betawi', 'Betawi'],
-  ['semur betawi', 'Betawi'],
-  ['semur', 'Betawi'],
   ['kerak telor', 'Betawi'],
   ['asinan betawi', 'Betawi'],
   ['asinan', 'Betawi'],
+  ['semur jengkol', 'Betawi'],
+  ['semur', 'Betawi'],
+  ['gabus pucung', 'Betawi'],
   ['ketoprak', 'Betawi'],
   ['nasi uduk', 'Betawi'],
   ['sayur asem', 'Betawi'],
   ['gado-gado', 'Betawi'],
 
-  // Bali
-  ['babi guling', 'Bali'],
+  // ---- Bali ----
   ['ayam betutu', 'Bali'],
   ['bebek betutu', 'Bali'],
   ['betutu', 'Bali'],
   ['sate lilit', 'Bali'],
   ['lawar', 'Bali'],
+  ['nasi campur bali', 'Bali'],
+  ['tum ayam', 'Bali'],
   ['sambal matah', 'Bali'],
   ['nasi jinggo', 'Bali'],
   ['plecing', 'Bali'],
+
+  // ---- Sulawesi ----
+  ['coto makassar', 'Sulawesi'],
+  ['pallubasa', 'Sulawesi'],
+  ['konro', 'Sulawesi'],
+  ['tinutuan', 'Sulawesi'],
+  ['woku', 'Sulawesi'],
+
+  // ---- Kalimantan ----
+  ['soto banjar', 'Kalimantan'],
+  ['ketupat kandangan', 'Kalimantan'],
+  ['juhu singkah', 'Kalimantan'],
+
+  // ---- Sumatera ----
+  ['pempek', 'Sumatera'],
+  ['tekwan', 'Sumatera'],
+  ['mie aceh', 'Sumatera'],
+  ['bika ambon', 'Sumatera'],
 ]
 
 function normalisasi(judul) {
@@ -128,6 +181,7 @@ const KATA_BUMBU = [
   'lengkuas', 'laos', 'serai', 'sereh', 'salam', 'jeruk', 'kemiri', 'garam', 'gula',
   'minyak', 'kecap', 'santan', 'terasi', 'asam', 'cuka', 'bumbu', 'rempah', 'saus',
   'penyedap', 'kaldu', 'pala', 'cengkeh', 'kayu manis', 'adas', 'jintan', 'daun jeruk',
+  'kencur', 'kapulaga', 'kemangi',
 ]
 
 export function adalahBumbu(bahan) {

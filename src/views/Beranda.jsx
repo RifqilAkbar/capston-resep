@@ -92,12 +92,15 @@ function formatAngka(n) {
 // Contoh makanan khas per daerah (tampilan kartu, bukan logika database).
 const CONTOH_MAKANAN = {
   'Jawa Tengah': 'Gudeg • Soto Kudus',
-  'Yogyakarta': 'Gudeg • Sate Klatak',
+  'Yogyakarta': 'Gudeg • Sate Klathak',
   'Jawa Timur': 'Rawon • Soto Lamongan',
   'Jawa Barat': 'Karedok • Lotek',
   'Padang': 'Rendang • Dendeng Balado',
   'Betawi': 'Soto Betawi • Kerak Telor',
   'Bali': 'Ayam Betutu • Sate Lilit',
+  'Sumatera': 'Pempek • Mie Aceh',
+  'Sulawesi': 'Coto Makassar • Sop Konro',
+  'Kalimantan': 'Soto Banjar • Ketupat Kandangan',
 }
 
 function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onToggleFavorit, onPilihKategori }) {
