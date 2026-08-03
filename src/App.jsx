@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
-import { kelompokkanBahan } from './bahanKelompok'
+import { kategoriNusantara, KATEGORI_DAERAH, adalahBumbu } from './kategoriNusantara'
 import { CardResep, SkeletonCard } from './components/CardResep'
 import { MusicPlayer } from './components/MusicPlayer'
 import { SearchBar } from './components/SearchBar'
@@ -322,7 +322,7 @@ function App() {
         id: resep.id,
         judul: resep.judul_resep,
         langkah: resep.langkah_memasak,
-        kategori: resep.kategori || 'Lainnya',
+        kategori: kategoriNusantara(resep.judul_resep),
         persentase: Math.round(skor * 100),
         jumlahBahan: resep.recipe_ingredients?.length || 0,
         bahan: resep.recipe_ingredients || [],
@@ -350,17 +350,12 @@ function App() {
       .sort((a, b) => b.persentase - a.persentase)
   }, [resepLengkap, kategoriAktif, searchQuery, kulkasUser, modeJelajah])
 
-  const daftarKategori = useMemo(() => {
-    const set = new Set()
-    dataResep.forEach((r) => { if (r.kategori) set.add(r.kategori) })
-    return [...set]
-  }, [dataResep])
+  // Daftar daerah filter: Semua + 7 daerah Nusantara (konsisten dengan Beranda).
+  const daftarDaerah = KATEGORI_DAERAH.map((d) => d.nama)
 
-  // Kelompokkan tampilan bahan menjadi "Bahan Umum" dan "Bahan Unik Khas Nusantara".
-  const { umum: bahanUmum, unik: bahanUnikList } = useMemo(
-    () => kelompokkanBahan(dataBahan),
-    [dataBahan],
-  )
+  // Pembagian bahan untuk tampilan (tidak mengubah logika pencarian).
+  const bahanUmum = useMemo(() => dataBahan.filter((b) => !adalahBumbu(b)), [dataBahan])
+  const bahanBumbu = useMemo(() => dataBahan.filter((b) => adalahBumbu(b)), [dataBahan])
 
   // ===== Chrome (navbar + footer) =====
 
@@ -397,6 +392,7 @@ function App() {
       <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
+        placeholder="Cari Gudeg, Rawon, Soto Betawi..."
         onEnter={() => { if (route.view !== 'resep') window.location.hash = '#/resep' }}
       />
     </div>
@@ -413,6 +409,7 @@ function App() {
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
+            placeholder="Cari Gudeg, Rawon, Soto Betawi..."
             onEnter={() => { if (route.view !== 'resep') window.location.hash = '#/resep' }}
           />
         </div>
@@ -548,14 +545,6 @@ function App() {
     </button>
   )
 
-  const chipBahan = (bahan, unik = false) => (
-    <label key={bahan.id} className={`kulkas-chip ${unik ? 'kulkas-chip-unik' : ''} ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
-      <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
-      <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
-      {bahan.nama_bahan}
-    </label>
-  )
-
   const kulkasSection = (
     <div id="kulkas" className="kulkas-section reveal">
       <div className="kulkas-header">
@@ -583,24 +572,30 @@ function App() {
           </button>
         </div>
       </div>
-
-      {bahanUmum.length > 0 && (
-        <div className="kulkas-group">
-          <h4 className="kulkas-group-title"><span className="kulkas-group-emoji">🥬</span> Bahan Umum</h4>
-          <div className="kulkas-grid">
-            {bahanUmum.map((bahan) => chipBahan(bahan))}
-          </div>
+      <div className="kulkas-group">
+        <h4 className="kulkas-group-title"><span>🥬</span> Bahan Umum</h4>
+        <div className="kulkas-grid">
+          {bahanUmum.map((bahan) => (
+            <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
+              <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+              <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
+              {bahan.nama_bahan}
+            </label>
+          ))}
         </div>
-      )}
-
-      {bahanUnikList.length > 0 && (
-        <div className="kulkas-group">
-          <h4 className="kulkas-group-title"><span className="kulkas-group-emoji">🌿</span> Bahan Unik Khas Nusantara</h4>
-          <div className="kulkas-grid">
-            {bahanUnikList.map((bahan) => chipBahan(bahan, true))}
-          </div>
+      </div>
+      <div className="kulkas-group">
+        <h4 className="kulkas-group-title"><span>🌿</span> Bumbu &amp; Rempah Nusantara</h4>
+        <div className="kulkas-grid">
+          {bahanBumbu.map((bahan) => (
+            <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
+              <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+              <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
+              {bahan.nama_bahan}
+            </label>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   )
 
@@ -609,9 +604,9 @@ function App() {
   const resepPage = (
     <main className="max-w-5xl mx-auto px-4 mt-10 space-y-8 pb-16">
       <div>
-        <span className="section-kicker"><i className="fa-solid fa-book-open" />Resep</span>
-        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Jelajahi Resep</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih bahan di kulkas Anda, lalu jelajahi berdasarkan kategori.</p>
+        <span className="section-kicker"><i className="fa-solid fa-book-open" />Resep Nusantara</span>
+        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Jelajahi Kuliner Nusantara</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih bahan yang tersedia untuk menemukan resep makanan khas Indonesia yang dapat Anda masak.</p>
       </div>
 
       {kulkasUser.length === 0 && (
@@ -629,15 +624,14 @@ function App() {
       <div className="sticky top-16 lg:top-20 z-30 -mx-4 px-4 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
-            {pillKategori('Semua')}
-            {daftarKategori.map((nama) => pillKategori(nama))}
+            {['Semua', ...daftarDaerah].map((nama) => pillKategori(nama))}
           </div>
           <div className="w-full md:w-64 shrink-0">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
               autoFocus={autoFocusSearch}
-              placeholder={kategoriAktif !== 'Semua' ? `Cari dalam "${kategoriAktif}"...` : 'Cari resep, bahan, atau kategori...'}
+              placeholder={kategoriAktif !== 'Semua' ? `Cari dalam "${kategoriAktif}"...` : 'Cari Gudeg, Rawon, Soto Betawi...'}
             />
           </div>
         </div>

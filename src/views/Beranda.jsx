@@ -1,19 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { CardResep } from '../components/CardResep'
+import { kategoriResep } from '../kategoriNusantara'
+import { FOTO_DAERAH } from '../fotoMakanan'
 import { DAFTAR_USER_POPULER, fotoAvatar, fotoKategori, fotoResep, mockDurasi, mockLike } from '../mock'
-
-const KATEGORI_ICONS = {
-  'Ayam': 'fa-drumstick-bite',
-  'Daging': 'fa-burger',
-  'Sayuran': 'fa-leaf',
-  'Telur': 'fa-egg',
-  'Mie': 'fa-bowl-food',
-  'Pasta': 'fa-utensils',
-  'Western': 'fa-pizza-slice',
-  'Nusantara': 'fa-bowl-rice',
-  'Jepang': 'fa-fish',
-}
 
 function ThumbKategori({ nama }) {
   const [gagal, setGagal] = useState(false)
@@ -99,97 +89,19 @@ function formatAngka(n) {
   return n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + 'rb' : String(n)
 }
 
-function formatRibuan(n) {
-  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-}
-
-const TRENDING_DUMMY = [
-  { id: 'trend-1', judul: 'Ayam Geprek Crispy', kategori: 'Ayam', rating: '4.9', waktu: 25, bahan: 8, dimasak: 2345 },
-  { id: 'trend-2', judul: 'Nasi Goreng Spesial', kategori: 'Nasi', rating: '4.8', waktu: 20, bahan: 10, dimasak: 1980 },
-  { id: 'trend-3', judul: 'Mie Goreng Jawa', kategori: 'Mie', rating: '4.9', waktu: 18, bahan: 7, dimasak: 1720 },
-  { id: 'trend-4', judul: 'Soto Ayam', kategori: 'Sup', rating: '4.8', waktu: 40, bahan: 12, dimasak: 1540 },
-]
-
-function KartuTrending({ item, index }) {
-  const [gagal, setGagal] = useState(false)
-  const inisial = item.judul?.charAt(0)?.toUpperCase() || '?'
-  const bukaDetail = () => {
-    window.location.hash = typeof item.id === 'number' ? `#/resep/${item.id}` : '#/resep'
-  }
-
-  return (
-    <div className="reveal" style={{ '--reveal-delay': `${index * 100}ms` }}>
-      <article
-        onClick={bukaDetail}
-        className="trending-pop-card group relative cursor-pointer rounded-[18px] overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_16px_36px_rgba(255,107,0,0.18)] hover:-translate-y-1.5 transition-all duration-300"
-      >
-        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-orange-100 to-[#ffe3cd] dark:from-orange-900/40 dark:to-[#3a2416]">
-          {gagal ? (
-            <span className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-400 to-[#ff6b00] text-white text-4xl font-extrabold">{inisial}</span>
-          ) : (
-            <img
-              src={fotoResep(item.id, 480, 360)}
-              alt={item.judul}
-              loading="lazy"
-              onError={() => setGagal(true)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          )}
-          <span className="trending-pop-badge absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[11px] font-bold text-white bg-[#ff6b00] px-2.5 py-1 rounded-full shadow-sm">
-            <i className="fa-solid fa-fire" /> Trending
-          </span>
-        </div>
-
-        <div className="p-4">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#ff6b00]">{item.kategori}</span>
-          <h3 className="mt-1 font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-1">{item.judul}</h3>
-
-          <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-star text-amber-400" /> {item.rating}</span>
-            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-clock text-gray-400" /> {item.waktu} mnt</span>
-            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-carrot text-green-500" /> {item.bahan} bahan</span>
-            <span className="inline-flex items-center gap-1"><i className="fa-solid fa-user-chef text-orange-400" /> {formatRibuan(item.dimasak)} dimasak</span>
-          </div>
-
-          <button
-            type="button"
-            className="mt-4 w-full bg-[#ff6b00] hover:bg-[#e65f00] text-white text-sm font-bold py-2.5 rounded-xl transition-colors duration-300"
-          >
-            <i className="fa-solid fa-utensils mr-1" /> Lihat Detail
-          </button>
-        </div>
-      </article>
-    </div>
-  )
+// Contoh makanan khas per daerah (tampilan kartu, bukan logika database).
+const CONTOH_MAKANAN = {
+  'Jawa Tengah': 'Gudeg • Soto Kudus',
+  'Yogyakarta': 'Gudeg • Sate Klatak',
+  'Jawa Timur': 'Rawon • Soto Lamongan',
+  'Jawa Barat': 'Karedok • Lotek',
+  'Padang': 'Rendang • Dendeng Balado',
+  'Betawi': 'Soto Betawi • Kerak Telor',
+  'Bali': 'Ayam Betutu • Sate Lilit',
 }
 
 function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onToggleFavorit, onPilihKategori }) {
-  const daftarKategori = useMemo(
-    () => [...new Set(dataResep.map((r) => r.kategori).filter(Boolean))],
-    [dataResep],
-  )
-  const kategoriList = daftarKategori.length > 0
-    ? daftarKategori.map((nama) => ({ nama }))
-    : [
-        { nama: 'Ayam' }, { nama: 'Daging' }, { nama: 'Sayuran' }, { nama: 'Telur' },
-        { nama: 'Mie' }, { nama: 'Pasta' }, { nama: 'Western' }, { nama: 'Nusantara' }, { nama: 'Jepang' },
-      ]
-
-  const dataTrending = useMemo(() => {
-    if (semuaResep.length === 0) return TRENDING_DUMMY
-    return [...semuaResep]
-      .sort((a, b) => mockLike(b.id) - mockLike(a.id))
-      .slice(0, 4)
-      .map((r) => ({
-        id: r.id,
-        judul: r.judul,
-        kategori: r.kategori,
-        rating: (4.5 + (Number(r.id) % 5) * 0.1).toFixed(1),
-        waktu: mockDurasi(r.id),
-        bahan: r.jumlahBahan || 0,
-        dimasak: mockLike(r.id),
-      }))
-  }, [semuaResep])
+  const daftarDaerah = useMemo(() => kategoriResep(dataResep), [dataResep])
 
   const heroSection = (
     <section className="hero">
@@ -199,8 +111,8 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
             <i className="fa-solid fa-fire-flame-curved" />
             Rekomendasi Resep Pintar
           </span>
-          <h1 className="hero-title">Mau Masak Apa <span className="hero-highlight">Hari Ini?</span></h1>
-          <p className="hero-subtitle">Pilih bahan yang tersedia di kulkas dan dapatkan rekomendasi resep yang paling cocok.</p>
+          <h1 className="hero-title">Resep Masakan <span className="hero-highlight">Nusantara</span></h1>
+          <p className="hero-subtitle">Temukan resep makanan khas Indonesia berdasarkan bahan yang tersedia di dapurmu.</p>
 
           <div className="hero-actions">
             <a href="#/resep" className="btn-primary btn-lg">
@@ -226,7 +138,7 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
             </div>
             <div className="hero-stat">
               <i className="fa-solid fa-tags hero-stat-icon" />
-              <span className="hero-stat-number">{loading ? '–' : daftarKategori.length}</span>
+              <span className="hero-stat-number">{loading ? '–' : daftarDaerah.length}</span>
               <span className="hero-stat-label">Kategori</span>
             </div>
           </div>
@@ -301,14 +213,14 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
         <div className="trending-header">
           <div>
             <span className="section-kicker"><i className="fa-solid fa-fire" />Trending</span>
-            <h2 className="trending-title">Masakan yang Sedang Populer</h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Temukan resep yang sedang banyak dimasak oleh pengguna hari ini.</p>
+            <h2 className="trending-title">🔥 Trending Resep Nusantara</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Resep khas Indonesia yang sedang populer dan banyak dicari.</p>
           </div>
-          <a href="#/trending" className="btn-secondary shrink-0"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>
+          <a href="#/resep" className="btn-secondary shrink-0"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>
         </div>
-        <div className="trending-pop-scroll">
-          {dataTrending.map((item, i) => (
-            <KartuTrending key={item.id} item={item} index={i} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {semuaResep.slice(0, 6).map((r, i) => (
+            <CardResep key={r.id} resep={r} index={i} isFavorit={favoritIds.includes(Number(r.id))} onToggleFavorit={onToggleFavorit} />
           ))}
         </div>
       </div>
@@ -318,13 +230,13 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
   const caraKerjaSection = (
     <section className="kategori-section">
       <div className="kategori-container">
-        <span className="section-kicker"><i className="fa-solid fa-lightbulb" />Cara Kerja</span>
-        <h2 className="kategori-title">Mulai dalam 3 Langkah Mudah</h2>
+        <span className="section-kicker"><i className="fa-solid fa-lightbulb" />Cara Menggunakan</span>
+        <h2 className="kategori-title">Cara Menggunakan</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
           {[
-            { icon: 'fa-kitchen-set', judul: 'Pilih Bahan', teks: 'Centang bahan yang tersedia di kulkas atau rumah Anda.' },
-            { icon: 'fa-wand-magic-sparkles', judul: 'Dapatkan Rekomendasi', teks: 'Sistem mencocokkan bahan Anda dengan daftar resep yang tersedia.' },
-            { icon: 'fa-fire', judul: 'Mulai Masak', teks: 'Ikuti langkah demi langkah dan sajikan hidangan lezat.' },
+            { icon: 'fa-kitchen-set', judul: 'Pilih Bahan', teks: 'Pilih bahan yang tersedia di kulkas atau dapurmu.' },
+            { icon: 'fa-wand-magic-sparkles', judul: 'Sistem Mencari Resep', teks: 'Sistem mencocokkan bahanmu dengan resep khas Nusantara yang cocok.' },
+            { icon: 'fa-fire', judul: 'Mulai Memasak', teks: 'Ikuti langkah demi langkah dan sajikan hidangan lezat.' },
           ].map((s, i) => (
             <div key={s.judul} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-center shadow-sm">
               <span className="inline-flex w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-300 items-center justify-center text-xl mb-4">
@@ -340,19 +252,15 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
   )
 
   const kategoriSection = (
-    <section className="kategori-section">
+    <section className="kategori-section reveal">
       <div className="kategori-container">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <span className="section-kicker"><i className="fa-solid fa-tags" />Kategori</span>
-            <h2 className="kategori-title">Jelajahi Berdasarkan Kategori</h2>
-          </div>
-          <a href="#/resep" className="text-sm font-bold text-orange-600 dark:text-orange-400 hover:underline shrink-0 pb-1">
-            Lihat Semua
-          </a>
+        <div>
+          <span className="section-kicker"><i className="fa-solid fa-map-location-dot" />Jelajahi</span>
+          <h2 className="kategori-title">🗺 Jelajahi Kuliner Nusantara</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Pilih daerah untuk menemukan berbagai makanan khas Indonesia.</p>
         </div>
         <div className="kategori-scroll">
-          {kategoriList.map((kategori, i) => (
+          {daftarDaerah.map((kategori, i) => (
             <button
               key={kategori.nama}
               type="button"
@@ -360,28 +268,20 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
               style={{ '--reveal-delay': `${Math.min(i, 8) * 60}ms` }}
               onClick={() => onPilihKategori(kategori.nama)}
             >
-              <i className={`fa-solid ${KATEGORI_ICONS[kategori.nama] || 'fa-bowl-food'}`} />
-              <span className="kategori-name">{kategori.nama}</span>
+              <div className="kategori-card-photo">
+                <img
+                  src={FOTO_DAERAH[kategori.nama]}
+                  alt={kategori.nama}
+                  loading="lazy"
+                  className="kategori-card-img"
+                />
+                <span className="kategori-card-photo-overlay" aria-hidden="true" />
+              </div>
+              <div className="kategori-card-body">
+                <span className="kategori-card-name">{kategori.nama}</span>
+                <span className="kategori-card-contoh">{CONTOH_MAKANAN[kategori.nama] || 'Hidangan khas daerah'}</span>
+              </div>
             </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-
-  const terbaruSection = dataResep.length > 0 && (
-    <section className="trending-section">
-      <div className="trending-container">
-        <div className="trending-header">
-          <div>
-            <span className="section-kicker"><i className="fa-solid fa-clock-rotate-left" />Terbaru</span>
-            <h2 className="trending-title">Resep Terbaru</h2>
-          </div>
-          <a href="#/resep" className="btn-secondary"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {semuaResep.slice(0, 6).map((r, i) => (
-            <CardResep key={r.id} resep={r} index={i} isFavorit={favoritIds.includes(Number(r.id))} onToggleFavorit={onToggleFavorit} />
           ))}
         </div>
       </div>
@@ -401,9 +301,8 @@ function GuestView({ dataResep, dataBahan, loading, semuaResep, favoritIds, onTo
     <>
       {heroSection}
       {trendingSection}
-      {caraKerjaSection}
       {kategoriSection}
-      {terbaruSection}
+      {caraKerjaSection}
 
       <main className="max-w-5xl mx-auto px-4 mt-10 space-y-6">
         {ctaBeranda}

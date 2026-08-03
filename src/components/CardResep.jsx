@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { ICON_HEART_FILLED, ICON_HEART_OUTLINE } from './icons'
+import { fotoMakanan } from '../fotoMakanan'
+import { mockDurasi } from '../mock'
 
 export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
-  const inisial = resep.judul?.charAt(0)?.toUpperCase() || '?'
+  const [gagal, setGagal] = useState(false)
+  const rating = (4.5 + (Number(resep.id) % 5) * 0.1).toFixed(1)
+  const waktu = mockDurasi(resep.id)
   const bukaResep = () => { window.location.hash = `#/resep/${resep.id}` }
 
   return (
@@ -14,10 +19,20 @@ export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
       <div className="recipe-photo">
         <span className="recipe-photo-deco recipe-photo-deco-a" />
         <span className="recipe-photo-deco recipe-photo-deco-b" />
-        <div className="recipe-photo-plate">
-          <span className="recipe-initial">{inisial}</span>
-          <i className="fa-solid fa-utensils" />
-        </div>
+        {gagal ? (
+          <div className="recipe-photo-plate">
+            <i className="fa-solid fa-utensils" />
+          </div>
+        ) : (
+          <img
+            src={fotoMakanan(resep.judul)}
+            alt={resep.judul}
+            loading="lazy"
+            onError={() => setGagal(true)}
+            className="recipe-photo-img"
+          />
+        )}
+        <span className="recipe-photo-overlay" aria-hidden="true" />
 
         <button
           onClick={(e) => {
@@ -37,12 +52,12 @@ export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
 
       <div className="recipe-body">
         <div className="recipe-meta">
-          <span><i className="fa-solid fa-bowl-food" />{resep.porsi} porsi</span>
-          <span><i className="fa-solid fa-list-ul" />{resep.jumlahBahan} bahan</span>
+          <span><i className="fa-solid fa-star text-amber-400" />{rating}</span>
+          <span><i className="fa-solid fa-clock" />{waktu} mnt</span>
         </div>
 
         <h4 className="recipe-title">{resep.judul}</h4>
-        <span className="recipe-category">{resep.kategori}</span>
+        <span className="recipe-category"><i className="fa-solid fa-location-dot" /> {resep.kategori}</span>
 
         {resep.persentase > 0 && (
           <div>
@@ -63,7 +78,7 @@ export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
           }}
           className="recipe-btn"
         >
-          Lihat Detail
+          <i className="fa-solid fa-utensils mr-1" /> Lihat Detail
         </button>
       </div>
     </div>
