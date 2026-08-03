@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
+import { kelompokkanBahan } from './bahanKelompok'
 import { CardResep, SkeletonCard } from './components/CardResep'
+import { MusicPlayer } from './components/MusicPlayer'
 import { SearchBar } from './components/SearchBar'
 import Beranda from './views/Beranda'
 import DetailResep from './views/DetailResep'
@@ -354,6 +356,12 @@ function App() {
     return [...set]
   }, [dataResep])
 
+  // Kelompokkan tampilan bahan menjadi "Bahan Umum" dan "Bahan Unik Khas Nusantara".
+  const { umum: bahanUmum, unik: bahanUnikList } = useMemo(
+    () => kelompokkanBahan(dataBahan),
+    [dataBahan],
+  )
+
   // ===== Chrome (navbar + footer) =====
 
   const themeBtn = (
@@ -540,6 +548,14 @@ function App() {
     </button>
   )
 
+  const chipBahan = (bahan, unik = false) => (
+    <label key={bahan.id} className={`kulkas-chip ${unik ? 'kulkas-chip-unik' : ''} ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
+      <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
+      <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
+      {bahan.nama_bahan}
+    </label>
+  )
+
   const kulkasSection = (
     <div id="kulkas" className="kulkas-section reveal">
       <div className="kulkas-header">
@@ -567,15 +583,24 @@ function App() {
           </button>
         </div>
       </div>
-      <div className="kulkas-grid">
-        {dataBahan.map((bahan) => (
-          <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
-            <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
-            <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
-            {bahan.nama_bahan}
-          </label>
-        ))}
-      </div>
+
+      {bahanUmum.length > 0 && (
+        <div className="kulkas-group">
+          <h4 className="kulkas-group-title"><span className="kulkas-group-emoji">🥬</span> Bahan Umum</h4>
+          <div className="kulkas-grid">
+            {bahanUmum.map((bahan) => chipBahan(bahan))}
+          </div>
+        </div>
+      )}
+
+      {bahanUnikList.length > 0 && (
+        <div className="kulkas-group">
+          <h4 className="kulkas-group-title"><span className="kulkas-group-emoji">🌿</span> Bahan Unik Khas Nusantara</h4>
+          <div className="kulkas-grid">
+            {bahanUnikList.map((bahan) => chipBahan(bahan, true))}
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -718,6 +743,7 @@ function App() {
       {navbar}
       {konten}
       {footerSection}
+      <MusicPlayer />
     </div>
   )
 }
