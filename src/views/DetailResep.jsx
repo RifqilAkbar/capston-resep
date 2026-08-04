@@ -2,11 +2,28 @@ import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { ICON_HEART_FILLED, ICON_HEART_OUTLINE } from '../components/icons'
 
-export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavorit }) {
+export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavorit, token, session, onNeedLogin }) {
   const [resep, setResep] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [diBelanja, setDiBelanja] = useState(false)
+
+  const [komentar, setKomentar] = useState([])
+  const [isiKomentar, setIsiKomentar] = useState('')
+  const [isSubmittingKomentar, setIsSubmittingKomentar] = useState(false)
+  const [pesanKomentar, setPesanKomentar] = useState('')
+
+  const [nilaiRating, setNilaiRating] = useState(0)
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false)
+  const [pesanRating, setPesanRating] = useState('')
+
+  useEffect(() => {
+    let aktif = true
+    api.komentarResep(id)
+      .then(({ komentar: data }) => { if (aktif) setKomentar(data || []) })
+      .catch(() => {})
+    return () => { aktif = false }
+  }, [id])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -40,6 +57,54 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
       if (window.Toast) window.Toast.show('Link resep disalin ke clipboard!', 'success')
     } catch {
       if (window.Toast) window.Toast.show('Gagal menyalin link.', 'error')
+    }
+  }
+
+  const handleKirimKomentar = async (e) => {
+    e.preventDefault()
+    if (isSubmittingKomentar) return
+    setPesanKomentar('')
+
+    if (!session) {
+      onNeedLogin?.()
+      return
+    }
+
+    if (!isiKomentar.trim()) {
+      setPesanKomentar('Isi komentar tidak boleh kosong.')
+      return
+    }
+
+    setIsSubmittingKomentar(true)
+    try {
+      const { komentar: data } = await api.kirimKomentar(token, id, isiKomentar)
+      setKomentar((prev) => [data, ...prev])
+      setIsiKomentar('')
+    } catch (error) {
+      setPesanKomentar(error.message)
+    } finally {
+      setIsSubmittingKomentar(false)
+    }
+  }
+
+  const handleKirimRating = async (nilai) => {
+    if (isSubmittingRating) return
+    setPesanRating('')
+
+    if (!session) {
+      onNeedLogin?.()
+      return
+    }
+
+    setIsSubmittingRating(true)
+    try {
+      const { rating } = await api.beriRating(token, id, nilai)
+      setNilaiRating(nilai)
+      setResep((prev) => ({ ...prev, rating_avg: rating.rating_avg, rating_count: rating.rating_count }))
+    } catch (error) {
+      setPesanRating(error.message)
+    } finally {
+      setIsSubmittingRating(false)
     }
   }
 
@@ -79,6 +144,8 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   const persentase = bahan.length ? Math.round((jumlahDimiliki / bahan.length) * 100) : 0
   const bahanKurang = bahan.filter((b) => !kulkasUser.includes(Number(b.ingredient_id)))
   const isFavorit = favoritIds.includes(Number(id))
+  const ratingAvg = Number(resep.rating_avg || 0)
+  const ratingCount = Number(resep.rating_count || 0)
 
   const handleTambahBelanja = () => {
     if (!bahanKurang.length) return
@@ -112,10 +179,15 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
             <div>
               <span className="recipe-category">{resep.kategori || 'Makanan'}</span>
               <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100 mt-2">{resep.judul_resep}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                <i className="fa-solid fa-carrot mr-1.5" />{bahan.length} bahan
-                <i className="fa-solid fa-list-ol ml-4 mr-1.5" />{langkah.length} langkah
-              </p>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <span><i className="fa-solid fa-carrot mr-1.5" />{bahan.length} bahan</span>
+                <span><i className="fa-solid fa-list-ol mr-1.5" />{langkah.length} langkah</span>
+                {ratingCount > 0 && (
+                  <span className="flex items-center gap-1 text-amber-500">
+                    <i className="fa-solid fa-star" />{ratingAvg} <span className="text-gray-400">({ratingCount} rating)</span>
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex gap-2 shrink-0">
               <button onClick={handleBagikan} className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:border-orange-400 transition">
@@ -129,6 +201,36 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
                 {isFavorit ? ICON_HEART_FILLED : ICON_HEART_OUTLINE}
               </button>
             </div>
+          </div>
+
+          {/* Rating */}
+          <div className="mt-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Beri Rating Resep Ini</p>
+                <div className="flex items-center gap-1 mt-2">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => handleKirimRating(n)}
+                      disabled={isSubmittingRating}
+                      className="text-2xl transition hover:scale-110 disabled:opacity-50"
+                      aria-label={`Rating ${n} dari 5`}
+                    >
+                      <i className={`fa-solid fa-star ${n <= (nilaiRating || Math.round(ratingAvg)) ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {ratingCount > 0 && (
+                <div className="text-center">
+                  <p className="text-3xl font-extrabold text-amber-500">{ratingAvg}</p>
+                  <p className="text-xs text-gray-400">{ratingCount} rating</p>
+                </div>
+              )}
+            </div>
+            {pesanRating && <p className="text-sm text-red-500 mt-2">{pesanRating}</p>}
           </div>
 
           <div className="mt-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
@@ -210,6 +312,51 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
               <p className="text-sm text-gray-400 italic">Tidak ada langkah memasak.</p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Komentar */}
+      <div className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 md:p-8">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Komentar</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">{komentar.length} komentar</p>
+
+        <form onSubmit={handleKirimKomentar} className="space-y-3">
+          <textarea
+            rows="3"
+            placeholder={session ? 'Tulis komentar Anda...' : 'Masuk dulu untuk berkomentar.'}
+            value={isiKomentar}
+            onChange={(e) => setIsiKomentar(e.target.value)}
+            className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+          <div className="flex items-center justify-between gap-3">
+            {pesanKomentar && <p className="text-sm text-red-500">{pesanKomentar}</p>}
+            <button
+              type="submit"
+              disabled={isSubmittingKomentar}
+              className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-accent disabled:bg-accent/50 hover:bg-accent-dark transition"
+            >
+              <i className="fa-solid fa-paper-plane" /> {isSubmittingKomentar ? 'Mengirim...' : 'Kirim Komentar'}
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-6 space-y-4">
+          {komentar.length === 0 ? (
+            <p className="text-sm text-gray-400 italic text-center py-6">Belum ada komentar. Jadilah yang pertama!</p>
+          ) : komentar.map((k) => (
+            <div key={k.id} className="border border-gray-100 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-accent font-bold">
+                  {(k.penulis || '?').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{k.penulis || 'Pengguna'}</p>
+                  <p className="text-[11px] text-gray-400">{new Date(k.created_at).toLocaleString('id-ID')}</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mt-3">{k.isi}</p>
+            </div>
+          ))}
         </div>
       </div>
     </main>

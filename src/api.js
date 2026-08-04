@@ -38,16 +38,31 @@ async function request(path, { method = 'GET', body, token } = {}) {
 export const api = {
   ambilDataPublik: () => request('/public/data'),
   detailResep: (id) => request(`/public/recipes/${id}`),
+  komentarResep: (id) => request(`/recipes/${id}/comments`),
+
   // Auth dipisah dari komponen supaya App.jsx fokus pada state dan tampilan.
-  daftar: (email, password) => request('/auth/register', {
+  daftar: (payload) => request('/auth/register', {
     method: 'POST',
-    body: { email, password },
+    body: payload,
   }),
   login: (email, password) => request('/auth/login', {
     method: 'POST',
     body: { email, password },
   }),
   cekSession: (token) => request('/auth/session', { token }),
+
+  // Profil
+  ambilProfil: (token) => request('/profile', { token }),
+  ubahProfil: (token, payload) => request('/profile', {
+    method: 'PATCH',
+    token,
+    body: payload,
+  }),
+  ubahPassword: (token, payload) => request('/profile/password', {
+    method: 'PATCH',
+    token,
+    body: payload,
+  }),
 
   // Endpoint data menggantikan query Supabase ke ingredients, recipes, dan relasi resep.
   ambilDataAwal: (token) => request('/initial-data', { token }),
@@ -61,9 +76,61 @@ export const api = {
     method: 'PATCH',
     token,
   }),
+
+  // Resep
   tambahResep: (token, payload) => request('/recipes', {
     method: 'POST',
     token,
     body: payload,
+  }),
+  resepMilikSaya: (token) => request('/recipes/mine', { token }),
+  ambilResep: (token, id) => request(`/recipes/${id}`, { token }),
+  ubahResep: (token, id, payload) => request(`/recipes/${id}`, {
+    method: 'PATCH',
+    token,
+    body: payload,
+  }),
+  hapusResep: (token, id) => request(`/recipes/${id}`, {
+    method: 'DELETE',
+    token,
+  }),
+  beriRating: (token, id, nilai) => request(`/recipes/${id}/rating`, {
+    method: 'POST',
+    token,
+    body: { nilai },
+  }),
+  kirimKomentar: (token, id, isi) => request(`/recipes/${id}/comments`, {
+    method: 'POST',
+    token,
+    body: { isi },
+  }),
+
+  // Favorit
+  ambilFavorit: (token) => request('/favorites', { token }),
+  tambahFavorit: (token, idResep) => request(`/favorites/${idResep}`, {
+    method: 'POST',
+    token,
+  }),
+  hapusFavorit: (token, idResep) => request(`/favorites/${idResep}`, {
+    method: 'DELETE',
+    token,
+  }),
+
+  // Admin
+  semuaResep: (token) => request('/admin/recipes', { token }),
+  ubahStatusResep: (token, id, status) => request(`/admin/recipes/${id}/status`, {
+    method: 'PATCH',
+    token,
+    body: { status },
+  }),
+  semuaUser: (token) => request('/admin/users', { token }),
+  ubahRoleUser: (token, id, role) => request(`/admin/users/${id}`, {
+    method: 'PATCH',
+    token,
+    body: { role },
+  }),
+  hapusUser: (token, id) => request(`/admin/users/${id}`, {
+    method: 'DELETE',
+    token,
   }),
 }

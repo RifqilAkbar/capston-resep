@@ -4,11 +4,21 @@ import { kategoriNusantara, KATEGORI_DAERAH, adalahBumbu } from './kategoriNusan
 import { CardResep, SkeletonCard } from './components/CardResep'
 import { MusicPlayer } from './components/MusicPlayer'
 import { SearchBar } from './components/SearchBar'
+import { fotoAvatar } from './mock'
 import Beranda from './views/Beranda'
 import DetailResep from './views/DetailResep'
 import Favorit from './views/Favorit'
 import Riwayat from './views/Riwayat'
 import Trending from './views/Trending'
+import Login from './views/Login'
+import Register from './views/Register'
+import Profil from './views/Profil'
+import ResepSaya from './views/ResepSaya'
+import TambahResep from './views/TambahResep'
+import EditResep from './views/EditResep'
+import AdminDashboard from './views/AdminDashboard'
+import KelolaResep from './views/KelolaResep'
+import KelolaUser from './views/KelolaUser'
 import './index.css'
 
 // Fungsi tema untuk React — baca dari window.Theme jika tersedia
@@ -17,11 +27,19 @@ function getTheme() {
   return localStorage.getItem('skripsi_theme') || 'light'
 }
 
+function bacaFavoritLokal() {
+  try {
+    return JSON.parse(localStorage.getItem('skripsi_favorites') || '[]')
+  } catch {
+    return []
+  }
+}
+
 const ICON_MOON = (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
 )
 const ICON_SUN = (
-  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /><path d="m6.34 6.34 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /></svg>
 )
 
 // Ikon Font Awesome untuk chip bahan berdasarkan kategori
@@ -33,25 +51,22 @@ function ikonBahan(kategori) {
   return 'fa-bowl-food'
 }
 
-// Terjemahkan hash ke rute aplikasi: #/ , #/resep , #/resep/:id , #/favorit , #/riwayat , #/trending
+// Terjemahkan hash ke rute aplikasi.
 function parseHash() {
   const path = window.location.hash.replace(/^#/, '').split('/').filter(Boolean)
   if (!path.length) return { view: 'beranda' }
   if (path[0] === 'resep') return path[1] ? { view: 'detail', id: path[1] } : { view: 'resep' }
-  if (path[0] === 'favorit') return { view: 'favorit' }
-  if (path[0] === 'riwayat') return { view: 'riwayat' }
-  if (path[0] === 'trending') return { view: 'trending' }
-  return { view: 'beranda' }
+  if (path[0] === 'edit-resep') return path[1] ? { view: 'edit-resep', id: path[1] } : { view: 'edit-resep' }
+  return { view: path[0] }
 }
+
+const RUTE_USER = ['profil', 'resep-saya', 'tambah-resep', 'edit-resep']
+const RUTE_ADMIN = ['dashboard', 'kelola-resep', 'kelola-user']
 
 function App() {
   const [session, setSession] = useState(null)
   const [token, setToken] = useState('')
   const [userRole, setUserRole] = useState('user')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
-  const [pesanStatus, setPesanStatus] = useState('')
 
   const [dataBahan, setDataBahan] = useState([])
   const [dataResep, setDataResep] = useState([])
@@ -74,38 +89,48 @@ function App() {
   const [route, setRoute] = useState(parseHash)
   const [theme, setTheme] = useState(getTheme)
 
-  const [favoritIds, setFavoritIds] = useState(function () {
-    try {
-      return JSON.parse(localStorage.getItem('skripsi_favorites') || '[]')
-    } catch {
-      return []
-    }
-  })
+  const [favoritIds, setFavoritIds] = useState(bacaFavoritLokal)
 
-  const [showLoginDropdown, setShowLoginDropdown] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [bagianBuka, setBagianBuka] = useState('resep')
-  const dropdownRef = useRef(null)
   const searchQueryRef = useRef(searchQuery)
 
-  function handleToggleFavorit(id) {
+  async function handleToggleFavorit(id) {
     const numId = Number(id)
-    setFavoritIds(function (prev) {
-      const idx = prev.indexOf(numId)
-      let baru
-      if (idx === -1) {
-        baru = prev.concat([numId])
-      } else {
-        baru = prev.slice()
-        baru.splice(idx, 1)
+    const ada = favoritIds.includes(numId)
+
+    if (session && token) {
+      const baru = ada ? favoritIds.filter((x) => x !== numId) : favoritIds.concat([numId])
+      setFavoritIds(baru)
+      try {
+        if (ada) {
+          await api.hapusFavorit(token, numId)
+        } else {
+          await api.tambahFavorit(token, numId)
+        }
+        if (window.Toast) {
+          window.Toast.show(ada ? 'Dihapus dari favorit' : 'Ditambahkan ke favorit', ada ? 'info' : 'success')
+        }
+      } catch (error) {
+        setFavoritIds(favoritIds)
+        if (window.Toast) window.Toast.show(error.message, 'error')
       }
-      localStorage.setItem('skripsi_favorites', JSON.stringify(baru))
-      if (window.Toast) {
-        window.Toast.show(idx === -1 ? 'Ditambahkan ke favorit' : 'Dihapus dari favorit', idx === -1 ? 'success' : 'info')
-      }
-      return baru
-    })
+      return
+    }
+
+    let baru
+    if (ada) {
+      baru = favoritIds.slice()
+      baru.splice(favoritIds.indexOf(numId), 1)
+    } else {
+      baru = favoritIds.concat([numId])
+    }
+    setFavoritIds(baru)
+    localStorage.setItem('skripsi_favorites', JSON.stringify(baru))
+    if (window.Toast) {
+      window.Toast.show(ada ? 'Dihapus dari favorit' : 'Ditambahkan ke favorit', ada ? 'info' : 'success')
+    }
   }
 
   function handleToggleTheme() {
@@ -138,7 +163,7 @@ function App() {
 
   const handleTambahBahanKlik = () => {
     if (!session) {
-      setShowLoginDropdown(true)
+      window.location.hash = '#/login'
       return
     }
     setBagianBuka('bahan')
@@ -146,40 +171,28 @@ function App() {
     setTimeout(() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' }), 250)
   }
 
-  const handleAuth = async (tipe) => {
-    if (isSubmittingAuth) return
-    setPesanStatus('')
-    setIsSubmittingAuth(true)
+  const onNeedLogin = () => { window.location.hash = '#/login' }
 
-    try {
-      if (tipe === 'daftar') {
-        await api.daftar(email, password)
-        setPesanStatus('Pendaftaran berhasil! Silakan coba login.')
-        return
-      }
-
-      const { session: sessionBaru } = await api.login(email, password)
-      simpanToken(sessionBaru.token)
-      setToken(sessionBaru.token)
-      setSession(sessionBaru)
-      setUserRole(sessionBaru.user.role)
-      setPesanStatus('Login sukses!')
-    } catch (error) {
-      setPesanStatus('Gagal: ' + error.message)
-    } finally {
-      setIsSubmittingAuth(false)
-    }
+  const handleLogin = (sessionBaru) => {
+    simpanToken(sessionBaru.token)
+    setToken(sessionBaru.token)
+    setSession(sessionBaru)
+    setUserRole(sessionBaru.user.role)
+    window.location.hash = sessionBaru.user.role === 'admin' ? '#/dashboard' : '#/'
   }
 
   const handleLogout = () => {
     hapusToken()
     setToken('')
     setSession(null)
-    setEmail('')
-    setPassword('')
-    setPesanStatus('')
     setKulkasUser([])
     setUserRole('user')
+    setFavoritIds(bacaFavoritLokal())
+    window.location.hash = '#/'
+  }
+
+  const handleSessionUpdate = (profil) => {
+    setSession((prev) => (prev ? { ...prev, user: { ...prev.user, ...profil } } : prev))
   }
 
   async function initData() {
@@ -192,7 +205,6 @@ function App() {
 
   // ===== Effects =====
 
-  // Dengarkan navigasi hash agar setiap rute menjadi halaman terpisah.
   useEffect(() => {
     function onHashChange() {
       const r = parseHash()
@@ -207,7 +219,6 @@ function App() {
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
-  // Dengarkan event themechange dari theme.js
   useEffect(() => {
     function handler(e) {
       setTheme(e.detail)
@@ -216,7 +227,6 @@ function App() {
     return () => window.removeEventListener('themechange', handler)
   }, [])
 
-  // Tambahkan shadow halus saat halaman di-scroll
   useEffect(() => {
     function onScroll() {
       setScrolled(window.scrollY > 8)
@@ -230,7 +240,6 @@ function App() {
   useEffect(() => { sessionStorage.setItem('skripsi_cari', searchQuery) }, [searchQuery])
   useEffect(() => { sessionStorage.setItem('skripsi_kategori', kategoriAktif) }, [kategoriAktif])
 
-  // Baca kata kunci pencarian dari URL (?q=...) lalu bersihkan parameter
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (!params.get('q')) return
@@ -273,7 +282,7 @@ function App() {
     return () => { aktif = false }
   }, [])
 
-  // Muat ulang data saat login agar daftar bahan terbaru (mis. admin)
+  // Muat ulang data saat login agar daftar resep terbaru (mis. setelah persetujuan admin)
   useEffect(() => {
     if (!session) return
     let aktif = true
@@ -285,22 +294,38 @@ function App() {
     return () => { aktif = false }
   }, [session])
 
+  // Sinkronkan favorit dengan server saat login / berubah role
+  useEffect(() => {
+    if (!session || !token) return
+    let aktif = true
+    api.ambilFavorit(token)
+      .then(({ ids }) => { if (aktif) setFavoritIds(ids || []) })
+      .catch(() => {})
+    return () => { aktif = false }
+  }, [session, token])
+
   // Simpan isi kulkas ke localStorage
   useEffect(() => {
     localStorage.setItem('skripsi_kulkas', JSON.stringify(kulkasUser))
   }, [kulkasUser])
 
-  // Tutup dropdown login saat klik di luar
+  // ===== Pengaman rute =====
   useEffect(() => {
-    if (!showLoginDropdown) return
-    function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowLoginDropdown(false)
+    const v = route.view
+    if (session) {
+      if (v === 'login' || v === 'register') {
+        window.location.hash = userRole === 'admin' ? '#/dashboard' : '#/'
+        return
       }
+      if (userRole !== 'admin' && RUTE_ADMIN.includes(v)) {
+        window.location.hash = '#/'
+      }
+      return
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [showLoginDropdown])
+    if (RUTE_USER.includes(v)) {
+      window.location.hash = '#/login'
+    }
+  }, [route.view, session, userRole])
 
   // ===== Logika rekomendasi =====
 
@@ -312,7 +337,6 @@ function App() {
     return gabungan.size === 0 ? 0 : irisan.size / gabungan.size
   }
 
-  // Semua resep dihitung skor kecocokannya terhadap isi kulkas.
   const resepLengkap = useMemo(() => {
     return dataResep.map((resep) => {
       const idBahanResep = (resep.recipe_ingredients || []).map((ri) => ri.ingredient_id)
@@ -331,9 +355,6 @@ function App() {
     })
   }, [kulkasUser, dataResep])
 
-  // Mode jelajah aktif saat pengguna mencari atau memilih kategori. Saat mode
-  // jelajah aktif, semua resep yang cocok ditampilkan; filter kulkas (persentase > 0)
-  // hanya berlaku di mode rekomendasi murni.
   const modeJelajah = searchQuery.trim() !== '' || kategoriAktif !== 'Semua'
 
   const hasilFilter = useMemo(() => {
@@ -344,16 +365,12 @@ function App() {
         resep.judul.toLowerCase().includes(q) ||
         resep.kategori.toLowerCase().includes(q) ||
         resep.bahan.some((b) => b.nama_bahan?.toLowerCase().includes(q)))
-      // Kecocokan bahan: hanya mode rekomendasi murni yang menyaring resep
-      // berdasarkan isi kulkas, agar pencarian/kategori selalu menampilkan hasil.
       .filter((resep) => modeJelajah || kulkasUser.length === 0 || resep.persentase > 0)
       .sort((a, b) => b.persentase - a.persentase)
   }, [resepLengkap, kategoriAktif, searchQuery, kulkasUser, modeJelajah])
 
-  // Daftar daerah filter: Semua + 7 daerah Nusantara (konsisten dengan Beranda).
   const daftarDaerah = KATEGORI_DAERAH.map((d) => d.nama)
 
-  // Pembagian bahan untuk tampilan (tidak mengubah logika pencarian).
   const bahanUmum = useMemo(() => dataBahan.filter((b) => !adalahBumbu(b)), [dataBahan])
   const bahanBumbu = useMemo(() => dataBahan.filter((b) => adalahBumbu(b)), [dataBahan])
 
@@ -368,15 +385,64 @@ function App() {
   const isPageActive = (href) => {
     const target = href.replace(/^#\//, '')
     if (target === '') return route.view === 'beranda'
-    if (target === 'resep') return route.view === 'resep' || route.view === 'detail'
     return route.view === target
   }
-  const navItem = (href, icon, label) => (
+  const navItem = (href, icon, label, ekstra = null) => (
     <a href={href} onClick={() => setMobileOpen(false)} className={`nav-link ${isPageActive(href) ? 'active' : ''}`}>
+      {ekstra}
       <i className={`fa-solid ${icon}`} />
       <span>{label}</span>
     </a>
   )
+
+  const avatarFoto = session ? fotoAvatar(session.user.username || session.user.email) : ''
+
+  // Item menu khusus role (dipakai di mobile menu).
+  const menuRole = session ? (
+    userRole === 'admin' ? (
+      <>
+        {navItem('#/dashboard', 'fa-gauge-high', 'Dashboard Admin')}
+        {navItem('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
+        {navItem('#/kelola-user', 'fa-users', 'Kelola User')}
+      </>
+    ) : (
+      <>
+        <a href="#/profil" onClick={() => setMobileOpen(false)} className={`nav-link ${isPageActive('#/profil') ? 'active' : ''}`}>
+          <span className="w-6 h-6 rounded-full overflow-hidden inline-block align-middle mr-1.5">
+            <img src={avatarFoto} alt="Foto Profil" className="w-full h-full object-cover" />
+          </span>
+          <span>Foto Profil</span>
+        </a>
+        {navItem('#/profil', 'fa-user', 'Profil Saya')}
+        {navItem('#/resep-saya', 'fa-book-open', 'Resep Saya')}
+        {navItem('#/tambah-resep', 'fa-plus', 'Tambah Resep')}
+      </>
+    )
+  ) : (
+    <>
+      {navItem('#/login', 'fa-right-to-bracket', 'Masuk')}
+      {navItem('#/register', 'fa-user-plus', 'Daftar')}
+    </>
+  )
+
+  // Item menu akun yang tampil di desktop (sidebar vertikal kecil di navbar kanan).
+  const desktopMenuAkun = session ? (
+    <nav className="hidden xl:flex items-center gap-1">
+      {userRole === 'admin' ? (
+        <>
+          {navItem('#/dashboard', 'fa-gauge-high', 'Dashboard Admin')}
+          {navItem('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
+          {navItem('#/kelola-user', 'fa-users', 'Kelola User')}
+        </>
+      ) : (
+        <>
+          {navItem('#/profil', 'fa-user', 'Profil Saya')}
+          {navItem('#/resep-saya', 'fa-book-open', 'Resep Saya')}
+          {navItem('#/tambah-resep', 'fa-plus', 'Tambah Resep')}
+        </>
+      )}
+    </nav>
+  ) : null
 
   const desktopNav = (
     <nav className="hidden lg:flex items-center gap-1 mx-auto">
@@ -405,6 +471,9 @@ function App() {
         {navItem('#/resep', 'fa-book-open', 'Resep')}
         {navItem('#/favorit', 'fa-heart', 'Favorit')}
         {navItem('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
+        <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+          {menuRole}
+        </div>
         <div className="mt-2">
           <SearchBar
             value={searchQuery}
@@ -419,46 +488,24 @@ function App() {
 
   const loginArea = session ? (
     <div className="flex items-center gap-2">
-      <div className="hidden sm:block text-right leading-tight">
-        <p className="text-xs font-bold text-gray-800 dark:text-gray-100">{session.user.email}</p>
+      <a href={userRole === 'admin' ? '#/dashboard' : '#/profil'} className="hidden sm:block" title="Foto Profil">
+        <span className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-orange-400 block shrink-0">
+          <img src={avatarFoto} alt="Foto Profil" className="w-full h-full object-cover" />
+        </span>
+      </a>
+      <a href={userRole === 'admin' ? '#/dashboard' : '#/profil'} className="hidden lg:block text-right leading-tight">
+        <p className="text-xs font-bold text-gray-800 dark:text-gray-100 max-w-[120px] truncate">{session.user.nama_lengkap || session.user.email}</p>
         <span className="text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold rounded capitalize">{userRole}</span>
-      </div>
+      </a>
       <button onClick={handleLogout} className="btn-outline-danger">
         <i className="fa-solid fa-right-from-bracket" />
-        <span className="hidden sm:inline">Keluar</span>
+        <span className="hidden sm:inline">Logout</span>
       </button>
     </div>
   ) : (
-    <div className="relative" ref={dropdownRef}>
-      <button onClick={() => setShowLoginDropdown(!showLoginDropdown)} className="btn-primary">
-        <i className="fa-solid fa-right-to-bracket" />
-        <span className="hidden sm:inline">Masuk / Daftar</span>
-      </button>
-      {showLoginDropdown && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl dark:shadow-gray-900/50 p-5 z-50">
-          <div className="space-y-3">
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleAuth('login')}
-                disabled={isSubmittingAuth}
-                className="flex-1 bg-orange-500 disabled:bg-orange-300 text-white p-2.5 rounded-xl font-semibold text-sm transition"
-              >
-                {isSubmittingAuth ? 'Memproses...' : 'Masuk'}
-              </button>
-              <button
-                onClick={() => handleAuth('daftar')}
-                disabled={isSubmittingAuth}
-                className="flex-1 bg-gray-200 dark:bg-gray-600 disabled:bg-gray-100 text-gray-700 dark:text-gray-300 disabled:text-gray-400 p-2.5 rounded-xl font-semibold text-sm transition"
-              >
-                {isSubmittingAuth ? 'Memproses...' : 'Daftar'}
-              </button>
-            </div>
-          </div>
-          {pesanStatus && <p className="text-center mt-3 text-sm text-red-500">{pesanStatus}</p>}
-        </div>
-      )}
+    <div className="hidden md:flex items-center gap-2">
+      <a href="#/login" className="btn-outline"><i className="fa-solid fa-right-to-bracket" /><span className="hidden sm:inline">Masuk</span></a>
+      <a href="#/register" className="btn-primary"><i className="fa-solid fa-user-plus" /><span className="hidden sm:inline">Daftar</span></a>
     </div>
   )
 
@@ -466,7 +513,7 @@ function App() {
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="page-container">
         <div className="flex items-center justify-between gap-4 h-16 lg:h-20">
-          <a href="#/" className="flex items-center gap-2.5 shrink-0 group">
+          <a href={session && userRole === 'admin' ? '#/dashboard' : '#/'} className="flex items-center gap-2.5 shrink-0 group">
             <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
             <span className="leading-tight">
               <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
@@ -475,6 +522,7 @@ function App() {
           </a>
 
           {desktopNav}
+          {desktopMenuAkun}
           {navbarSearch}
 
           <div className="flex items-center gap-2 shrink-0">
@@ -513,6 +561,12 @@ function App() {
               <li><a href="#/resep">Resep</a></li>
               <li><a href="#/favorit">Favorit</a></li>
               <li><a href="#/riwayat">Riwayat</a></li>
+              {session && (
+                <>
+                  <li><a href="#/profil">Profil</a></li>
+                  <li><a href="#/resep-saya">Resep Saya</a></li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -620,7 +674,6 @@ function App() {
 
       {kulkasSection}
 
-      {/* Filter sticky: kategori + pencarian */}
       <div className="sticky top-16 lg:top-20 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
@@ -682,36 +735,44 @@ function App() {
                   ? 'Tidak ada resep yang memakai bahan di kulkas Anda. Tambahkan bahan lain.'
                   : 'Belum ada resep untuk ditampilkan.'}
             </p>
-            <div className="mt-5 flex flex-wrap justify-center gap-3">
-              {modeJelajah ? (
-                <button type="button" onClick={handleHapusFilter} className="btn-primary">
-                  <i className="fa-solid fa-rotate-left" /> Hapus pencarian & filter
-                </button>
-              ) : kulkasUser.length > 0 ? (
-                <button type="button" onClick={() => setKulkasUser([])} className="btn-secondary">
-                  <i className="fa-solid fa-broom" /> Bersihkan Kulkas
-                </button>
-              ) : null}
-            </div>
           </div>
         )}
       </div>
     </main>
   )
 
-  // ===== Rute =====
+  // ===== Pemilihan konten per rute =====
 
   let konten
-  if (route.view === 'resep') {
+
+  if (route.view === 'login') {
+    konten = session ? null : <Login onLogin={handleLogin} />
+  } else if (route.view === 'register') {
+    konten = session ? null : <Register />
+  } else if (route.view === 'resep') {
     konten = resepPage
   } else if (route.view === 'detail') {
-    konten = <DetailResep key={route.id} id={route.id} kulkasUser={kulkasUser} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
+    konten = <DetailResep key={route.id} id={route.id} kulkasUser={kulkasUser} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} token={token} session={session} onNeedLogin={onNeedLogin} />
   } else if (route.view === 'favorit') {
     konten = <Favorit semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
   } else if (route.view === 'riwayat') {
     konten = <Riwayat semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
   } else if (route.view === 'trending') {
     konten = <Trending semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
+  } else if (route.view === 'dashboard') {
+    konten = <AdminDashboard token={token} />
+  } else if (route.view === 'kelola-resep') {
+    konten = <KelolaResep token={token} onDataRefresh={initData} />
+  } else if (route.view === 'kelola-user') {
+    konten = <KelolaUser token={token} />
+  } else if (route.view === 'profil') {
+    konten = <Profil token={token} onSessionUpdate={handleSessionUpdate} />
+  } else if (route.view === 'resep-saya') {
+    konten = <ResepSaya token={token} onDataRefresh={initData} />
+  } else if (route.view === 'tambah-resep') {
+    konten = <TambahResep token={token} dataBahan={dataBahan} onDataRefresh={initData} />
+  } else if (route.view === 'edit-resep') {
+    konten = route.id ? <EditResep key={route.id} id={route.id} token={token} dataBahan={dataBahan} onDataRefresh={initData} /> : <ResepSaya token={token} onDataRefresh={initData} />
   } else {
     konten = (
       <Beranda

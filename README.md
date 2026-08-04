@@ -110,9 +110,13 @@ Frontend berjalan di `http://localhost:5173`. Buka alamat itu di browser.
 ## Akun Login Awal
 
 ```text
-Email: admin@example.com
-Password: admin123
+Email: admin@admin.com
+Password: admin
 ```
+
+Akun di atas adalah admin bawaan yang otomatis dibuat saat server pertama kali dijalankan (password disimpan memakai `password_hash()`). Pengguna biasa mendaftar melalui halaman **Daftar** (`#/register`) dan otomatis berperan sebagai `user`.
+
+> Akun admin lama `admin@example.com` / `admin123` (jika ada di database) tetap berfungsi dan tidak dihapus.
 
 ## Cek Backend
 
