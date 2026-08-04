@@ -1607,3 +1607,23 @@ select:focus-visible {
     animation: none;
   }
 }
+
+.akun-dropdown {
+  transform-origin: top right;
+  animation: akun-dropdown-in 0.25s ease both;
+}
+@keyframes akun-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .akun-dropdown {
+    animation: none;
+  }
+}

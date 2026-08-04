@@ -94,7 +94,9 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [bagianBuka, setBagianBuka] = useState('resep')
+  const [showAkunDropdown, setShowAkunDropdown] = useState(false)
   const searchQueryRef = useRef(searchQuery)
+  const akunDropdownRef = useRef(null)
 
   async function handleToggleFavorit(id) {
     const numId = Number(id)
@@ -182,6 +184,7 @@ function App() {
   }
 
   const handleLogout = () => {
+    setShowAkunDropdown(false)
     hapusToken()
     setToken('')
     setSession(null)
@@ -208,6 +211,7 @@ function App() {
   useEffect(() => {
     function onHashChange() {
       const r = parseHash()
+      setShowAkunDropdown(false)
       setRoute(r)
       if (searchQueryRef.current.trim() && r.view === 'resep') {
         setTimeout(() => document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' }), 150)
@@ -239,6 +243,17 @@ function App() {
   useEffect(() => { searchQueryRef.current = searchQuery }, [searchQuery])
   useEffect(() => { sessionStorage.setItem('skripsi_cari', searchQuery) }, [searchQuery])
   useEffect(() => { sessionStorage.setItem('skripsi_kategori', kategoriAktif) }, [kategoriAktif])
+
+  useEffect(() => {
+    if (!showAkunDropdown) return
+    function onKlikLuar(e) {
+      if (akunDropdownRef.current && !akunDropdownRef.current.contains(e.target)) {
+        setShowAkunDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', onKlikLuar)
+    return () => document.removeEventListener('mousedown', onKlikLuar)
+  }, [showAkunDropdown])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -425,25 +440,6 @@ function App() {
     </>
   )
 
-  // Item menu akun yang tampil di desktop (sidebar vertikal kecil di navbar kanan).
-  const desktopMenuAkun = session ? (
-    <nav className="hidden xl:flex items-center gap-1">
-      {userRole === 'admin' ? (
-        <>
-          {navItem('#/dashboard', 'fa-gauge-high', 'Dashboard Admin')}
-          {navItem('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
-          {navItem('#/kelola-user', 'fa-users', 'Kelola User')}
-        </>
-      ) : (
-        <>
-          {navItem('#/profil', 'fa-user', 'Profil Saya')}
-          {navItem('#/resep-saya', 'fa-book-open', 'Resep Saya')}
-          {navItem('#/tambah-resep', 'fa-plus', 'Tambah Resep')}
-        </>
-      )}
-    </nav>
-  ) : null
-
   const desktopNav = (
     <nav className="hidden lg:flex items-center gap-1 mx-auto">
       {navItem('#/', 'fa-house', 'Beranda')}
@@ -486,26 +482,107 @@ function App() {
     </div>
   )
 
-  const loginArea = session ? (
-    <div className="flex items-center gap-2">
-      <a href={userRole === 'admin' ? '#/dashboard' : '#/profil'} className="hidden sm:block" title="Foto Profil">
-        <span className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-orange-400 block shrink-0">
-          <img src={avatarFoto} alt="Foto Profil" className="w-full h-full object-cover" />
-        </span>
-      </a>
-      <a href={userRole === 'admin' ? '#/dashboard' : '#/profil'} className="hidden lg:block text-right leading-tight">
-        <p className="text-xs font-bold text-gray-800 dark:text-gray-100 max-w-[120px] truncate">{session.user.nama_lengkap || session.user.email}</p>
-        <span className="text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold rounded capitalize">{userRole}</span>
-      </a>
-      <button onClick={handleLogout} className="btn-outline-danger">
-        <i className="fa-solid fa-right-from-bracket" />
-        <span className="hidden sm:inline">Logout</span>
-      </button>
+  // Dropdown akun: avatar lingkaran + menu sesuai role (tamu/user/admin).
+  const tutupDropdownAkun = () => setShowAkunDropdown(false)
+
+  const itemDropdown = (href, icon, label) => (
+    <a
+      href={href}
+      onClick={tutupDropdownAkun}
+      className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-150"
+    >
+      <i className={`fa-solid ${icon} w-5 text-center text-gray-400 dark:text-gray-500`} />
+      {label}
+    </a>
+  )
+
+  const tombolLogoutDropdown = (
+    <button
+      onClick={() => { tutupDropdownAkun(); handleLogout() }}
+      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150"
+    >
+      <i className="fa-solid fa-right-from-bracket w-5 text-center" />
+      Logout
+    </button>
+  )
+
+  const headerDropdown = (judul, sub, icon) => (
+    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+      <p className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 truncate">
+        <i className={`fa-solid ${icon} text-orange-500`} />
+        <span className="truncate">{judul}</span>
+      </p>
+      {sub && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{sub}</p>}
     </div>
+  )
+
+  const isiDropdownAkun = session ? (
+    userRole === 'admin' ? (
+      <>
+        {headerDropdown(session.user.nama_lengkap || 'Administrator', session.user.email, 'fa-crown')}
+        <div className="py-1.5">
+          {itemDropdown('#/dashboard', 'fa-gauge-high', 'Dashboard')}
+          {itemDropdown('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
+          {itemDropdown('#/kelola-user', 'fa-users', 'Kelola User')}
+        </div>
+        <div className="border-t border-gray-100 dark:border-gray-700 py-1.5">
+          {tombolLogoutDropdown}
+        </div>
+      </>
+    ) : (
+      <>
+        {headerDropdown(
+          session.user.nama_lengkap || session.user.email,
+          `@${session.user.username || session.user.email.split('@')[0]}`,
+          'fa-circle-user'
+        )}
+        <div className="py-1.5">
+          {itemDropdown('#/profil', 'fa-user', 'Profil Saya')}
+          {itemDropdown('#/resep-saya', 'fa-book-open', 'Resep Saya')}
+          {itemDropdown('#/tambah-resep', 'fa-plus', 'Tambah Resep')}
+          {itemDropdown('#/favorit', 'fa-heart', 'Favorit')}
+          {itemDropdown('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
+        </div>
+        <div className="border-t border-gray-100 dark:border-gray-700 py-1.5">
+          {tombolLogoutDropdown}
+        </div>
+      </>
+    )
   ) : (
-    <div className="hidden md:flex items-center gap-2">
-      <a href="#/login" className="btn-outline"><i className="fa-solid fa-right-to-bracket" /><span className="hidden sm:inline">Masuk</span></a>
-      <a href="#/register" className="btn-primary"><i className="fa-solid fa-user-plus" /><span className="hidden sm:inline">Daftar</span></a>
+    <>
+      {headerDropdown('Akun', 'Masuk untuk berbagi resep', 'fa-circle-user')}
+      <div className="py-1.5">
+        {itemDropdown('#/login', 'fa-right-to-bracket', 'Masuk')}
+        {itemDropdown('#/register', 'fa-user-plus', 'Daftar')}
+      </div>
+    </>
+  )
+
+  const loginArea = (
+    <div className="relative shrink-0" ref={akunDropdownRef}>
+      <button
+        type="button"
+        onClick={() => setShowAkunDropdown((v) => !v)}
+        aria-label={session ? 'Menu profil' : 'Masuk atau daftar'}
+        aria-expanded={showAkunDropdown}
+        className={`flex items-center justify-center w-9 h-9 rounded-full border bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 cursor-pointer transition-all duration-200 hover:border-orange-500 hover:text-orange-500 hover:scale-105 hover:shadow-sm ${
+          showAkunDropdown ? 'border-orange-500 text-orange-500' : 'border-gray-200 dark:border-gray-600'
+        }`}
+      >
+        {session ? (
+          <span className="w-7 h-7 rounded-full overflow-hidden">
+            <img src={avatarFoto} alt="Foto Profil" className="w-full h-full object-cover" />
+          </span>
+        ) : (
+          <i className="fa-solid fa-circle-user text-lg" />
+        )}
+      </button>
+
+      {showAkunDropdown && (
+        <div className="akun-dropdown absolute right-0 mt-2.5 w-56 rounded-[14px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl shadow-gray-900/5 dark:shadow-gray-950/40 z-50 overflow-hidden">
+          {isiDropdownAkun}
+        </div>
+      )}
     </div>
   )
 
@@ -522,7 +599,6 @@ function App() {
           </a>
 
           {desktopNav}
-          {desktopMenuAkun}
           {navbarSearch}
 
           <div className="flex items-center gap-2 shrink-0">
