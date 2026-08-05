@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import UsulBahanUnik from './UsulBahanUnik'
 
 export default function ResepForm({
   dataBahan,
   initial = null,
+  token,
   onSubmit,
   isSubmitting,
   pesan,
@@ -79,6 +81,8 @@ export default function ResepForm({
           ))}
         </div>
       </div>
+
+      <UsulBahanUnik token={token} />
 
       <div className="space-y-3">
         <label className={label}>Langkah Demi Langkah Memasak:</label>

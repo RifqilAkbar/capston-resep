@@ -352,11 +352,6 @@ export default function Beranda({
   const [pesanResep, setPesanResep] = useState('')
   const [isSubmittingResep, setIsSubmittingResep] = useState(false)
 
-  const [inputNamaBahan, setInputNamaBahan] = useState('')
-  const [inputKategori, setInputKategori] = useState('Sayuran')
-  const [pesanBahan, setPesanBahan] = useState('')
-  const [isSubmittingBahan, setIsSubmittingBahan] = useState(false)
-
   const [bahanTertunda, setBahanTertunda] = useState([])
   const [pesanAdmin, setPesanAdmin] = useState('')
 
@@ -414,31 +409,6 @@ export default function Beranda({
       setPesanResep('Error input resep: ' + error.message)
     } finally {
       setIsSubmittingResep(false)
-    }
-  }
-
-  const handleTambahBahanBaru = async (e) => {
-    e.preventDefault()
-    if (isSubmittingBahan) return
-    setPesanBahan('')
-    if (!inputNamaBahan.trim()) return
-
-    setIsSubmittingBahan(true)
-    try {
-      await api.tambahBahan(token, {
-        nama_bahan: inputNamaBahan.trim(),
-        kategori: inputKategori,
-      })
-      setPesanBahan('Sukses mengusulkan bahan baru!')
-      setInputNamaBahan('')
-      if (isAdminRole(userRole)) {
-        const { bahan } = await api.ambilBahanTertunda(token)
-        setBahanTertunda(bahan || [])
-      }
-    } catch (error) {
-      setPesanBahan(error.message)
-    } finally {
-      setIsSubmittingBahan(false)
     }
   }
 
@@ -705,46 +675,6 @@ export default function Beranda({
               </form>
               {pesanResep && (
                 <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesanResep}</p>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div id="tambah-bahan" className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl shadow-sm overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setBagianBuka(bagianBuka === 'bahan' ? '' : 'bahan')}
-            className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition"
-            aria-expanded={bagianBuka === 'bahan'}
-          >
-            <div>
-              <h3 className="text-lg font-bold text-amber-900 dark:text-amber-300">Punya Bahan Unik?</h3>
-              <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">Usulkan bahan baru agar bisa dipakai di resep lain.</p>
-            </div>
-            <span className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-300 shrink-0">
-              <i className={`fa-solid fa-chevron-${bagianBuka === 'bahan' ? 'up' : 'down'}`} />
-            </span>
-          </button>
-
-          {bagianBuka === 'bahan' && (
-            <div className="px-6 pb-6">
-              <form onSubmit={handleTambahBahanBaru} className="flex flex-wrap gap-3 items-center">
-                <input type="text" placeholder="Daun Kelor, Jamur..." value={inputNamaBahan} onChange={(e) => setInputNamaBahan(e.target.value)} className="flex-1 min-w-[200px] p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl outline-none text-sm text-gray-900 dark:text-gray-100" />
-                <select value={inputKategori} onChange={(e) => setInputKategori(e.target.value)} className="p-3 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl text-sm text-gray-900 dark:text-gray-100">
-                  <option value="Sayuran">Sayuran</option><option value="Protein">Protein</option><option value="Bumbu">Bumbu</option>
-                </select>
-                <button
-                  type="submit"
-                  disabled={isSubmittingBahan}
-                  className="bg-amber-500 disabled:bg-amber-300 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
-                >
-                  {isSubmittingBahan ? 'Mengirim...' : 'Usulkan'}
-                </button>
-              </form>
-              {pesanBahan && (
-                <p className={`mt-3 font-semibold text-center text-sm ${pesanBahan.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                  {pesanBahan}
-                </p>
               )}
             </div>
           )}

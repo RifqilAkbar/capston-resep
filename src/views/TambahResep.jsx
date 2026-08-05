@@ -44,6 +44,7 @@ export default function TambahResep({ token, dataBahan, onDataRefresh }) {
         <div className="mt-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 md:p-8">
           <ResepForm
             dataBahan={dataBahan}
+            token={token}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             pesan={pesan}

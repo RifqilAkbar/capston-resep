@@ -74,6 +74,7 @@ export default function EditResep({ token, dataBahan, id, onDataRefresh }) {
           <ResepForm
             dataBahan={dataBahan}
             initial={resep}
+            token={token}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             pesan={pesan}

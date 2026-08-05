@@ -173,9 +173,7 @@ function App() {
       window.location.hash = '#/login'
       return
     }
-    setBagianBuka('bahan')
-    window.location.hash = '#/'
-    setTimeout(() => document.getElementById('tambah-bahan')?.scrollIntoView({ behavior: 'smooth' }), 250)
+    window.location.hash = '#/tambah-resep'
   }
 
   const onNeedLogin = () => { window.location.hash = '#/login' }
@@ -419,6 +417,13 @@ function App() {
     </a>
   )
 
+  // Link navbar desktop yang minimal: teks saja, tanpa ikon.
+  const navText = (href, label) => (
+    <a href={href} onClick={() => setMobileOpen(false)} className={`nav-link ${isPageActive(href) ? 'active' : ''}`}>
+      <span>{label}</span>
+    </a>
+  )
+
   const avatarFoto = session ? fotoAvatar(session.user.username || session.user.email) : ''
 
   // Item menu khusus role (dipakai di mobile menu).
@@ -450,23 +455,11 @@ function App() {
   )
 
   const desktopNav = (
-    <nav className="hidden lg:flex items-center gap-1 mx-auto">
-      {navItem('#/', 'fa-house', 'Beranda')}
-      {navItem('#/resep', 'fa-book-open', 'Resep')}
-      {navItem('#/favorit', 'fa-heart', 'Favorit')}
-      {navItem('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
+    <nav className="hidden lg:flex items-center gap-1 flex-1">
+      {navText('#/', 'Beranda')}
+      {navText('#/resep', 'Resep')}
+      {navText('#/favorit', 'Favorit')}
     </nav>
-  )
-
-  const navbarSearch = (
-    <div className="hidden md:block w-48 lg:w-64 shrink-0">
-      <SearchBar
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder="Cari Gudeg, Rawon, Soto Betawi..."
-        onEnter={() => { if (route.view !== 'resep') window.location.hash = '#/resep' }}
-      />
-    </div>
   )
 
   const mobileNav = (
@@ -478,14 +471,6 @@ function App() {
         {navItem('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
         <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
           {menuRole}
-        </div>
-        <div className="mt-2">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Cari Gudeg, Rawon, Soto Betawi..."
-            onEnter={() => { if (route.view !== 'resep') window.location.hash = '#/resep' }}
-          />
         </div>
       </nav>
     </div>
@@ -552,7 +537,6 @@ function App() {
         <div className="py-1.5">
           {itemDropdown('#/profil', 'fa-user', 'Profil Saya')}
           {itemDropdown('#/resep-saya', 'fa-book-open', 'Resep Saya')}
-          {itemDropdown('#/tambah-resep', 'fa-plus', 'Tambah Resep')}
           {itemDropdown('#/favorit', 'fa-heart', 'Favorit')}
           {itemDropdown('#/riwayat', 'fa-clock-rotate-left', 'Riwayat')}
         </div>
@@ -602,19 +586,22 @@ function App() {
   const navbar = (
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="page-container">
-        <div className="flex items-center justify-between gap-4 h-16 lg:h-20">
+        <div className="flex items-center justify-between gap-4 h-14 lg:h-16">
           <a href={session && isAdminRole(userRole) ? '#/dashboard' : '#/'} className="flex items-center gap-2.5 shrink-0 group">
             <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
             <span className="leading-tight">
               <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
-              <span className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Jelajahi cita rasa Nusantara</span>
             </span>
           </a>
 
           {desktopNav}
-          {navbarSearch}
 
           <div className="flex items-center gap-2 shrink-0">
+            {session && (
+              <a href="#/tambah-resep" className="btn-primary hidden lg:inline-flex text-sm">
+                <i className="fa-solid fa-plus" /> Tambah Resep
+              </a>
+            )}
             {themeBtn}
             {loginArea}
             <button
@@ -763,7 +750,7 @@ function App() {
 
       {kulkasSection}
 
-      <div className="sticky top-16 lg:top-20 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
+      <div className="sticky top-14 lg:top-16 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
             {['Semua', ...daftarDaerah].map((nama) => pillKategori(nama))}
