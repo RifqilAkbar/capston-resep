@@ -799,10 +799,32 @@ async function pastikanDatabaseAda() {
   }
 }
 
+// Seed data tim (database/seed_resep.sql) — idempoten, dijalankan setelah
+// migrasi agar kolom terbaru (mis. user_id, status) sudah tersedia.
+async function jalankanSeed() {
+  const dbName = process.env.DB_NAME || 'skripsi_masak'
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: dbName,
+    multipleStatements: true,
+  })
+
+  try {
+    const seed = readFileSync(path.resolve(__dirname, '..', 'database', 'seed_resep.sql'), 'utf8')
+    await conn.query(seed)
+  } finally {
+    await conn.end()
+  }
+}
+
 async function start() {
   try {
     await pastikanDatabaseAda()
     await jalankanMigrasi(pool)
+    await jalankanSeed()
     app.listen(port, () => {
       console.log(`API berjalan di http://localhost:${port}`)
     })
