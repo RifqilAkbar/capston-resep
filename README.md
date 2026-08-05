@@ -114,7 +114,17 @@ Email: admin@admin.com
 Password: admin
 ```
 
-Akun di atas adalah admin bawaan yang otomatis dibuat saat server pertama kali dijalankan (password disimpan memakai `password_hash()`). Pengguna biasa mendaftar melalui halaman **Daftar** (`#/register`) dan otomatis berperan sebagai `user`.
+Akun di atas adalah **superadmin** bawaan yang otomatis dibuat saat server pertama kali dijalankan (password disimpan memakai `password_hash()`). Pengguna biasa mendaftar melalui halaman **Daftar** (`#/register`) dan otomatis berperan sebagai `user`.
+
+### Tiga Versi Akun
+
+| Role | Hak Akses |
+|------|-----------|
+| `user` | Membuat resep (menunggu persetujuan), memberi rating/komentar, favorit, riwayat, dan profil. |
+| `admin` | Moderasi konten: menyetujui/menolak resep, menyetujui bahan baru, mengedit/menghapus resep. |
+| `superadmin` | Semua hak `admin`, plus **Kelola User** — menentukan siapa yang menjadi `user` dan siapa yang menjadi `admin`, serta menghapus akun. Akun superadmin tidak bisa diubah/dihapus oleh sesama superadmin. |
+
+Tampilan menu menyesuaikan otomatis: superadmin melihat menu Dashboard, Kelola Resep, dan Kelola User; admin biasa hanya Dashboard dan Kelola Resep; user melihat menu biasa (Profil, Resep Saya, Tambah Resep).
 
 > Akun admin lama `admin@example.com` / `admin123` (jika ada di database) tetap berfungsi dan tidak dihapus.
 

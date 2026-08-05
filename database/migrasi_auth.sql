@@ -52,9 +52,15 @@ CREATE TABLE IF NOT EXISTS comments (
   CONSTRAINT fk_comments_recipe FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ===== users: tambah role superadmin =====
+ALTER TABLE users MODIFY COLUMN role ENUM('user', 'admin', 'superadmin') NOT NULL DEFAULT 'user';
+
 -- ===== Akun admin bawaan =====
 -- Email: admin@admin.com | Password: admin
--- Hanya dibuat bila belum ada. (password_hash dari bcrypt dengan cost 10)
+-- Dibuat sebagai superadmin bila belum ada. (password_hash dari bcrypt dengan cost 10)
 INSERT INTO users (nama_lengkap, username, email, password_hash, role)
-SELECT 'Administrator', 'administrator', 'admin@admin.com', '$2b$10$sNKBoIsBHY.L0tcgaC.koekpVabamqaestkFqGTy9Q8Y2ABWQbl9q', 'admin'
+SELECT 'Administrator', 'administrator', 'admin@admin.com', '$2b$10$sNKBoIsBHY.L0tcgaC.koekpVabamqaestkFqGTy9Q8Y2ABWQbl9q', 'superadmin'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@admin.com');
+
+-- Akun admin lama di-promote menjadi superadmin (pemegang hak kelola role).
+UPDATE users SET role = 'superadmin' WHERE email = 'admin@admin.com' AND role = 'admin';

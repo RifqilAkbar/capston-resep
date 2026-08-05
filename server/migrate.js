@@ -32,6 +32,23 @@ export async function jalankanMigrasi(pool) {
     await pool.query('ALTER TABLE users ADD UNIQUE KEY uq_users_username (username)')
   }
 
+  // ===== users: tambah role superadmin =====
+  const [roleKolom] = await pool.query(
+    "SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'role'",
+  )
+  const tipeRole = roleKolom[0]?.COLUMN_TYPE || ''
+  if (!tipeRole.includes('superadmin')) {
+    await pool.query(
+      "ALTER TABLE users MODIFY COLUMN role ENUM('user', 'admin', 'superadmin') NOT NULL DEFAULT 'user'",
+    )
+  }
+
+  // Akun admin bawaan di-promote menjadi superadmin (pemegang hak kelola role).
+  await pool.query(
+    "UPDATE users SET role = 'superadmin' WHERE email = ? AND role = 'admin'",
+    ['admin@admin.com'],
+  )
+
   // ===== recipes: kepemilikan & status moderasi =====
   if (!(await cekKolom('recipes', 'user_id'))) {
     await pool.query('ALTER TABLE recipes ADD COLUMN user_id BIGINT UNSIGNED NULL AFTER porsi_default')
@@ -107,7 +124,7 @@ export async function jalankanMigrasi(pool) {
     const passwordHash = await bcrypt.hash('admin', 10)
     await pool.query(
       'INSERT INTO users (nama_lengkap, username, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
-      ['Administrator', 'administrator', adminEmail, passwordHash, 'admin'],
+      ['Administrator', 'administrator', adminEmail, passwordHash, 'superadmin'],
     )
   }
 }

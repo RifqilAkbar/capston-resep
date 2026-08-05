@@ -74,6 +74,11 @@ function formatUser(row) {
   }
 }
 
+// Admin biasa dan superadmin sama-sama punya akses moderasi.
+function isAdminRole(role) {
+  return role === 'admin' || role === 'superadmin'
+}
+
 // Token berisi data minimum yang dibutuhkan UI: id, email, dan role.
 function buatToken(user) {
   return jwt.sign(
@@ -115,8 +120,17 @@ function wajibLogin(req, res, next) {
 
 // Middleware admin menjaga route moderasi agar tidak bisa dipakai user biasa.
 function wajibAdmin(req, res, next) {
-  if (req.user?.role !== 'admin') {
+  if (!isAdminRole(req.user?.role)) {
     return kirimError(res, 403, 'Akses admin diperlukan.')
+  }
+
+  return next()
+}
+
+// Middleware superadmin: hanya superadmin yang bisa kelola akun & role user.
+function wajibSuperadmin(req, res, next) {
+  if (req.user?.role !== 'superadmin') {
+    return kirimError(res, 403, 'Akses superadmin diperlukan.')
   }
 
   return next()
@@ -313,8 +327,8 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
     return kirimError(res, 400, 'Judul resep dan minimal 1 bahan wajib diisi.')
   }
 
-  // Resep buatan admin langsung tampil; resep user menunggu persetujuan.
-  const status = req.user.role === 'admin' ? 'approved' : 'pending'
+  // Resep buatan admin/superadmin langsung tampil; resep user menunggu persetujuan.
+  const status = isAdminRole(req.user.role) ? 'approved' : 'pending'
 
   const client = await pool.getConnection()
 
@@ -365,7 +379,7 @@ app.get('/api/recipes/:id', wajibLogin, async (req, res) => {
   const item = resep[0]
   if (!item) return kirimError(res, 404, 'Resep tidak ditemukan.')
 
-  const bolehLihat = req.user.role === 'admin' || item.user_id === req.user.id || item.status === 'approved'
+  const bolehLihat = isAdminRole(req.user.role) || item.user_id === req.user.id || item.status === 'approved'
   if (!bolehLihat) return kirimError(res, 403, 'Resep belum disetujui.')
 
   res.json({ resep: item })
@@ -390,7 +404,7 @@ app.patch('/api/recipes/:id', wajibLogin, async (req, res) => {
   const [cek] = await pool.query('SELECT id, user_id FROM recipes WHERE id = ?', [id])
   if (cek.length === 0) return kirimError(res, 404, 'Resep tidak ditemukan.')
 
-  if (req.user.role !== 'admin' && cek[0].user_id !== req.user.id) {
+  if (!isAdminRole(req.user.role) && cek[0].user_id !== req.user.id) {
     return kirimError(res, 403, 'Anda tidak berhak mengedit resep ini.')
   }
 
@@ -433,7 +447,7 @@ app.delete('/api/recipes/:id', wajibLogin, async (req, res) => {
   const [cek] = await pool.query('SELECT id, user_id FROM recipes WHERE id = ?', [id])
   if (cek.length === 0) return kirimError(res, 404, 'Resep tidak ditemukan.')
 
-  if (req.user.role !== 'admin' && cek[0].user_id !== req.user.id) {
+  if (!isAdminRole(req.user.role) && cek[0].user_id !== req.user.id) {
     return kirimError(res, 403, 'Anda tidak berhak menghapus resep ini.')
   }
 
@@ -484,7 +498,7 @@ app.get('/api/admin/users', wajibLogin, wajibAdmin, async (req, res) => {
   res.json({ users: rows })
 })
 
-app.patch('/api/admin/users/:id', wajibLogin, wajibAdmin, async (req, res) => {
+app.patch('/api/admin/users/:id', wajibLogin, wajibSuperadmin, async (req, res) => {
   const id = Number(req.params.id)
   const role = String(req.body.role || '')
 
@@ -500,17 +514,29 @@ app.patch('/api/admin/users/:id', wajibLogin, wajibAdmin, async (req, res) => {
     return kirimError(res, 400, 'Tidak bisa mengubah role akun Anda sendiri.')
   }
 
+  const [cek] = await pool.query('SELECT id, role FROM users WHERE id = ?', [id])
+  if (cek.length === 0) return kirimError(res, 404, 'User tidak ditemukan.')
+  if (cek[0].role === 'superadmin') {
+    return kirimError(res, 400, 'Tidak bisa mengubah role akun superadmin.')
+  }
+
   const [result] = await pool.query('UPDATE users SET role = ? WHERE id = ?', [role, id])
   if (result.affectedRows === 0) return kirimError(res, 404, 'User tidak ditemukan.')
 
   res.json({ message: 'Role user berhasil diubah.' })
 })
 
-app.delete('/api/admin/users/:id', wajibLogin, wajibAdmin, async (req, res) => {
+app.delete('/api/admin/users/:id', wajibLogin, wajibSuperadmin, async (req, res) => {
   const id = Number(req.params.id)
 
   if (id === req.user.id) {
     return kirimError(res, 400, 'Tidak bisa menghapus akun Anda sendiri.')
+  }
+
+  const [cek] = await pool.query('SELECT id, role FROM users WHERE id = ?', [id])
+  if (cek.length === 0) return kirimError(res, 404, 'User tidak ditemukan.')
+  if (cek[0].role === 'superadmin') {
+    return kirimError(res, 400, 'Tidak bisa menghapus akun superadmin.')
   }
 
   const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id])

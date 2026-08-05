@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 
-export default function AdminDashboard({ token }) {
+export default function AdminDashboard({ token, userRole }) {
   const [semuaResep, setSemuaResep] = useState([])
   const [semuaUser, setSemuaUser] = useState([])
   const [loading, setLoading] = useState(true)
@@ -23,6 +23,8 @@ export default function AdminDashboard({ token }) {
   const approved = semuaResep.filter((r) => r.status === 'approved')
   const rejected = semuaResep.filter((r) => r.status === 'rejected')
   const admins = semuaUser.filter((u) => u.role === 'admin')
+  const superadmins = semuaUser.filter((u) => u.role === 'superadmin')
+  const isSuperadmin = userRole === 'superadmin'
 
   const stat = [
     { label: 'Total Resep', nilai: semuaResep.length, ikon: 'fa-book-open', warna: 'bg-orange-100 dark:bg-orange-900/40 text-accent' },
@@ -30,7 +32,7 @@ export default function AdminDashboard({ token }) {
     { label: 'Disetujui', nilai: approved.length, ikon: 'fa-check', warna: 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400' },
     { label: 'Ditolak', nilai: rejected.length, ikon: 'fa-ban', warna: 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400' },
     { label: 'Total User', nilai: semuaUser.length, ikon: 'fa-users', warna: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400' },
-    { label: 'Admin', nilai: admins.length, ikon: 'fa-user-shield', warna: 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400' },
+    { label: isSuperadmin ? 'Admin' : 'Admin & Superadmin', nilai: admins.length + superadmins.length, ikon: 'fa-user-shield', warna: 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400' },
   ]
 
   return (
@@ -88,11 +90,13 @@ export default function AdminDashboard({ token }) {
           <h3 className="mt-4 font-bold text-gray-900 dark:text-gray-100 group-hover:text-accent transition">Kelola Resep</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Setujui, tolak, edit, atau hapus semua resep.</p>
         </a>
-        <a href="#/kelola-user" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 hover:shadow-md hover:-translate-y-0.5 transition group">
-          <span className="inline-flex w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 items-center justify-center text-xl"><i className="fa-solid fa-users" /></span>
-          <h3 className="mt-4 font-bold text-gray-900 dark:text-gray-100 group-hover:text-accent transition">Kelola User</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Atur role dan hapus akun pengguna.</p>
-        </a>
+        {isSuperadmin && (
+          <a href="#/kelola-user" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 hover:shadow-md hover:-translate-y-0.5 transition group">
+            <span className="inline-flex w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 items-center justify-center text-xl"><i className="fa-solid fa-users" /></span>
+            <h3 className="mt-4 font-bold text-gray-900 dark:text-gray-100 group-hover:text-accent transition">Kelola User</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Tentukan siapa yang menjadi user dan siapa yang menjadi admin.</p>
+          </a>
+        )}
       </div>
     </main>
   )

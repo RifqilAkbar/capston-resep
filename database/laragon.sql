@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   email VARCHAR(255) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  role ENUM('user', 'admin', 'superadmin') NOT NULL DEFAULT 'user',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_users_email (email)
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients (
 
 INSERT IGNORE INTO users (id, email, password_hash, role)
 VALUES
-  (1, 'admin@example.com', '$2b$10$Kod6e08rsSi0024jlFMYleED7K4/1mGAdwdSQh76VjBxwebPS4SDm', 'admin');
+  (1, 'admin@example.com', '$2b$10$Kod6e08rsSi0024jlFMYleED7K4/1mGAdwdSQh76VjBxwebPS4SDm', 'superadmin');
 
 INSERT IGNORE INTO ingredients (id, nama_bahan, kategori, status_validasi)
 VALUES

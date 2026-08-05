@@ -109,7 +109,10 @@ export default function Profil({ token, onSessionUpdate }) {
           <div className="min-w-0">
             <p className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{profil.nama_lengkap}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">@{profil.username || '-'}</p>
-            <span className="inline-block mt-1 text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold rounded capitalize">{profil.role}</span>
+            <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 font-bold rounded capitalize ${profil.role === 'superadmin' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' : profil.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'}`}>
+              {profil.role === 'superadmin' && <i className="fa-solid fa-crown mr-1" />}
+              {profil.role}
+            </span>
           </div>
         </div>
 

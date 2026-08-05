@@ -61,7 +61,12 @@ function parseHash() {
 }
 
 const RUTE_USER = ['profil', 'resep-saya', 'tambah-resep', 'edit-resep']
-const RUTE_ADMIN = ['dashboard', 'kelola-resep', 'kelola-user']
+const RUTE_ADMIN = ['dashboard', 'kelola-resep']
+const RUTE_SUPERADMIN = ['kelola-user']
+
+function isAdminRole(role) {
+  return role === 'admin' || role === 'superadmin'
+}
 
 function App() {
   const [session, setSession] = useState(null)
@@ -180,7 +185,7 @@ function App() {
     setToken(sessionBaru.token)
     setSession(sessionBaru)
     setUserRole(sessionBaru.user.role)
-    window.location.hash = sessionBaru.user.role === 'admin' ? '#/dashboard' : '#/'
+    window.location.hash = isAdminRole(sessionBaru.user.role) ? '#/dashboard' : '#/'
   }
 
   const handleLogout = () => {
@@ -329,10 +334,14 @@ function App() {
     const v = route.view
     if (session) {
       if (v === 'login' || v === 'register') {
-        window.location.hash = userRole === 'admin' ? '#/dashboard' : '#/'
+        window.location.hash = isAdminRole(userRole) ? '#/dashboard' : '#/'
         return
       }
-      if (userRole !== 'admin' && RUTE_ADMIN.includes(v)) {
+      if (RUTE_SUPERADMIN.includes(v) && userRole !== 'superadmin') {
+        window.location.hash = '#/'
+        return
+      }
+      if (RUTE_ADMIN.includes(v) && !isAdminRole(userRole)) {
         window.location.hash = '#/'
       }
       return
@@ -414,11 +423,11 @@ function App() {
 
   // Item menu khusus role (dipakai di mobile menu).
   const menuRole = session ? (
-    userRole === 'admin' ? (
+    isAdminRole(userRole) ? (
       <>
         {navItem('#/dashboard', 'fa-gauge-high', 'Dashboard Admin')}
         {navItem('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
-        {navItem('#/kelola-user', 'fa-users', 'Kelola User')}
+        {userRole === 'superadmin' && navItem('#/kelola-user', 'fa-users', 'Kelola User')}
       </>
     ) : (
       <>
@@ -517,13 +526,17 @@ function App() {
   )
 
   const isiDropdownAkun = session ? (
-    userRole === 'admin' ? (
+    isAdminRole(userRole) ? (
       <>
-        {headerDropdown(session.user.nama_lengkap || 'Administrator', session.user.email, 'fa-crown')}
+        {headerDropdown(
+          session.user.nama_lengkap || 'Administrator',
+          userRole === 'superadmin' ? 'Superadmin' : session.user.email,
+          'fa-crown'
+        )}
         <div className="py-1.5">
           {itemDropdown('#/dashboard', 'fa-gauge-high', 'Dashboard')}
           {itemDropdown('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
-          {itemDropdown('#/kelola-user', 'fa-users', 'Kelola User')}
+          {userRole === 'superadmin' && itemDropdown('#/kelola-user', 'fa-users', 'Kelola User')}
         </div>
         <div className="border-t border-gray-100 dark:border-gray-700 py-1.5">
           {tombolLogoutDropdown}
@@ -590,7 +603,7 @@ function App() {
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="page-container">
         <div className="flex items-center justify-between gap-4 h-16 lg:h-20">
-          <a href={session && userRole === 'admin' ? '#/dashboard' : '#/'} className="flex items-center gap-2.5 shrink-0 group">
+          <a href={session && isAdminRole(userRole) ? '#/dashboard' : '#/'} className="flex items-center gap-2.5 shrink-0 group">
             <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
             <span className="leading-tight">
               <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
@@ -836,11 +849,11 @@ function App() {
   } else if (route.view === 'trending') {
     konten = <Trending semuaResep={resepLengkap} favoritIds={favoritIds} onToggleFavorit={handleToggleFavorit} />
   } else if (route.view === 'dashboard') {
-    konten = <AdminDashboard token={token} />
+    konten = <AdminDashboard token={token} userRole={userRole} />
   } else if (route.view === 'kelola-resep') {
     konten = <KelolaResep token={token} onDataRefresh={initData} />
   } else if (route.view === 'kelola-user') {
-    konten = <KelolaUser token={token} />
+    konten = <KelolaUser token={token} session={session} />
   } else if (route.view === 'profil') {
     konten = <Profil token={token} onSessionUpdate={handleSessionUpdate} />
   } else if (route.view === 'resep-saya') {

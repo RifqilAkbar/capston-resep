@@ -5,6 +5,10 @@ import { kategoriResep } from '../kategoriNusantara'
 import { FOTO_DAERAH } from '../fotoMakanan'
 import { DAFTAR_USER_POPULER, fotoAvatar, fotoKategori, fotoResep, mockDurasi, mockLike } from '../mock'
 
+function isAdminRole(role) {
+  return role === 'admin' || role === 'superadmin'
+}
+
 function ThumbKategori({ nama }) {
   const [gagal, setGagal] = useState(false)
   if (gagal) {
@@ -322,11 +326,14 @@ export default function Beranda({
   bagianBuka, setBagianBuka,
 }) {
   // ===== Kategori & kurasi untuk dashboard Freshly =====
-  const daftarKategoriPopuler = useMemo(() => {
-    const nyata = [...new Set(dataResep.map((r) => r.kategori).filter(Boolean))]
-    const kurasi = ['Ayam', 'Daging', 'Sayuran', 'Telur', 'Mie', 'Pasta', 'Western', 'Nusantara', 'Jepang', 'Seafood']
-    return [...new Set([...nyata, ...kurasi])].slice(0, 10)
-  }, [dataResep])
+  // Daerah yang benar-benar punya resep, diurutkan dari menu terbanyak.
+  const daftarKategoriPopuler = useMemo(
+    () => kategoriResep(dataResep)
+      .filter((k) => k.jumlah > 0)
+      .sort((a, b) => b.jumlah - a.jumlah)
+      .map((k) => k.nama),
+    [dataResep],
+  )
 
   const resepPopuler = useMemo(
     () => [...semuaResep].sort((a, b) => mockLike(b.id) - mockLike(a.id)).slice(0, 8),
@@ -363,7 +370,7 @@ export default function Beranda({
   }
 
   useEffect(() => {
-    if (!session || userRole !== 'admin' || !token) return
+    if (!session || !isAdminRole(userRole) || !token) return
     let aktif = true
     api.ambilBahanTertunda(token)
       .then(({ bahan }) => { if (aktif) setBahanTertunda(bahan || []) })
@@ -424,7 +431,7 @@ export default function Beranda({
       })
       setPesanBahan('Sukses mengusulkan bahan baru!')
       setInputNamaBahan('')
-      if (userRole === 'admin') {
+      if (isAdminRole(userRole)) {
         const { bahan } = await api.ambilBahanTertunda(token)
         setBahanTertunda(bahan || [])
       }
@@ -481,7 +488,7 @@ export default function Beranda({
     </div>
   )
 
-  const adminPanel = userRole === 'admin' && (
+  const adminPanel = isAdminRole(userRole) && (
     <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-2xl shadow-sm">
       <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2">Panel Moderasi Admin: Peninjauan Bahan Baru</h3>
       {bahanTertunda.length === 0 ? (
@@ -561,27 +568,29 @@ export default function Beranda({
       </section>
 
       {/* ===== Kategori Populer ===== */}
-      <section id="kategori-populer" className="page-container py-8">
-        {judulSection('Kategori', 'fa-tags', 'Kategori Populer', null)}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {daftarKategoriPopuler.map((nama) => (
-            <button
-              key={nama}
-              type="button"
-              onClick={() => onPilihKategori(nama)}
-              className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-2.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition text-left group"
-            >
-              <span className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
-                <ThumbKategori nama={nama} />
-              </span>
-              <span className="min-w-0">
-                <span className="block font-bold text-gray-900 dark:text-gray-100 text-sm truncate">{nama}</span>
-                <span className="block text-[11px] text-gray-400">Lihat resep <i className="fa-solid fa-arrow-right ml-1" /></span>
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
+      {daftarKategoriPopuler.length > 0 && (
+        <section id="kategori-populer" className="page-container py-8">
+          {judulSection('Kategori', 'fa-tags', 'Kategori Populer', null)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {daftarKategoriPopuler.map((nama) => (
+              <button
+                key={nama}
+                type="button"
+                onClick={() => onPilihKategori(nama)}
+                className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-2.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition text-left group"
+              >
+                <span className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                  <ThumbKategori nama={nama} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-bold text-gray-900 dark:text-gray-100 text-sm truncate">{nama}</span>
+                  <span className="block text-[11px] text-gray-400">Lihat resep <i className="fa-solid fa-arrow-right ml-1" /></span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ===== Di Bawah 30 Menit ===== */}
       <section className="page-container py-8">
