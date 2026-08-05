@@ -4,6 +4,7 @@ import cors from 'cors'
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import mysql from 'mysql2/promise'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { jalankanMigrasi } from './migrate.js'
@@ -768,8 +769,39 @@ app.use((error, _req, res, next) => {
   kirimError(res, 500, 'Terjadi kesalahan server.')
 })
 
+// Pastikan database & tabel dasar ada. Untuk database baru/kosong, jalankan
+// database/laragon.sql (idempoten: CREATE TABLE IF NOT EXISTS + INSERT IGNORE),
+// sehingga teman cukup npm run dev:api tanpa import manual.
+async function pastikanDatabaseAda() {
+  const dbName = process.env.DB_NAME || 'skripsi_masak'
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    multipleStatements: true,
+  })
+
+  try {
+    await conn.query(
+      `CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+    )
+    const [tabel] = await conn.query(
+      'SELECT COUNT(*) AS ada FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?',
+      [dbName, 'users'],
+    )
+    if (Number(tabel[0].ada) === 0) {
+      const sql = readFileSync(path.resolve(__dirname, '..', 'database', 'laragon.sql'), 'utf8')
+      await conn.query(sql.replaceAll('skripsi_masak', dbName))
+    }
+  } finally {
+    await conn.end()
+  }
+}
+
 async function start() {
   try {
+    await pastikanDatabaseAda()
     await jalankanMigrasi(pool)
     app.listen(port, () => {
       console.log(`API berjalan di http://localhost:${port}`)
