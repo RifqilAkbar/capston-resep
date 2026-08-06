@@ -6,7 +6,7 @@ import { mockDurasi } from '../mock'
 export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
   const [gagal, setGagal] = useState(false)
   const rating = (4.5 + (Number(resep.id) % 5) * 0.1).toFixed(1)
-  const waktu = mockDurasi(resep.id)
+  const waktu = resep.durasi || mockDurasi(resep.id)
   const bukaResep = () => { window.location.hash = `#/resep/${resep.id}` }
 
   return (

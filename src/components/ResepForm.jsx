@@ -13,6 +13,7 @@ export default function ResepForm({
   const [judulResep, setJudulResep] = useState(initial?.judul_resep || '')
   const [kategori, setKategori] = useState(initial?.kategori || 'Nusantara')
   const [porsiDefault, setPorsiDefault] = useState(initial?.porsi_default || 2)
+  const [durasiMenit, setDurasiMenit] = useState(initial?.durasi_menit || 15)
   const [langkahResep, setLangkahResep] = useState(
     (initial?.langkah_memasak?.length ? initial.langkah_memasak : [{ instruksi: '' }]),
   )
@@ -38,6 +39,7 @@ export default function ResepForm({
       judul_resep: judulResep.trim(),
       kategori,
       porsi_default: Number(porsiDefault) || 1,
+      durasi_menit: Number(durasiMenit) || 15,
       langkah_memasak: langkahValid,
       ingredient_ids: bahanResepDipilih,
     })
@@ -52,6 +54,10 @@ export default function ResepForm({
         <div className="md:col-span-2">
           <label className={label}>Nama Resep</label>
           <input type="text" placeholder="Contoh: Nasi Goreng Kampung" value={judulResep} onChange={(e) => setJudulResep(e.target.value)} className={input} />
+        </div>
+        <div>
+          <label className={label}>Durasi Masak (menit)</label>
+          <input type="number" min="1" max="600" value={durasiMenit} onChange={(e) => setDurasiMenit(e.target.value)} className={input} />
         </div>
         <div>
           <label className={label}>Estimasi Porsi</label>

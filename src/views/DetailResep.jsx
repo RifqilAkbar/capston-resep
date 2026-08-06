@@ -151,7 +151,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   const ratingCount = Number(resep.rating_count || 0)
   const pembuat = resep.pembuat_nama || resep.pembuat_username || 'Pembuat Resep'
   const avatarPembuat = fotoAvatar(resep.pembuat_username || resep.pembuat_nama || 'chef')
-  const waktuMasak = mockDurasi(resep.id)
+  const waktuMasak = resep.durasi_menit || mockDurasi(resep.id)
 
   const handleTambahBelanja = () => {
     if (!bahanKurang.length) return

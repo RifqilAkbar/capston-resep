@@ -373,6 +373,7 @@ function App() {
         jumlahBahan: resep.recipe_ingredients?.length || 0,
         bahan: resep.recipe_ingredients || [],
         porsi: resep.porsi_default,
+        durasi: resep.durasi_menit,
       }
     })
   }, [kulkasUser, dataResep])

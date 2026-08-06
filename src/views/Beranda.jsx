@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { CardResep } from '../components/CardResep'
 import { kategoriResep } from '../kategoriNusantara'
-import { FOTO_DAERAH } from '../fotoMakanan'
+import { FOTO_DAERAH, fotoMakanan } from '../fotoMakanan'
 import { DAFTAR_USER_POPULER, fotoAvatar, fotoKategori, fotoResep, mockDurasi, mockLike } from '../mock'
 
 function isAdminRole(role) {
@@ -43,12 +43,12 @@ function KartuResepFreshly({ resep, isFavorit, onToggleFavorit }) {
         {gagal ? (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-400 to-accent text-white text-5xl font-extrabold">{inisial}</div>
         ) : (
-          <img src={fotoResep(resep.id, 400, 560)} alt={resep.judul} loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
+          <img src={fotoMakanan(resep.judul)} alt={resep.judul} loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
-          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/90 text-gray-800">{mockDurasi(resep.id)} menit</span>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/90 text-gray-800">{resep.durasi || mockDurasi(resep.id)} menit</span>
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onToggleFavorit(resep.id) }}
@@ -340,13 +340,14 @@ export default function Beranda({
     [semuaResep],
   )
   const resepCepat = useMemo(
-    () => semuaResep.filter((r) => mockDurasi(r.id) <= 30).slice(0, 8),
+    () => semuaResep.filter((r) => (r.durasi || mockDurasi(r.id)) <= 30).slice(0, 8),
     [semuaResep],
   )
 
   // ===== State formulir kontribusi =====
   const [judulResep, setJudulResep] = useState('')
   const [porsiDefault, setPorsiDefault] = useState(2)
+  const [durasiResep, setDurasiResep] = useState(15)
   const [langkahResep, setLangkahResep] = useState([{ instruksi: '' }])
   const [bahanResepDipilih, setBahanResepDipilih] = useState([])
   const [pesanResep, setPesanResep] = useState('')
@@ -397,6 +398,7 @@ export default function Beranda({
       await api.tambahResep(token, {
         judul_resep: judulResep.trim(),
         porsi_default: porsiDefault,
+        durasi_menit: durasiResep,
         langkah_memasak: langkahValid,
         ingredient_ids: bahanResepDipilih,
       })
@@ -404,6 +406,7 @@ export default function Beranda({
       setJudulResep('')
       setLangkahResep([{ instruksi: '' }])
       setBahanResepDipilih([])
+      setDurasiResep(15)
       if (onDataRefresh) await onDataRefresh()
     } catch (error) {
       setPesanResep('Error input resep: ' + error.message)
@@ -633,6 +636,10 @@ export default function Beranda({
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Nama Menu Masakan</label>
                     <input type="text" placeholder="Contoh: Nasi Goreng Kampung, Sup Ayam" value={judulResep} onChange={(e) => setJudulResep(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Durasi Masak (menit)</label>
+                    <input type="number" min="1" max="600" value={durasiResep} onChange={(e) => setDurasiResep(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Estimasi Porsi</label>

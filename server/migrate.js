@@ -53,6 +53,14 @@ export async function jalankanMigrasi(pool) {
   if (!(await cekKolom('recipes', 'user_id'))) {
     await pool.query('ALTER TABLE recipes ADD COLUMN user_id BIGINT UNSIGNED NULL AFTER porsi_default')
   }
+  // Durasi masak (menit) — kolom nyata agar filter "di bawah 30 menit" & tampilan
+  // memakai data, bukan mock. Backfill hanya baris NULL (idempoten).
+  if (!(await cekKolom('recipes', 'durasi_menit'))) {
+    await pool.query('ALTER TABLE recipes ADD COLUMN durasi_menit INT UNSIGNED NULL AFTER porsi_default')
+  }
+  await pool.query(
+    'UPDATE recipes SET durasi_menit = LEAST(GREATEST(JSON_LENGTH(langkah_memasak) * 7, 10), 120) WHERE durasi_menit IS NULL',
+  )
   if (!(await cekKolom('recipes', 'status'))) {
     // Default 'approved' agar resep lama tetap tampil; resep buatan user dibuat 'pending'.
     await pool.query(

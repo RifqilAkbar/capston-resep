@@ -171,6 +171,7 @@ async function listResep(where = '', params = []) {
        r.kategori,
        r.porsi_default,
        r.langkah_memasak,
+       r.durasi_menit,
        r.created_at,
        r.user_id,
        r.status,
@@ -321,6 +322,7 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
   const judulResep = String(req.body.judul_resep || '').trim()
   const kategori = String(req.body.kategori || 'Lainnya').trim()
   const porsiDefault = Number.parseInt(req.body.porsi_default, 10) || 1
+  const durasiMenit = Number.parseInt(req.body.durasi_menit, 10) || 15
   const langkahMemasak = Array.isArray(req.body.langkah_memasak) ? req.body.langkah_memasak : []
   const ingredientIds = Array.isArray(req.body.ingredient_ids) ? req.body.ingredient_ids : []
 
@@ -337,8 +339,8 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
     await client.beginTransaction()
 
     const [recipeResult] = await client.query(
-      'INSERT INTO recipes (judul_resep, kategori, porsi_default, langkah_memasak, user_id, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [judulResep, kategori, porsiDefault, JSON.stringify(langkahMemasak), req.user.id, status],
+      'INSERT INTO recipes (judul_resep, kategori, porsi_default, durasi_menit, langkah_memasak, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [judulResep, kategori, porsiDefault, durasiMenit, JSON.stringify(langkahMemasak), req.user.id, status],
     )
 
     const resepId = recipeResult.insertId
@@ -352,7 +354,7 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
 
     await client.commit()
     const [rows] = await pool.query(
-      'SELECT id, judul_resep, kategori, langkah_memasak, user_id, status FROM recipes WHERE id = ?',
+      'SELECT id, judul_resep, kategori, durasi_menit, langkah_memasak, user_id, status FROM recipes WHERE id = ?',
       [resepId],
     )
     res.status(201).json({ resep: formatResep({ ...rows[0], recipe_ingredients: [] }) })
@@ -395,6 +397,7 @@ app.patch('/api/recipes/:id', wajibLogin, async (req, res) => {
   const judulResep = String(req.body.judul_resep || '').trim()
   const kategori = String(req.body.kategori || 'Lainnya').trim()
   const porsiDefault = Number.parseInt(req.body.porsi_default, 10) || 1
+  const durasiMenit = Number.parseInt(req.body.durasi_menit, 10) || 15
   const langkahMemasak = Array.isArray(req.body.langkah_memasak) ? req.body.langkah_memasak : []
   const ingredientIds = Array.isArray(req.body.ingredient_ids) ? req.body.ingredient_ids : []
 
@@ -415,8 +418,8 @@ app.patch('/api/recipes/:id', wajibLogin, async (req, res) => {
     await client.beginTransaction()
 
     await client.query(
-      'UPDATE recipes SET judul_resep = ?, kategori = ?, porsi_default = ?, langkah_memasak = ? WHERE id = ?',
-      [judulResep, kategori, porsiDefault, JSON.stringify(langkahMemasak), id],
+      'UPDATE recipes SET judul_resep = ?, kategori = ?, porsi_default = ?, durasi_menit = ?, langkah_memasak = ? WHERE id = ?',
+      [judulResep, kategori, porsiDefault, durasiMenit, JSON.stringify(langkahMemasak), id],
     )
 
     await client.query('DELETE FROM recipe_ingredients WHERE recipe_id = ?', [id])
