@@ -99,10 +99,19 @@ export const api = {
     token,
     body: { nilai },
   }),
+  daftarRating: (id) => request(`/recipes/${id}/ratings`),
+  hapusRating: (token, idRating) => request(`/ratings/${idRating}`, {
+    method: 'DELETE',
+    token,
+  }),
   kirimKomentar: (token, id, isi) => request(`/recipes/${id}/comments`, {
     method: 'POST',
     token,
     body: { isi },
+  }),
+  hapusKomentar: (token, idKomentar) => request(`/comments/${idKomentar}`, {
+    method: 'DELETE',
+    token,
   }),
 
   // Favorit

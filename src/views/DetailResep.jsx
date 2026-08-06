@@ -16,6 +16,8 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   const [isSubmittingKomentar, setIsSubmittingKomentar] = useState(false)
   const [pesanKomentar, setPesanKomentar] = useState('')
 
+  const [daftarRating, setDaftarRating] = useState([])
+
   const [nilaiRating, setNilaiRating] = useState(0)
   const [isSubmittingRating, setIsSubmittingRating] = useState(false)
   const [pesanRating, setPesanRating] = useState('')
@@ -24,6 +26,14 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
     let aktif = true
     api.komentarResep(id)
       .then(({ komentar: data }) => { if (aktif) setKomentar(data || []) })
+      .catch(() => {})
+    return () => { aktif = false }
+  }, [id])
+
+  useEffect(() => {
+    let aktif = true
+    api.daftarRating(id)
+      .then(({ rating: data }) => { if (aktif) setDaftarRating(data || []) })
       .catch(() => {})
     return () => { aktif = false }
   }, [id])
@@ -45,6 +55,32 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   }, [id])
 
   const kembali = () => { window.location.hash = '#/resep' }
+
+  const isAdmin = session && (session.user.role === 'admin' || session.user.role === 'superadmin')
+
+  const handleHapusKomentar = async (idKomentar) => {
+    if (!window.confirm('Hapus komentar ini?')) return
+    try {
+      await api.hapusKomentar(token, idKomentar)
+      setKomentar((prev) => prev.filter((k) => k.id !== idKomentar))
+      if (window.Toast) window.Toast.show('Komentar dihapus.', 'success')
+    } catch (error) {
+      if (window.Toast) window.Toast.show(error.message, 'error')
+    }
+  }
+
+  const handleHapusRating = async (idRating) => {
+    if (!window.confirm('Hapus rating ini?')) return
+    try {
+      await api.hapusRating(token, idRating)
+      setDaftarRating((prev) => prev.filter((r) => r.id !== idRating))
+      if (window.Toast) window.Toast.show('Rating dihapus.', 'success')
+      const { resep: data } = await api.detailResep(id)
+      setResep(data)
+    } catch (error) {
+      if (window.Toast) window.Toast.show(error.message, 'error')
+    }
+  }
 
   const handleBagikan = async () => {
     const url = window.location.href
@@ -377,6 +413,36 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
           {pesanRating && <p className="text-sm text-red-500 mt-2">{pesanRating}</p>}
         </div>
 
+        {isAdmin && daftarRating.length > 0 && (
+          <div className="mt-5">
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Daftar Rating</p>
+            <div className="mt-2 space-y-2">
+              {daftarRating.map((r) => (
+                <div key={r.id} className="flex items-center gap-3 border border-gray-100 dark:border-gray-700 rounded-xl p-3">
+                  <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 dark:text-purple-300 font-bold">
+                    {(r.penulis || '?').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{r.penulis || 'Pengguna'}</p>
+                    <p className="text-[11px] text-gray-400">{new Date(r.created_at).toLocaleString('id-ID')}</p>
+                  </div>
+                  <span className="flex items-center gap-1 text-sm font-bold text-amber-500 shrink-0">
+                    <i className="fa-solid fa-star" />{r.nilai}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleHapusRating(r.id)}
+                    className="text-red-400 hover:text-red-600 text-xs font-bold shrink-0 transition"
+                    aria-label="Hapus rating"
+                  >
+                    <i className="fa-solid fa-trash-can" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleKirimKomentar} className="mt-5 space-y-3">
           <textarea
             rows="3"
@@ -406,10 +472,20 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
                 <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-accent font-bold">
                   {(k.penulis || '?').charAt(0).toUpperCase()}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{k.penulis || 'Pengguna'}</p>
                   <p className="text-[11px] text-gray-400">{new Date(k.created_at).toLocaleString('id-ID')}</p>
                 </div>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => handleHapusKomentar(k.id)}
+                    className="text-red-400 hover:text-red-600 text-xs font-bold shrink-0 transition"
+                    aria-label="Hapus komentar"
+                  >
+                    <i className="fa-solid fa-trash-can mr-1" />Hapus
+                  </button>
+                )}
               </div>
               <p className="text-sm text-gray-700 dark:text-gray-300 mt-3">{k.isi}</p>
             </div>

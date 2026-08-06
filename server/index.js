@@ -656,6 +656,50 @@ app.post('/api/recipes/:id/comments', wajibLogin, async (req, res) => {
   res.status(201).json({ komentar: rows[0] })
 })
 
+// Hapus komentar (moderasi admin & superadmin).
+app.delete('/api/comments/:id', wajibLogin, wajibAdmin, async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) return kirimError(res, 400, 'ID komentar tidak valid.')
+
+  const [result] = await pool.query('DELETE FROM comments WHERE id = ?', [id])
+  if (result.affectedRows === 0) return kirimError(res, 404, 'Komentar tidak ditemukan.')
+
+  res.json({ message: 'Komentar berhasil dihapus.' })
+})
+
+// Daftar rating sebuah resep (moderasi: admin bisa lihat & hapus rating).
+app.get('/api/recipes/:id/ratings', async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) return kirimError(res, 400, 'ID resep tidak valid.')
+
+  const [rows] = await pool.query(
+    `SELECT
+       r.id,
+       r.recipe_id,
+       r.user_id,
+       r.nilai,
+       r.created_at,
+       COALESCE(NULLIF(u.nama_lengkap, ''), NULLIF(u.username, ''), u.email) AS penulis
+     FROM ratings r
+     JOIN users u ON u.id = r.user_id
+     WHERE r.recipe_id = ?
+     ORDER BY r.created_at DESC, r.id DESC`,
+    [id],
+  )
+  res.json({ rating: rows })
+})
+
+// Hapus rating (moderasi admin & superadmin).
+app.delete('/api/ratings/:id', wajibLogin, wajibAdmin, async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) return kirimError(res, 400, 'ID rating tidak valid.')
+
+  const [result] = await pool.query('DELETE FROM ratings WHERE id = ?', [id])
+  if (result.affectedRows === 0) return kirimError(res, 404, 'Rating tidak ditemukan.')
+
+  res.json({ message: 'Rating berhasil dihapus.' })
+})
+
 // ===== Data publik (hanya resep yang disetujui) =====
 
 app.get('/api/initial-data', wajibLogin, async (_req, res) => {
