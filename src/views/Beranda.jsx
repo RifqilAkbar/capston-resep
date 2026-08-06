@@ -3,7 +3,7 @@ import { api } from '../api'
 import { CardResep } from '../components/CardResep'
 import { kategoriResep } from '../kategoriNusantara'
 import { FOTO_DAERAH, fotoMakanan } from '../fotoMakanan'
-import { DAFTAR_USER_POPULER, fotoAvatar, fotoKategori, fotoResep, mockDurasi, mockLike } from '../mock'
+import { fotoAvatar, fotoKategori, mockDurasi, mockLike } from '../mock'
 
 function isAdminRole(role) {
   return role === 'admin' || role === 'superadmin'
@@ -21,12 +21,12 @@ function ThumbKategori({ nama }) {
   return <img src={fotoKategori(nama)} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
 }
 
-function ThumbResepKecil({ seed }) {
+function ThumbResepKecil({ judul }) {
   const [gagal, setGagal] = useState(false)
   if (gagal) {
     return <span className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400"><i className="fa-solid fa-utensils" /></span>
   }
-  return <img src={fotoResep(seed, 200, 200)} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
+  return <img src={fotoMakanan(judul)} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
 }
 
 function KartuResepFreshly({ resep, isFavorit, onToggleFavorit }) {
@@ -89,8 +89,8 @@ function SkeletonFreshly() {
   )
 }
 
-function formatAngka(n) {
-  return n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + 'rb' : String(n)
+function formatRating(n) {
+  return Number(n || 0).toFixed(1).replace('.', ',')
 }
 
 // Contoh makanan khas per daerah (tampilan kartu, bukan logika database).
@@ -344,6 +344,35 @@ export default function Beranda({
     [semuaResep],
   )
 
+  // Pengguna teratas: real dari data resep, peringkat = jumlah resep × rating rata-rata.
+  const penggunaTeratas = useMemo(() => {
+    const akumulasi = new Map()
+    for (const r of dataResep) {
+      if (r.user_id == null) continue
+      const nama = r.pembuat_nama || r.pembuat_username || 'Pengguna'
+      if (!akumulasi.has(r.user_id)) {
+        akumulasi.set(r.user_id, { id: r.user_id, nama, username: r.pembuat_username || '', jumlahResep: 0, totalRating: 0, jumlahBerRating: 0, judulResep: [] })
+      }
+      const u = akumulasi.get(r.user_id)
+      u.jumlahResep += 1
+      const ratingAvg = Number(r.rating_avg || 0)
+      const ratingCount = Number(r.rating_count || 0)
+      if (ratingCount > 0) {
+        u.totalRating += ratingAvg
+        u.jumlahBerRating += 1
+      }
+      if (u.judulResep.length < 4) u.judulResep.push(r.judul_resep)
+    }
+
+    return [...akumulasi.values()]
+      .map((u) => ({
+        ...u,
+        ratingRata: u.jumlahBerRating > 0 ? u.totalRating / u.jumlahBerRating : 3.0,
+      }))
+      .sort((a, b) => (b.jumlahResep * b.ratingRata) - (a.jumlahResep * a.ratingRata))
+      .slice(0, 4)
+  }, [dataResep])
+
   // ===== State formulir kontribusi =====
   const [judulResep, setJudulResep] = useState('')
   const [porsiDefault, setPorsiDefault] = useState(2)
@@ -355,15 +384,6 @@ export default function Beranda({
 
   const [bahanTertunda, setBahanTertunda] = useState([])
   const [pesanAdmin, setPesanAdmin] = useState('')
-
-  const [mengikuti, setMengikuti] = useState(() => new Set())
-  const toggleIkuti = (id) => {
-    setMengikuti((prev) => {
-      const baru = new Set(prev)
-      if (baru.has(id)) baru.delete(id); else baru.add(id)
-      return baru
-    })
-  }
 
   useEffect(() => {
     if (!session || !isAdminRole(userRole) || !token) return
@@ -577,36 +597,39 @@ export default function Beranda({
       {/* ===== Pengguna Teratas ===== */}
       <section className="page-container py-8">
         {judulSection('Komunitas', 'fa-users', 'Pengguna Teratas', null)}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {DAFTAR_USER_POPULER.map((u) => (
-            <div key={u.id} className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden shrink-0">
-                  <img src={fotoAvatar(u.avatar)} alt={u.nama} loading="lazy" className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-gray-900 dark:text-gray-100 truncate">{u.nama}</p>
-                  <p className="text-xs text-gray-400"><i className="fa-solid fa-users mr-1" />{formatAngka(u.followers)} pengikut</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => toggleIkuti(u.id)}
-                  className={`shrink-0 px-5 py-2 rounded-full text-sm font-bold transition ${mengikuti.has(u.id) ? 'bg-accent text-white shadow-md shadow-accent/30' : 'bg-white text-accent border-2 border-accent hover:bg-orange-50'}`}
-                >
-                  {mengikuti.has(u.id) ? 'Mengikuti' : 'Ikuti'}
-                </button>
-              </div>
-              <div className="mt-4 grid grid-cols-4 gap-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="aspect-square rounded-lg overflow-hidden">
-                    <ThumbResepKecil seed={`${u.avatar}-${i}`} />
+        {penggunaTeratas.length === 0 ? (
+          <div className="text-center py-12 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm">
+            <span className="empty-icon"><i className="fa-solid fa-users" /></span>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Belum ada pengguna yang berbagi resep. Daftar akan muncul setelah ada yang membagikan resep.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {penggunaTeratas.map((u) => (
+              <div key={u.id} className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full overflow-hidden shrink-0">
+                    <img src={fotoAvatar(u.username || u.nama)} alt={u.nama} loading="lazy" className="w-full h-full object-cover" />
                   </div>
-                ))}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-gray-900 dark:text-gray-100 truncate">{u.nama}</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                      <p className="text-xs text-gray-400"><i className="fa-solid fa-bowl-food mr-1" />{u.jumlahResep} resep</p>
+                      <p className="text-xs text-gray-400"><i className="fa-solid fa-star text-amber-400 mr-1" />{formatRating(u.ratingRata)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                  {u.judulResep.map((judul, i) => (
+                    <div key={i} className="aspect-square rounded-lg overflow-hidden">
+                      <ThumbResepKecil judul={judul} />
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-gray-400"><i className="fa-solid fa-star mr-1" />Rata-rata rating dari resep dibagikan</p>
               </div>
-              <p className="mt-3 text-xs text-gray-400"><i className="fa-solid fa-bowl-food mr-1" />{u.jumlahResep} resep dibagikan</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ===== Konten untuk pengguna login ===== */}
