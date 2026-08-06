@@ -98,7 +98,6 @@ function App() {
 
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [bagianBuka, setBagianBuka] = useState('resep')
   const [showAkunDropdown, setShowAkunDropdown] = useState(false)
   const searchQueryRef = useRef(searchQuery)
   const akunDropdownRef = useRef(null)
@@ -864,17 +863,15 @@ function App() {
         onToggleFavorit={handleToggleFavorit}
         onPilihKategori={handlePilihKategori}
         onDataRefresh={initData}
-        bagianBuka={bagianBuka}
-        setBagianBuka={setBagianBuka}
       />
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#fff8f2] dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-12 theme-transition">
+    <div className="min-h-screen flex flex-col bg-[#fff8f2] dark:bg-gray-900 text-gray-800 dark:text-gray-100 theme-transition">
       {navbar}
       {konten}
-      {footerSection}
+      <div className="mt-auto">{footerSection}</div>
       <MusicPlayer />
     </div>
   )

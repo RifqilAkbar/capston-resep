@@ -323,7 +323,6 @@ export default function Beranda({
   dataResep, dataBahan, loading,
   semuaResep, favoritIds, onToggleFavorit,
   onPilihKategori, onDataRefresh,
-  bagianBuka, setBagianBuka,
 }) {
   // ===== Kategori & kurasi untuk dashboard Freshly =====
   // Daerah yang benar-benar punya resep, diurutkan dari menu terbanyak.
@@ -374,14 +373,6 @@ export default function Beranda({
   }, [dataResep])
 
   // ===== State formulir kontribusi =====
-  const [judulResep, setJudulResep] = useState('')
-  const [porsiDefault, setPorsiDefault] = useState(2)
-  const [durasiResep, setDurasiResep] = useState(15)
-  const [langkahResep, setLangkahResep] = useState([{ instruksi: '' }])
-  const [bahanResepDipilih, setBahanResepDipilih] = useState([])
-  const [pesanResep, setPesanResep] = useState('')
-  const [isSubmittingResep, setIsSubmittingResep] = useState(false)
-
   const [bahanTertunda, setBahanTertunda] = useState([])
   const [pesanAdmin, setPesanAdmin] = useState('')
 
@@ -393,47 +384,6 @@ export default function Beranda({
       .catch(() => {})
     return () => { aktif = false }
   }, [session, userRole, token])
-
-  const handleUbahLangkah = (index, value) => {
-    setLangkahResep(langkahResep.map((l, i) => (i === index ? { instruksi: value } : l)))
-  }
-  const handleTambahInputLangkah = () => setLangkahResep([...langkahResep, { instruksi: '' }])
-  const handleCheckboxBahanResep = (idBahan) => {
-    setBahanResepDipilih((prev) => prev.includes(idBahan) ? prev.filter((id) => id !== idBahan) : [...prev, idBahan])
-  }
-
-  const handleTambahResepBaru = async (e) => {
-    e.preventDefault()
-    if (isSubmittingResep) return
-    setPesanResep('')
-
-    if (!judulResep.trim() || bahanResepDipilih.length === 0) {
-      setPesanResep('Gagal: Judul resep dan minimal 1 bahan wajib diisi!')
-      return
-    }
-
-    setIsSubmittingResep(true)
-    try {
-      const langkahValid = langkahResep.filter((l) => l.instruksi.trim() !== '')
-      await api.tambahResep(token, {
-        judul_resep: judulResep.trim(),
-        porsi_default: porsiDefault,
-        durasi_menit: durasiResep,
-        langkah_memasak: langkahValid,
-        ingredient_ids: bahanResepDipilih,
-      })
-      setPesanResep('Sukses! Resep baru berhasil diterbitkan ke sistem.')
-      setJudulResep('')
-      setLangkahResep([{ instruksi: '' }])
-      setBahanResepDipilih([])
-      setDurasiResep(15)
-      if (onDataRefresh) await onDataRefresh()
-    } catch (error) {
-      setPesanResep('Error input resep: ' + error.message)
-    } finally {
-      setIsSubmittingResep(false)
-    }
-  }
 
   const handleSetujuiBahan = async (idBahan) => {
     setPesanAdmin('')
@@ -635,80 +585,6 @@ export default function Beranda({
       {/* ===== Konten untuk pengguna login ===== */}
       <main className="page-container mt-4 space-y-6">
         {adminPanel}
-
-        <div id="bagikan-resep" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setBagianBuka(bagianBuka === 'resep' ? '' : 'resep')}
-            className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
-            aria-expanded={bagianBuka === 'resep'}
-          >
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Bagikan Resep Masakan Anda</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Tulis instruksi memasak secara detail agar sistem bisa merekomendasikannya.</p>
-            </div>
-            <span className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300 shrink-0">
-              <i className={`fa-solid fa-chevron-${bagianBuka === 'resep' ? 'up' : 'down'}`} />
-            </span>
-          </button>
-
-          {bagianBuka === 'resep' && (
-            <div className="px-6 pb-6">
-              <form onSubmit={handleTambahResepBaru} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Nama Menu Masakan</label>
-                    <input type="text" placeholder="Contoh: Nasi Goreng Kampung, Sup Ayam" value={judulResep} onChange={(e) => setJudulResep(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Durasi Masak (menit)</label>
-                    <input type="number" min="1" max="600" value={durasiResep} onChange={(e) => setDurasiResep(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Estimasi Porsi</label>
-                    <input type="number" min="1" value={porsiDefault} onChange={(e) => setPorsiDefault(e.target.value)} className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Pilih Bahan Baku yang Digunakan:</label>
-                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
-                    {dataBahan.map((bahan) => (
-                      <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${bahanResepDipilih.includes(bahan.id) ? 'bg-orange-100 dark:bg-orange-900/40 border-accent dark:border-accent text-accent' : 'bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-transparent'}`}>
-                        <input type="checkbox" checked={bahanResepDipilih.includes(bahan.id)} onChange={() => handleCheckboxBahanResep(bahan.id)} className="hidden" />
-                        {bahan.nama_bahan}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Langkah Demi Langkah Memasak:</label>
-                  {langkahResep.map((langkah, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <span className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">{index + 1}</span>
-                      <input type="text" placeholder={`Langkah ke-${index + 1}...`} value={langkah.instruksi} onChange={(e) => handleUbahLangkah(index, e.target.value)} className="flex-1 p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm" />
-                    </div>
-                  ))}
-                  <button type="button" onClick={handleTambahInputLangkah} className="text-accent dark:text-orange-400 hover:text-accent-dark font-bold text-sm flex items-center gap-1 pt-1 transition">
-                    + Tambah Langkah Memasak
-                  </button>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmittingResep}
-                  className="w-full bg-accent disabled:bg-accent/50 hover:bg-accent-dark text-white font-bold p-3.5 rounded-xl transition shadow-sm"
-                >
-                  {isSubmittingResep ? 'Sedang Menerbitkan...' : 'Terbitkan Buku Resep'}
-                </button>
-              </form>
-              {pesanResep && (
-                <p className={`mt-3 font-semibold text-center text-sm ${pesanResep.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesanResep}</p>
-              )}
-            </div>
-          )}
-        </div>
       </main>
     </>
   )
