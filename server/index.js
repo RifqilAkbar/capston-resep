@@ -874,6 +874,8 @@ async function jalankanSeed() {
   try {
     const seed = readFileSync(path.resolve(__dirname, '..', 'database', 'seed_resep.sql'), 'utf8')
     await conn.query(seed)
+    const seedHalal = readFileSync(path.resolve(__dirname, '..', 'database', 'seed_halal.sql'), 'utf8')
+    await conn.query(seedHalal)
   } finally {
     await conn.end()
   }
