@@ -181,7 +181,13 @@ async function main() {
   await conn.end()
 }
 
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+// Jalankan hanya saat dieksekusi langsung (node scripts/seed-nusantara.js),
+// bukan saat di-import untuk menghasilkan SQL seed.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+}
+
+export { BAHAN, RESEP, buatLangkah }
