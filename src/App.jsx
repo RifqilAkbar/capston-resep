@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ambilTokenTersimpan, api, hapusToken, simpanToken } from './api'
 import { kategoriNusantara, KATEGORI_DAERAH, adalahBumbu } from './kategoriNusantara'
 import { CardResep, SkeletonCard } from './components/CardResep'
@@ -393,8 +393,48 @@ function App() {
 
   const daftarDaerah = KATEGORI_DAERAH.map((d) => d.nama)
 
-  const bahanUmum = useMemo(() => dataBahan.filter((b) => !adalahBumbu(b)), [dataBahan])
-  const bahanBumbu = useMemo(() => dataBahan.filter((b) => adalahBumbu(b)), [dataBahan])
+  // Frekuensi pemakaian bahan (jumlah resep approved yang memakainya) — dipakai
+  // untuk mengurutkan chip bahan paling populer agar tampil lebih dulu.
+  const frekuensiBahan = useMemo(() => {
+    const hitung = new Map()
+    dataResep.forEach((resep) => {
+      ;(resep.recipe_ingredients || []).forEach((ri) => {
+        hitung.set(ri.ingredient_id, (hitung.get(ri.ingredient_id) || 0) + 1)
+      })
+    })
+    return hitung
+  }, [dataResep])
+
+  // Urutkan menurun berdasarkan frekuensi pakai; skor sama tetap alfabetis
+  // (urutan asli dari API sudah alfabetis & Array.sort bersifat stabil).
+  const urutPopuler = useCallback(
+    (daftar) =>
+      daftar.slice().sort((a, b) => (frekuensiBahan.get(b.id) || 0) - (frekuensiBahan.get(a.id) || 0)),
+    [frekuensiBahan],
+  )
+
+  const bahanUmum = useMemo(() => urutPopuler(dataBahan.filter((b) => !adalahBumbu(b))), [dataBahan, urutPopuler])
+  const bahanBumbu = useMemo(() => urutPopuler(dataBahan.filter((b) => adalahBumbu(b))), [dataBahan, urutPopuler])
+
+  // Load-more: jumlah chip yang ditampilkan per grup (awal 8, +8 per klik).
+  const [batasUmum, setBatasUmum] = useState(8)
+  const [batasBumbu, setBatasBumbu] = useState(8)
+
+  // Perlebar batas tampil bila ada chip terpilih di luar batas, agar chip yang
+  // sudah dipilih user tetap terlihat (nilai turunan, tanpa state tambahan).
+  const batasUmumTampil = useMemo(() => {
+    const idx = kulkasUser
+      .map((id) => bahanUmum.findIndex((b) => b.id === id))
+      .filter((i) => i !== -1)
+    return idx.length ? Math.max(batasUmum, Math.max(...idx) + 1) : batasUmum
+  }, [batasUmum, kulkasUser, bahanUmum])
+
+  const batasBumbuTampil = useMemo(() => {
+    const idx = kulkasUser
+      .map((id) => bahanBumbu.findIndex((b) => b.id === id))
+      .filter((i) => i !== -1)
+    return idx.length ? Math.max(batasBumbu, Math.max(...idx) + 1) : batasBumbu
+  }, [batasBumbu, kulkasUser, bahanBumbu])
 
   // ===== Chrome (navbar + footer) =====
 
@@ -703,9 +743,9 @@ function App() {
         </div>
       </div>
       <div className="kulkas-group">
-        <h4 className="kulkas-group-title"><span>🥬</span> Bahan Umum</h4>
+        <h4 className="kulkas-group-title"><span>🥬</span> Bahan Umum <span className="kulkas-count">{bahanUmum.length}</span></h4>
         <div className="kulkas-grid">
-          {bahanUmum.map((bahan) => (
+          {bahanUmum.slice(0, batasUmumTampil).map((bahan) => (
             <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
               <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
               <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
@@ -713,11 +753,16 @@ function App() {
             </label>
           ))}
         </div>
+        {bahanUmum.length > batasUmumTampil && (
+          <button type="button" onClick={() => setBatasUmum((prev) => prev + 8)} className="btn-secondary text-sm !px-4 !py-2 mt-4">
+            <i className="fa-solid fa-plus" /> Muat lebih banyak · {bahanUmum.length - batasUmumTampil} lagi
+          </button>
+        )}
       </div>
       <div className="kulkas-group">
-        <h4 className="kulkas-group-title"><span>🌿</span> Bumbu &amp; Rempah Nusantara</h4>
+        <h4 className="kulkas-group-title"><span>🌿</span> Bumbu &amp; Rempah Nusantara <span className="kulkas-count">{bahanBumbu.length}</span></h4>
         <div className="kulkas-grid">
-          {bahanBumbu.map((bahan) => (
+          {bahanBumbu.slice(0, batasBumbuTampil).map((bahan) => (
             <label key={bahan.id} className={`kulkas-chip ${kulkasUser.includes(bahan.id) ? 'selected' : ''}`}>
               <input type="checkbox" checked={kulkasUser.includes(bahan.id)} onChange={() => handleCheckboxChange(bahan.id)} className="hidden" />
               <i className={`fa-solid ${ikonBahan(bahan.kategori)}`} />
@@ -725,6 +770,11 @@ function App() {
             </label>
           ))}
         </div>
+        {bahanBumbu.length > batasBumbuTampil && (
+          <button type="button" onClick={() => setBatasBumbu((prev) => prev + 8)} className="btn-secondary text-sm !px-4 !py-2 mt-4">
+            <i className="fa-solid fa-plus" /> Muat lebih banyak · {bahanBumbu.length - batasBumbuTampil} lagi
+          </button>
+        )}
       </div>
     </div>
   )

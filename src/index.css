@@ -544,6 +544,19 @@ body {
 .kulkas-group-title span {
   font-size: 1rem;
 }
+.kulkas-group-title .kulkas-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ff6b00;
+  background: #fff0e6;
+  border-radius: 9999px;
+  padding: 0.15rem 0.6rem;
+}
+.dark .kulkas-group-title .kulkas-count {
+  color: #ff8c3b;
+  background: rgba(255, 107, 0, 0.12);
+}
 @media (max-width: 480px) {
   .kulkas-grid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
