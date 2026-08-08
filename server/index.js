@@ -15,19 +15,35 @@ const jwtSecret = process.env.JWT_SECRET || 'dev-secret-ganti-di-env'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distDir = path.resolve(__dirname, '..', 'dist')
 
-// Pool MySQL/MariaDB ini cocok untuk Laragon default.
+// Konfigurasi database: pakai DB_* (Laragon lokal) atau fallback ke MYSQL_*
+// yang otomatis disediakan Railway untuk service MySQL dalam project yang sama.
+function getDbConfig() {
+  return {
+    host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
+    port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
+    user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '',
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'skripsi_masak',
+  }
+}
+
+const dbConfig = getDbConfig()
+
+// Pool MySQL/MariaDB ini cocok untuk Laragon default & Railway MySQL.
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'skripsi_masak',
+  ...dbConfig,
   waitForConnections: true,
   connectionLimit: 10,
   namedPlaceholders: false,
 })
 
-app.use(cors())
+// CORS: izinkan origin GitHub Pages (dari env CORS_ORIGIN, pisahkan dengan koma).
+const corsOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+
+app.use(cors(corsOrigins.length > 0 ? { origin: corsOrigins } : undefined))
 app.use(express.json())
 app.use(express.static(distDir))
 
@@ -820,12 +836,12 @@ app.use((error, _req, res, next) => {
 // database/laragon.sql (idempoten: CREATE TABLE IF NOT EXISTS + INSERT IGNORE),
 // sehingga teman cukup npm run dev:api tanpa import manual.
 async function pastikanDatabaseAda() {
-  const dbName = process.env.DB_NAME || 'skripsi_masak'
+  const dbName = dbConfig.database
   const conn = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.user,
+    password: dbConfig.password,
     multipleStatements: true,
   })
 
@@ -849,13 +865,9 @@ async function pastikanDatabaseAda() {
 // Seed data tim (database/seed_resep.sql) — idempoten, dijalankan setelah
 // migrasi agar kolom terbaru (mis. user_id, status) sudah tersedia.
 async function jalankanSeed() {
-  const dbName = process.env.DB_NAME || 'skripsi_masak'
+  const dbName = dbConfig.database
   const conn = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: dbName,
+    ...dbConfig,
     multipleStatements: true,
   })
 
