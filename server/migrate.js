@@ -135,4 +135,8 @@ export async function jalankanMigrasi(pool) {
       ['Administrator', 'administrator', adminEmail, passwordHash, 'superadmin'],
     )
   }
+
+  // Hapus akun superadmin legacy (admin@example.com) dari seed laragon.sql lama.
+  // Deprecated: akun admin resmi sekarang admin@admin.com.
+  await pool.query("DELETE FROM users WHERE email = 'admin@example.com'")
 }
