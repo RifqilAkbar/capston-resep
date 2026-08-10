@@ -8,7 +8,7 @@ const FOTO_MAKANAN = [
   ['gudeg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Gudeg_Ayam.jpg/960px-Gudeg_Ayam.jpg'],
   ['soto kudus', 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Soto_Kudus.jpg'],
   ['garang asem', 'https://upload.wikimedia.org/wikipedia/commons/8/8b/Garang_asem_Pj.JPG'],
-  ['nasi liwet', 'https://upload.wikimedia.org/wikipedia/commons/e/ed/Nasi_Liwet_A.JPG'],
+  ['nasi liwet', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Nasi_Liwet_Solo.jpg/960px-Nasi_Liwet_Solo.jpg'],
   ['tengkleng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Tengkleng.jpg/960px-Tengkleng.jpg'],
   ['mangut', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/9._Dapur_Mangut_Lele_3.jpg/960px-9._Dapur_Mangut_Lele_3.jpg'],
   ['selat solo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Selat_Solo.jpg/960px-Selat_Solo.jpg'],
