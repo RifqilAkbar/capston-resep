@@ -68,8 +68,8 @@ const FOTO_MAKANAN = [
   ['tahu gejrot', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Tahu_gejrot_cirebon.JPG/960px-Tahu_gejrot_cirebon.JPG'],
 
   // Padang
-  ['spaghetti goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Garnished_Spaghetti_in_Ghana.jpg/960px-Garnished_Spaghetti_in_Ghana.jpg'],
-  ['spaghetti', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Spaghetti_in_Ghana.jpg/960px-Spaghetti_in_Ghana.jpg'],
+  ['spaghetti goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Mie_Goreng_Natra_Bintan.jpg/960px-Mie_Goreng_Natra_Bintan.jpg'],
+  ['spaghetti', 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Spaghetti_served_with_meat_sauce.jpg'],
   ['rendang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Rendang_daging_sapi_asli_Padang.JPG/960px-Rendang_daging_sapi_asli_Padang.JPG'],
   ['dendeng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Dendeng_balado.JPG/960px-Dendeng_balado.JPG'],
   ['gulai tunjang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Gulai_tunjang.JPG/960px-Gulai_tunjang.JPG'],
@@ -123,14 +123,14 @@ const FOTO_MAKANAN = [
   ['tumis bayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Tumis_Bayam_Mempawah.jpg/960px-Tumis_Bayam_Mempawah.jpg'],
   ['ayam glabed', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ayam_goreng_kalasan.JPG/960px-Ayam_goreng_kalasan.JPG'],
   ['taliwang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Ayam_bakar_khas_Taliwang_2.JPG/960px-Ayam_bakar_khas_Taliwang_2.JPG'],
-  ['ungkep', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Ayam_Goreng_Sambal_Matah.jpg/960px-Ayam_Goreng_Sambal_Matah.jpg'],
+  ['ungkep', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Ayam_Ungkep_092804.jpg/960px-Ayam_Ungkep_092804.jpg'],
   ['ayam bakar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Ayam_bakar_bumbu_rujak.jpg/960px-Ayam_bakar_bumbu_rujak.jpg'],
   ['ayam goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Ayam_Goreng_Lalapan.jpg/960px-Ayam_Goreng_Lalapan.jpg'],
   ['bakso', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Bakso_khas_Solo.jpg/960px-Bakso_khas_Solo.jpg'],
   ['rolade', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Unsliced_Flank_Roulade.jpg/960px-Unsliced_Flank_Roulade.jpg'],
   ['iga bakar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Konro_Bakar_3.jpg/960px-Konro_Bakar_3.jpg'],
   ['kambing', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Gulai_tongseng_kambing.JPG/960px-Gulai_tongseng_kambing.JPG'],
-  ['perkedel', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Perkedel_kentang.JPG/960px-Perkedel_kentang.JPG'],
+  ['perkedel', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Perkedel_masakan_Padang.JPG/960px-Perkedel_masakan_Padang.JPG'],
   ['ikan goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Ikan_cakalang_Goreng.jpg/960px-Ikan_cakalang_Goreng.jpg'],
   ['ikan bakar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Ikan_kakap_bakar_madu.JPG/960px-Ikan_kakap_bakar_madu.JPG'],
   ['cap cay', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Cap_Cay_%28Sayur_Cap_Chay%29.jpg/960px-Cap_Cay_%28Sayur_Cap_Chay%29.jpg'],
@@ -145,7 +145,7 @@ const FOTO_MAKANAN = [
   ['kue cantik', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Cantik_Manis_Pandan.jpg/960px-Cantik_Manis_Pandan.jpg'],
   ['cantik manis', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Cantik_Manis_Pandan.jpg/960px-Cantik_Manis_Pandan.jpg'],
   ['es teler', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Es_teler.jpg/960px-Es_teler.jpg'],
-  ['setup buah', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Puding_Buah_di_Car_Free_Day_Jombang.jpg/960px-Puding_Buah_di_Car_Free_Day_Jombang.jpg'],
+  ['setup buah', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Sop_buah.jpg/960px-Sop_buah.jpg'],
   ['pisang selimut', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Pisang_goreng_fried_banana.JPG/960px-Pisang_goreng_fried_banana.JPG'],
   ['basque', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Burnt_Bake_Cheesecake_Khas_Basque_Spanyol.jpg/960px-Burnt_Bake_Cheesecake_Khas_Basque_Spanyol.jpg'],
   ['keik pisang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Banana_and_chocolate_cake.jpg/960px-Banana_and_chocolate_cake.jpg'],
@@ -157,7 +157,7 @@ const FOTO_MAKANAN = [
   ['ubi manis', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Boh_rom-rom.jpg/960px-Boh_rom-rom.jpg'],
   ['sari rasa', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Kue_Ketan_Colet.jpg/960px-Kue_Ketan_Colet.jpg'],
   ['ketan unti', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Ketan_Unti_Ambon_2.jpg/960px-Ketan_Unti_Ambon_2.jpg'],
-  ['martabak', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/MartabakTelur.JPG/960px-MartabakTelur.JPG'],
+  ['martabak', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Murtabak.jpg/960px-Murtabak.jpg'],
 ]
 
 // Basis yang aman: nasi goreng (hidangan Indonesia yang paling dikenal).
