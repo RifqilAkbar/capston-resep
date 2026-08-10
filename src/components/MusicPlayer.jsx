@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
+const MUSIC_SRC = `${import.meta.env.BASE_URL}assets/audio/background.mp3`
+
 // Pemutar soundtrack latar. Elemen <audio> berada di level App sehingga
 // musik tetap berjalan saat pengguna berpindah halaman (hash routing SPA).
 export function MusicPlayer() {
@@ -68,7 +70,7 @@ export function MusicPlayer() {
       >
         {playing ? '⏸️' : '▶️'}
       </button>
-      <audio ref={audioRef} src="/assets/audio/background.mp3" loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+      <audio ref={audioRef} src={MUSIC_SRC} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
     </div>
   )
 }
