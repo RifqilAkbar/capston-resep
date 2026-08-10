@@ -30,6 +30,7 @@ const FOTO_MAKANAN = [
   ['getuk', 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Gethuk_ku_Semangat_ku.jpg'],
 
   // Yogyakarta
+  ['ceker mercon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Ceker_Ayam_Pedas.jpg/960px-Ceker_Ayam_Pedas.jpg'],
   ['oseng mercon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Oseng_mercon.jpg/960px-Oseng_mercon.jpg'],
   ['mercon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Oseng_mercon.jpg/960px-Oseng_mercon.jpg'],
   ['sate klathak', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sate_klatak_20170818_Yogyakarta.jpg/960px-Sate_klatak_20170818_Yogyakarta.jpg'],
