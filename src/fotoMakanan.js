@@ -22,12 +22,12 @@ const FOTO_MAKANAN = [
   ['brambang asem', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Brambang_asem.jpg/960px-Brambang_asem.jpg'],
   ['wingko', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Wingko_Babat_Semarang.JPG/960px-Wingko_Babat_Semarang.JPG'],
   ['sosis solo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Sosis_Timlo_Solo.JPG/960px-Sosis_Timlo_Solo.JPG'],
-  ['kroket', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Croquetas_caseras_de_carne_de_cocido_con_allioli.jpg/960px-Croquetas_caseras_de_carne_de_cocido_con_allioli.jpg'],
+  ['kroket', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Croquetas_Caseras_%287068664101%29.jpg/960px-Croquetas_Caseras_%287068664101%29.jpg'],
   ['kue lumpur', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kue_Lumpur.jpg/960px-Kue_Lumpur.jpg'],
   ['dadar gulung', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Kue_dadar_gulung.JPG/960px-Kue_dadar_gulung.JPG'],
   ['klepon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Klepon_Khas_Tulungagung.jpg/960px-Klepon_Khas_Tulungagung.jpg'],
-  ['gethuk', 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Gethuk_ku_Semangat_ku.jpg'],
-  ['getuk', 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Gethuk_ku_Semangat_ku.jpg'],
+  ['gethuk', 'https://upload.wikimedia.org/wikipedia/commons/7/76/Getuk_1.jpg'],
+  ['getuk', 'https://upload.wikimedia.org/wikipedia/commons/7/76/Getuk_1.jpg'],
 
   // Yogyakarta
   ['ceker mercon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Ceker_Ayam_Pedas.jpg/960px-Ceker_Ayam_Pedas.jpg'],
@@ -49,7 +49,7 @@ const FOTO_MAKANAN = [
   ['lontong balap', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/20170125_105849283_Lontong_balap.jpg/960px-20170125_105849283_Lontong_balap.jpg'],
   ['tahu campur', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Tahu_Campur.jpg/960px-Tahu_Campur.jpg'],
   ['nasi krawu', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Krawu_rice.jpg/960px-Krawu_rice.jpg'],
-  ['semanggi', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Marsilea_crenata.JPG/960px-Marsilea_crenata.JPG'],
+  ['semanggi', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Semanggi_seller.jpg/960px-Semanggi_seller.jpg'],
   ['soto madura', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Soto_Madura_Daging.JPG/960px-Soto_Madura_Daging.JPG'],
   ['bebek sinjay', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/The_Wellknown_%22Bebek_SINJAY%22%2C_Branch_Surabaya_A._Yani_%28New_Branch%29_-_panoramio.jpg/960px-The_Wellknown_%22Bebek_SINJAY%22%2C_Branch_Surabaya_A._Yani_%28New_Branch%29_-_panoramio.jpg'],
 
@@ -68,12 +68,14 @@ const FOTO_MAKANAN = [
   ['tahu gejrot', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Tahu_gejrot_cirebon.JPG/960px-Tahu_gejrot_cirebon.JPG'],
 
   // Padang
+  ['spaghetti goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Garnished_Spaghetti_in_Ghana.jpg/960px-Garnished_Spaghetti_in_Ghana.jpg'],
+  ['spaghetti', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Spaghetti_in_Ghana.jpg/960px-Spaghetti_in_Ghana.jpg'],
   ['rendang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Rendang_daging_sapi_asli_Padang.JPG/960px-Rendang_daging_sapi_asli_Padang.JPG'],
   ['dendeng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Dendeng_balado.JPG/960px-Dendeng_balado.JPG'],
   ['gulai tunjang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Gulai_tunjang.JPG/960px-Gulai_tunjang.JPG'],
   ['gulai kepala ikan', 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Gulai_kepala_ikan_khas_aceh.jpg'],
   ['gulai ikan patin', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Gulai_Ikan_Patin_203932.jpg/960px-Gulai_Ikan_Patin_203932.jpg'],
-  ['gulai udang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Udang_balado_masakan_Padang.jpg/960px-Udang_balado_masakan_Padang.jpg'],
+  ['gulai udang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Shrimp_curry_on_plate.jpg/960px-Shrimp_curry_on_plate.jpg'],
   ['ayam pop', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Ayam_Pop_2.jpg/960px-Ayam_Pop_2.jpg'],
   ['sambal ijo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Sambal_Hijau_ijo.jpg/960px-Sambal_Hijau_ijo.jpg'],
   ['soto padang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/SotoPadang.JPG/960px-SotoPadang.JPG'],
@@ -105,7 +107,7 @@ const FOTO_MAKANAN = [
   // Kalimantan
   ['soto banjar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Soto_banjar%2C_Pak_Ahmat%2C_Martapura%2C_South_Kalimantan%2C_2018-07-28_01.jpg/960px-Soto_banjar%2C_Pak_Ahmat%2C_Martapura%2C_South_Kalimantan%2C_2018-07-28_01.jpg'],
   ['ketupat kandangan', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Katupat_Kandangan_in_Kandangan.JPG/960px-Katupat_Kandangan_in_Kandangan.JPG'],
-  ['juhu singkah', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Sayur_lodeh.JPG/960px-Sayur_lodeh.JPG'],
+  ['juhu singkah', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Juhu_Umbut_Rotan_Ikan_Nila.jpg/960px-Juhu_Umbut_Rotan_Ikan_Nila.jpg'],
 
   // Sumatera
   ['pempek', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Pempek_campur.JPG/960px-Pempek_campur.JPG'],
@@ -115,7 +117,7 @@ const FOTO_MAKANAN = [
 
   // Umum / basis (hidangan dari data resep pengguna)
   ['nasi goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Nasi_goreng_pattaya_20231028_120535.jpg/960px-Nasi_goreng_pattaya_20231028_120535.jpg'],
-  ['sup iga kambing', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Sup_kepala_kambing.jpg/960px-Sup_kepala_kambing.jpg'],
+  ['sup iga kambing', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Sop_Iga_2.jpg/960px-Sop_Iga_2.jpg'],
   ['sup ayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Chicken_soup_3%2C.JPG/960px-Chicken_soup_3%2C.JPG'],
   ['soto ayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Soto_ayam.JPG/960px-Soto_ayam.JPG'],
   ['tumis bayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Tumis_Bayam_Mempawah.jpg/960px-Tumis_Bayam_Mempawah.jpg'],
@@ -125,7 +127,7 @@ const FOTO_MAKANAN = [
   ['ayam bakar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Ayam_bakar_bumbu_rujak.jpg/960px-Ayam_bakar_bumbu_rujak.jpg'],
   ['ayam goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Ayam_Goreng_Lalapan.jpg/960px-Ayam_Goreng_Lalapan.jpg'],
   ['bakso', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Bakso_khas_Solo.jpg/960px-Bakso_khas_Solo.jpg'],
-  ['rolade', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Rolady_gotowe.jpg/960px-Rolady_gotowe.jpg'],
+  ['rolade', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Unsliced_Flank_Roulade.jpg/960px-Unsliced_Flank_Roulade.jpg'],
   ['iga bakar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Konro_Bakar_3.jpg/960px-Konro_Bakar_3.jpg'],
   ['kambing', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Gulai_tongseng_kambing.JPG/960px-Gulai_tongseng_kambing.JPG'],
   ['perkedel', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Perkedel_kentang.JPG/960px-Perkedel_kentang.JPG'],
@@ -135,7 +137,6 @@ const FOTO_MAKANAN = [
   ['capcai', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Cap_Cay_%28Sayur_Cap_Chay%29.jpg/960px-Cap_Cay_%28Sayur_Cap_Chay%29.jpg'],
   ['mie ayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/960px-Mi_ayam_jamur.JPG'],
   ['mi ayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/960px-Mi_ayam_jamur.JPG'],
-  ['spaghetti goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Mie_Goreng_in_Bali.jpg/960px-Mie_Goreng_in_Bali.jpg'],
   ['oseng pare', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tumis_par%C3%A8_teri_5.jpg/960px-Tumis_par%C3%A8_teri_5.jpg'],
   ['ceker', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Ceker_Ayam_Pedas.jpg/960px-Ceker_Ayam_Pedas.jpg'],
   ['telur ceplok', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Telur_Ceplok.jpg/960px-Telur_Ceplok.jpg'],
@@ -146,16 +147,16 @@ const FOTO_MAKANAN = [
   ['es teler', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Es_teler.jpg/960px-Es_teler.jpg'],
   ['setup buah', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Puding_Buah_di_Car_Free_Day_Jombang.jpg/960px-Puding_Buah_di_Car_Free_Day_Jombang.jpg'],
   ['pisang selimut', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Pisang_goreng_fried_banana.JPG/960px-Pisang_goreng_fried_banana.JPG'],
-  ['basque', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Blueberry_Basque_cake.jpg/960px-Blueberry_Basque_cake.jpg'],
+  ['basque', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Burnt_Bake_Cheesecake_Khas_Basque_Spanyol.jpg/960px-Burnt_Bake_Cheesecake_Khas_Basque_Spanyol.jpg'],
   ['keik pisang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Banana_and_chocolate_cake.jpg/960px-Banana_and_chocolate_cake.jpg'],
   ['kartika sari', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Kue_Lapis.jpg/960px-Kue_Lapis.jpg'],
   ['pulut sri muka', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Seri_Muka1.JPG/960px-Seri_Muka1.JPG'],
   ['sri muka', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Seri_Muka1.JPG/960px-Seri_Muka1.JPG'],
   ['kai choi', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Choy_Sum_with_Soy_Sauce.jpg/960px-Choy_Sum_with_Soy_Sauce.jpg'],
   ['mustard green', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Choy_Sum_with_Soy_Sauce.jpg/960px-Choy_Sum_with_Soy_Sauce.jpg'],
-  ['ubi manis', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Ubi_Rebus_di_Alun-alun_Jombang.jpg/960px-Ubi_Rebus_di_Alun-alun_Jombang.jpg'],
+  ['ubi manis', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Boh_rom-rom.jpg/960px-Boh_rom-rom.jpg'],
   ['sari rasa', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Kue_Ketan_Colet.jpg/960px-Kue_Ketan_Colet.jpg'],
-  ['ketan unti', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Putu_Bugis_ketan_hitam.JPG/960px-Putu_Bugis_ketan_hitam.JPG'],
+  ['ketan unti', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Ketan_Unti_Ambon_2.jpg/960px-Ketan_Unti_Ambon_2.jpg'],
   ['martabak', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/MartabakTelur.JPG/960px-MartabakTelur.JPG'],
 ]
 
