@@ -15,7 +15,7 @@ export const KATEGORI_DAERAH = [
   { nama: 'Kalimantan', emoji: '🌿' },
 ]
 
-const KATEGORI_DEFAULT = 'Jawa Tengah'
+const KATEGORI_DEFAULT = 'Nusantara'
 
 // Pasangan [kata kunci, daerah]. Dicocokkan pada judul resep, kata yang lebih
 // spesifik diletakkan lebih dulu agar tidak tertangkap kata umum (mis. "gudeg
@@ -26,9 +26,13 @@ const PEMETAAN = [
   ['gulai ikan patin', 'Sumatera'],
   ['oseng mercon', 'Yogyakarta'],
   ['nasi tutug oncom', 'Jawa Barat'],
+  ['boh rom', 'Sumatera'],
+  ['telur dadar padang', 'Padang'],
+  ['seafood saus padang', 'Padang'],
+  ['tahu gejrot', 'Jawa Barat'],
+  ['dabu dabu', 'Sulawesi'],
 
   // ---- Jawa Tengah ----
-  ['gudeg', 'Jawa Tengah'],
   ['soto kudus', 'Jawa Tengah'],
   ['garang asem', 'Jawa Tengah'],
   ['nasi liwet', 'Jawa Tengah'],
@@ -45,8 +49,16 @@ const PEMETAAN = [
   ['tongseng', 'Jawa Tengah'],
   ['lentog', 'Jawa Tengah'],
   ['buntil', 'Jawa Tengah'],
+  ['sosis solo', 'Jawa Tengah'],
+  ['ayam bakar solo', 'Jawa Tengah'],
+  ['gethuk', 'Jawa Tengah'],
+  ['wingko', 'Jawa Tengah'],
+  ['bothok', 'Jawa Tengah'],
+  ['glabed', 'Jawa Tengah'],
+  ['brambang asem', 'Jawa Tengah'],
 
   // ---- Yogyakarta ----
+  ['gudeg', 'Yogyakarta'],
   ['mercon', 'Yogyakarta'],
   ['sate klathak', 'Yogyakarta'],
   ['klathak', 'Yogyakarta'],
@@ -59,6 +71,7 @@ const PEMETAAN = [
   ['rawon', 'Jawa Timur'],
   ['soto lamongan', 'Jawa Timur'],
   ['rujak cingur', 'Jawa Timur'],
+  ['rujak serut', 'Jawa Barat'],
   ['rujak', 'Jawa Timur'],
   ['pecel', 'Jawa Timur'],
   ['lontong balap', 'Jawa Timur'],

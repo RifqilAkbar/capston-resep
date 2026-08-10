@@ -202,7 +202,7 @@ VALUES ('Kaldu Ayam', 'Bumbu', TRUE);
 -- ===== RESEP NUSANTARA (seed massal) =====
 
 INSERT INTO recipes (judul_resep, kategori, porsi_default, langkah_memasak, user_id, status)
-SELECT 'Gudeg', 'Jawa Tengah', 4, '[{"instruksi":"Siapkan dan bersihkan seluruh bahan untuk Gudeg."},{"instruksi":"Tumis atau rebus bumbu khas Jawa Tengah hingga harum sebelum dimasukkan bahan utama."},{"instruksi":"Koreksi rasa, lalu sajikan Gudeg hangat untuk 4 porsi."}]', NULL, 'approved'
+SELECT 'Gudeg', 'Yogyakarta', 4, '[{"instruksi":"Siapkan dan bersihkan seluruh bahan untuk Gudeg."},{"instruksi":"Tumis atau rebus bumbu khas Yogyakarta hingga harum sebelum dimasukkan bahan utama."},{"instruksi":"Koreksi rasa, lalu sajikan Gudeg hangat untuk 4 porsi."}]', NULL, 'approved'
 WHERE NOT EXISTS (SELECT 1 FROM recipes WHERE judul_resep = 'Gudeg');
 
 INSERT INTO recipes (judul_resep, kategori, porsi_default, langkah_memasak, user_id, status)
