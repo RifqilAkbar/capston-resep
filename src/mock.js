@@ -3,11 +3,6 @@
 
 const PICSUM = 'https://picsum.photos/seed'
 
-// Foto kecil untuk kategori / thumbnail pengguna.
-export function fotoKategori(nama, w = 120, h = 120) {
-  return `${PICSUM}/freshly-kat-${encodeURIComponent(nama)}/${w}/${h}`
-}
-
 // Durasi memasak contoh yang stabil per id (15–45 menit).
 export function mockDurasi(id) {
   return 15 + (Number(id) * 7) % 31

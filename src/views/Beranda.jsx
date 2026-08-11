@@ -3,7 +3,7 @@ import { api } from '../api'
 import { CardResep } from '../components/CardResep'
 import { kategoriResep } from '../kategoriNusantara'
 import { FOTO_DAERAH, fotoMakanan } from '../fotoMakanan'
-import { fotoAvatar, fotoKategori, mockDurasi, mockLike } from '../mock'
+import { fotoAvatar, mockDurasi, mockLike } from '../mock'
 import gambarHero from '../assets/gambar_hero.png'
 
 function isAdminRole(role) {
@@ -19,7 +19,7 @@ function ThumbKategori({ nama }) {
       </span>
     )
   }
-  return <img src={fotoKategori(nama)} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
+  return <img src={FOTO_DAERAH[nama]} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
 }
 
 function ThumbResepKecil({ judul }) {
