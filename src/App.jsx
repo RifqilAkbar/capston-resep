@@ -631,7 +631,7 @@ function App() {
           <a href={session && isAdminRole(userRole) ? '#/dashboard' : '#/'} className="flex items-center gap-2.5 shrink-0 group">
             <img src={logoNusantara} alt="Logo Buku Resep Nusantara" className="h-10 w-auto drop-shadow-sm" />
             <span className="leading-tight">
-              <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
+              <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-accent">Nusantara</span></span>
             </span>
           </a>
 
@@ -666,7 +666,7 @@ function App() {
           <div className="footer-brand">
             <div className="footer-logo">
               <img src={logoNusantara} alt="Logo Buku Resep Nusantara" className="h-10 w-auto drop-shadow-sm" />
-              <span className="footer-logo-text">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
+              <span className="footer-logo-text">Buku Resep <span className="text-accent">Nusantara</span></span>
             </div>
             <p className="footer-desc">Buku Resep Nusantara membantu Anda menemukan resep terbaik dari bahan yang tersedia di dapur.</p>
           </div>
@@ -801,7 +801,7 @@ function App() {
 
       {kulkasSection}
 
-      <div className="sticky top-14 lg:top-16 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#fff8f2]/90 dark:bg-gray-900/90 backdrop-blur-sm">
+      <div className="sticky top-14 lg:top-16 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#FDF8F0]/90 dark:bg-[#1E120B]/90 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
             {['Semua', ...daftarDaerah].map((nama) => pillKategori(nama))}
@@ -919,7 +919,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fff8f2] dark:bg-gray-900 text-gray-800 dark:text-gray-100 theme-transition">
+    <div className="min-h-screen flex flex-col bg-[#FDF8F0] dark:bg-[#1E120B] text-gray-800 dark:text-gray-100 theme-transition">
       {navbar}
       {konten}
       <div className="mt-auto">{footerSection}</div>
