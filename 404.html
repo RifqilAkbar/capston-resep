@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buku Resep Nusantara</title>
+    <noscript><meta http-equiv="refresh" content="0; url=./" /></noscript>
+    <style>
+      body { font-family: system-ui, sans-serif; background: #FDF8F0; color: #3E2723; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+      .box { text-align: center; }
+      .box h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+      .box p { color: #6D4C41; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1>Mengalihkan&hellip;</h1>
+      <p>Halaman sudah pindah, kamu akan diarahkan otomatis.</p>
+    </div>
+    <script>
+      // Redirect ke direktori halaman (root), pertahankan hash SPA (misal #/resep).
+      var base = location.pathname.replace(/[^/]*$/, '')
+      location.replace(base + location.hash)
+    </script>
+  </body>
+</html>
