@@ -811,7 +811,7 @@ function App() {
 
       {kulkasSection}
 
-      <div className="sticky top-14 lg:top-16 z-30 -mx-4 px-4 md:-mx-6 md:px-6 py-3 bg-[#FDF8F0]/90 dark:bg-[#1E120B]/90 backdrop-blur-sm">
+      <div className="sticky top-14 lg:top-16 z-30 -mx-5 px-5 md:-mx-6 md:px-6 py-3 bg-[#FDF8F0]/90 dark:bg-[#1E120B]/90 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
             {['Semua', ...daftarDaerah].map((nama) => pillKategori(nama))}
