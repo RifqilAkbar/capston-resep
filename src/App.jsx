@@ -5,6 +5,7 @@ import { CardResep, SkeletonCard } from './components/CardResep'
 import { MusicPlayer } from './components/MusicPlayer'
 import { SearchBar } from './components/SearchBar'
 import { fotoAvatar } from './mock'
+import logoNusantara from './assets/logo1.1.png'
 import Beranda from './views/Beranda'
 import DetailResep from './views/DetailResep'
 import Favorit from './views/Favorit'
@@ -628,7 +629,7 @@ function App() {
       <div className="page-container">
         <div className="flex items-center justify-between gap-4 h-14 lg:h-16">
           <a href={session && isAdminRole(userRole) ? '#/dashboard' : '#/'} className="flex items-center gap-2.5 shrink-0 group">
-            <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
+            <img src={logoNusantara} alt="Logo Buku Resep Nusantara" className="h-10 w-auto drop-shadow-sm" />
             <span className="leading-tight">
               <span className="block text-lg font-extrabold text-gray-900 dark:text-gray-100">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
             </span>
@@ -664,7 +665,7 @@ function App() {
         <div className="footer-grid">
           <div className="footer-brand">
             <div className="footer-logo">
-              <span className="logo-badge"><i className="fa-solid fa-utensils" /></span>
+              <img src={logoNusantara} alt="Logo Buku Resep Nusantara" className="h-10 w-auto drop-shadow-sm" />
               <span className="footer-logo-text">Buku Resep <span className="text-[#ff6b00]">Nusantara</span></span>
             </div>
             <p className="footer-desc">Buku Resep Nusantara membantu Anda menemukan resep terbaik dari bahan yang tersedia di dapur.</p>
