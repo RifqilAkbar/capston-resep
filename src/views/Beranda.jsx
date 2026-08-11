@@ -66,7 +66,7 @@ function KartuResepFreshly({ resep, isFavorit, onToggleFavorit }) {
 
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
           <span className="inline-block text-[11px] font-bold uppercase tracking-wider bg-accent px-2 py-0.5 rounded-full mb-2">{resep.kategori}</span>
-          <h3 className="font-bold text-lg leading-snug line-clamp-2">{resep.judul}</h3>
+          <h3 className="font-bold text-base lg:text-lg leading-snug line-clamp-2">{resep.judul}</h3>
           {resep.persentase > 0 && (
             <div className="mt-2 flex items-center gap-2 text-xs">
               <span className="text-white/80">Kecocokan</span>
@@ -189,7 +189,7 @@ Rekomendasi Resep Nusantara
           </div>
           <a href="#/resep" className="btn-secondary shrink-0"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="card-grid grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           {semuaResep.slice(0, 6).map((r, i) => (
             <CardResep key={r.id} resep={r} index={i} isFavorit={favoritIds.includes(Number(r.id))} onToggleFavorit={onToggleFavorit} />
           ))}
@@ -388,7 +388,7 @@ export default function Beranda({
   )
 
   const kartuGrid = (daftar) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
       {daftar.map((r) => (
         <KartuResepFreshly key={r.id} resep={r} isFavorit={favoritIds.includes(Number(r.id))} onToggleFavorit={onToggleFavorit} />
       ))}
@@ -463,7 +463,7 @@ export default function Beranda({
           <a href="#/resep" className="btn-secondary text-sm !px-4 !py-2"><i className="fa-solid fa-arrow-right" /> Lihat Semua</a>,
         )}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
             {[1, 2, 3, 4].map((i) => <SkeletonFreshly key={i} />)}
           </div>
         ) : !loading && semuaResep.length === 0 ? (
@@ -478,7 +478,7 @@ export default function Beranda({
       {daftarKategoriPopuler.length > 0 && (
         <section id="kategori-populer" className="page-container py-8">
           {judulSection('Kategori', 'fa-tags', 'Kategori Populer', null)}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
             {daftarKategoriPopuler.map((nama) => (
               <button
                 key={nama}

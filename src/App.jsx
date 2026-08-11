@@ -848,7 +848,7 @@ function App() {
                 </button>
               )}
             </div>
-            <div className="resep-grid grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+            <div className="card-grid grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {hasilFilter.map((resep, index) => (
                 <CardResep
                   key={resep.id}

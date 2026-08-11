@@ -16,7 +16,7 @@ export default function Riwayat({ semuaResep, favoritIds, onToggleFavorit }) {
       </div>
 
       {daftar.length ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="card-grid grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           {daftar.map((r, i) => (
             <CardResep key={r.id} resep={r} index={i} isFavorit={favoritIds.includes(Number(r.id))} onToggleFavorit={onToggleFavorit} />
           ))}

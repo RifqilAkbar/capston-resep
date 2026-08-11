@@ -886,38 +886,38 @@ body {
   transform: scale(0.97);
 }
 @media (max-width: 767px) {
-  .resep-grid .recipe-photo {
+  .card-grid .recipe-photo {
     height: 150px;
   }
-  .resep-grid .recipe-body {
+  .card-grid .recipe-body {
     padding: 0.8rem 0.9rem 0.9rem;
   }
-  .resep-grid .recipe-meta {
+  .card-grid .recipe-meta {
     font-size: 0.7rem;
     gap: 0.5rem;
   }
-  .resep-grid .recipe-title {
+  .card-grid .recipe-title {
     font-size: 0.9rem;
   }
-  .resep-grid .recipe-category {
+  .card-grid .recipe-category {
     font-size: 0.62rem;
     padding: 0.2rem 0.5rem;
     margin-bottom: 0.5rem;
   }
-  .resep-grid .recipe-progress {
+  .card-grid .recipe-progress {
     margin-bottom: 0.6rem;
   }
-  .resep-grid .recipe-btn {
+  .card-grid .recipe-btn {
     display: none;
   }
-  .resep-grid .recipe-fav-btn {
+  .card-grid .recipe-fav-btn {
     top: 8px;
     left: 8px;
     width: 34px;
     height: 34px;
     font-size: 0.85rem;
   }
-  .resep-grid .recipe-match-badge {
+  .card-grid .recipe-match-badge {
     top: 8px;
     right: 8px;
     font-size: 0.62rem;
