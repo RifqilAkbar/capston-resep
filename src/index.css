@@ -695,6 +695,12 @@ body {
 .dark .recipe-photo {
   background: linear-gradient(135deg, #3a2416, #2b1a10);
 }
+.recipe-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .recipe-photo-deco {
   position: absolute;
   border-radius: 9999px;
