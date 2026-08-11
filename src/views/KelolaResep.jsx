@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { SearchBar } from '../components/SearchBar'
 
 const WARNA_STATUS = {
   pending: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
@@ -18,6 +19,7 @@ const FILTER = [
 export default function KelolaResep({ token, onDataRefresh }) {
   const [resep, setResep] = useState([])
   const [filter, setFilter] = useState('semua')
+  const [cari, setCari] = useState('')
   const [loading, setLoading] = useState(true)
   const [pesan, setPesan] = useState('')
 
@@ -66,7 +68,10 @@ export default function KelolaResep({ token, onDataRefresh }) {
     }
   }
 
-  const daftar = filter === 'semua' ? resep : resep.filter((r) => r.status === filter)
+  const teksCari = cari.trim().toLowerCase()
+  const daftar = (filter === 'semua' ? resep : resep.filter((r) => r.status === filter))
+    .filter((r) => !teksCari || [r.judul_resep, r.pembuat_nama, r.pembuat_username, r.kategori]
+      .some((x) => String(x || '').toLowerCase().includes(teksCari)))
 
   return (
     <main className="page-container mt-10 pb-16">
@@ -83,17 +88,22 @@ export default function KelolaResep({ token, onDataRefresh }) {
         <p className={`mt-4 font-semibold text-center text-sm ${pesan.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesan}</p>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {FILTER.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            onClick={() => setFilter(f.value)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filter === f.value ? 'bg-accent text-white border-accent' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'}`}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="w-full md:w-72 shrink-0">
+          <SearchBar value={cari} onChange={setCari} placeholder="Cari judul, pembuat, atau kategori..." />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {FILTER.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setFilter(f.value)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filter === f.value ? 'bg-accent text-white border-accent' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'}`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-6 space-y-4">

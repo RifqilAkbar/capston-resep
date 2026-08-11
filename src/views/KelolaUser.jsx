@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { fotoAvatar } from '../mock'
+import { SearchBar } from '../components/SearchBar'
 
 export default function KelolaUser({ token, session }) {
   const [users, setUsers] = useState([])
+  const [cari, setCari] = useState('')
   const [loading, setLoading] = useState(true)
   const [pesan, setPesan] = useState('')
   const userIdSaya = session?.user?.id
@@ -50,6 +52,10 @@ export default function KelolaUser({ token, session }) {
     }
   }
 
+  const teksCari = cari.trim().toLowerCase()
+  const daftarUser = users.filter((u) => !teksCari || [u.nama_lengkap, u.email, u.username, u.role]
+    .some((x) => String(x || '').toLowerCase().includes(teksCari)))
+
   return (
     <main className="page-container mt-10 pb-16">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -65,16 +71,20 @@ export default function KelolaUser({ token, session }) {
         <p className={`mt-4 font-semibold text-center text-sm ${pesan.includes('Sukses') ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>{pesan}</p>
       )}
 
+      <div className="mt-6 w-full md:w-72">
+        <SearchBar value={cari} onChange={setCari} placeholder="Cari nama, email, username, atau role..." />
+      </div>
+
       <div className="mt-6 space-y-3">
         {loading ? (
           <div>{[1, 2, 3].map((i) => <div key={i} className="skeleton-pulse h-20 rounded-2xl mb-3" />)}</div>
-        ) : users.length === 0 ? (
+        ) : daftarUser.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
             <span className="empty-icon"><i className="fa-solid fa-user-slash" /></span>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-3">Belum ada pengguna.</p>
           </div>
         ) : (
-          users.map((u) => {
+          daftarUser.map((u) => {
             const dilindungi = u.role === 'superadmin' || u.id === userIdSaya
             const badgeWarna = u.role === 'superadmin'
               ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
