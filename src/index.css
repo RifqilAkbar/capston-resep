@@ -1562,6 +1562,13 @@ body {
   max-height: 500px;
 }
 
+@media (min-width: 64rem) {
+  .menu-btn,
+  .mobile-menu {
+    display: none;
+  }
+}
+
 /* ===== Aksesibilitas: focus state yang jelas ===== */
 a:focus-visible,
 button:focus-visible,
