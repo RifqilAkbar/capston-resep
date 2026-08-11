@@ -11,7 +11,7 @@ export function MusicPlayer() {
   useEffect(() => {
     const a = audioRef.current
     if (!a) return
-    a.volume = 0.3
+    a.volume = 1
   }, [])
 
   // Coba autoplay; browser memblokir suara sebelum interaksi pengguna,
