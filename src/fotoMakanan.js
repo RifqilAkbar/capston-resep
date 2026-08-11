@@ -178,7 +178,7 @@ export function fotoMakanan(judul) {
 // Foto representatif per daerah (hidangan ikonik).
 export const FOTO_DAERAH = {
   'Jawa Tengah': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Gudeg_Ayam.jpg/960px-Gudeg_Ayam.jpg',
-  'Yogyakarta': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Yogyakarta_Indonesia_Tugu-Yogyakarta-01.jpg/960px-Yogyakarta_Indonesia_Tugu-Yogyakarta-01.jpg',
+  'Yogyakarta': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Nasi_Gudeg.jpg/960px-Nasi_Gudeg.jpg',
   'Jawa Timur': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Rawon_Bu_Rima_Leces.jpg/960px-Rawon_Bu_Rima_Leces.jpg',
   'Jawa Barat': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Karedok.JPG/960px-Karedok.JPG',
   'Padang': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Rendang_daging_sapi_asli_Padang.JPG/960px-Rendang_daging_sapi_asli_Padang.JPG',
