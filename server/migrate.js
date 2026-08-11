@@ -140,3 +140,53 @@ export async function jalankanMigrasi(pool) {
   // Deprecated: akun admin resmi sekarang admin@admin.com.
   await pool.query("DELETE FROM users WHERE email = 'admin@example.com'")
 }
+
+// Bagikan resep "upload admin" (user_id NULL / milik admin@admin.com) ke akun
+// user demo (user1@user.com..user7@user.com) secara acak, dengan user1 sebagai
+// kontributor terbanyak ("yang unggul"). Idempoten: hanya resep yang belum
+// punya pemilik yang diproses, sehingga tidak diacak ulang saat restart.
+export async function bagikanResepAdminKeUser(pool) {
+  const [resepTanpaPemilik] = await pool.query(
+    `SELECT r.id FROM recipes r
+     LEFT JOIN users u ON u.id = r.user_id
+     WHERE r.user_id IS NULL OR u.email = 'admin@admin.com'
+     ORDER BY r.id`,
+  )
+  if (resepTanpaPemilik.length === 0) return 0
+
+  const [daftarUser] = await pool.query(
+    "SELECT id, email FROM users WHERE email LIKE 'user%@user.com' ORDER BY email",
+  )
+  if (daftarUser.length === 0) return 0
+
+  const idUser1 = daftarUser.find((u) => u.email === 'user1@user.com')?.id
+  const userLain = daftarUser.filter((u) => u.email !== 'user1@user.com').map((u) => u.id)
+
+  const idResep = resepTanpaPemilik.map((r) => r.id)
+  for (let i = idResep.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[idResep[i], idResep[j]] = [idResep[j], idResep[i]]
+  }
+
+  // user1 dijatah ~1/3 dari total agar pasti kontributor terbanyak.
+  const jatahUser1 = Math.max(1, Math.ceil(idResep.length / 3))
+  const client = await pool.getConnection()
+
+  try {
+    await client.beginTransaction()
+    for (let i = 0; i < idResep.length; i++) {
+      const pemilik = (idUser1 && i < jatahUser1)
+        ? idUser1
+        : userLain[(i - (idUser1 ? jatahUser1 : 0)) % userLain.length]
+      await client.query('UPDATE recipes SET user_id = ? WHERE id = ?', [pemilik, idResep[i]])
+    }
+    await client.commit()
+  } catch (error) {
+    await client.rollback()
+    throw error
+  } finally {
+    client.release()
+  }
+
+  return idResep.length
+}

@@ -7,7 +7,7 @@ import mysql from 'mysql2/promise'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { jalankanMigrasi } from './migrate.js'
+import { jalankanMigrasi, bagikanResepAdminKeUser } from './migrate.js'
 
 const app = express()
 const port = process.env.PORT || 3001
@@ -876,6 +876,9 @@ async function jalankanSeed() {
     await conn.query(seed)
     const seedHalal = readFileSync(path.resolve(__dirname, '..', 'database', 'seed_halal.sql'), 'utf8')
     await conn.query(seedHalal)
+    // Setelah seed, bagikan resep yang masih milik admin ke user demo secara acak
+    // (user1 paling banyak). Idempoten: hanya resep tanpa pemilik yang diproses.
+    await bagikanResepAdminKeUser(pool)
   } finally {
     await conn.end()
   }
