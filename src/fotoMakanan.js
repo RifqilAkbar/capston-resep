@@ -25,7 +25,7 @@ const FOTO_MAKANAN = [
   ['kroket', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Croquetas_Caseras_%287068664101%29.jpg/960px-Croquetas_Caseras_%287068664101%29.jpg'],
   ['kue lumpur', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kue_Lumpur.jpg/960px-Kue_Lumpur.jpg'],
   ['dadar gulung', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Kue_dadar_gulung.JPG/960px-Kue_dadar_gulung.JPG'],
-  ['klepon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Klepon_CC_BY_SA_4.0_Suhendro_Winarso.jpg/960px-Klepon_CC_BY_SA_4.0_Suhendro_Winarso.jpg'],
+  ['klepon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Kue_klepon.jpg/960px-Kue_klepon.jpg'],
   ['gethuk', 'https://upload.wikimedia.org/wikipedia/commons/7/76/Getuk_1.jpg'],
   ['getuk', 'https://upload.wikimedia.org/wikipedia/commons/7/76/Getuk_1.jpg'],
 
