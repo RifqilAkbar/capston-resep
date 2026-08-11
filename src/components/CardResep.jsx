@@ -88,8 +88,8 @@ export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
 export function SkeletonCard() {
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[20px] overflow-hidden shadow-sm">
-      <div className="skeleton-pulse h-[210px] w-full" />
-      <div className="p-5 space-y-3">
+      <div className="skeleton-pulse h-[150px] md:h-[210px] w-full" />
+      <div className="p-4 md:p-5 space-y-3">
         <div className="flex gap-4">
           <div className="skeleton-pulse h-4 w-12" />
           <div className="skeleton-pulse h-4 w-16" />

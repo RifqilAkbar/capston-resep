@@ -829,7 +829,7 @@ function App() {
 
       <div className="space-y-4" id="resep">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
             {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
           </div>
         ) : hasilFilter.length > 0 ? (
@@ -848,7 +848,7 @@ function App() {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="resep-grid grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {hasilFilter.map((resep, index) => (
                 <CardResep
                   key={resep.id}
