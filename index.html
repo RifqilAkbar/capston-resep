@@ -1,69 +1,524 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/capston-resep/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Buku Resep Nusantara</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <script type="module" crossorigin src="/capston-resep/assets/index-DLpqgpUu.js"></script>
-    <link rel="stylesheet" crossorigin href="/capston-resep/assets/index-D4h0HESD.css">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script src="/capston-resep/js/theme.js"></script>
-    <script src="/capston-resep/js/toast.js"></script>
-    <script src="/capston-resep/js/loading.js"></script>
-    <script src="/capston-resep/js/storage.js"></script>
+    <title>Buku Resep Nusantara — Temukan Resep Khas Indonesia</title>
+    <link rel="icon" href="/capston-resep/favicon.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
     <script>
-      // Animasi reveal berbasis IntersectionObserver (JavaScript murni, tanpa library)
-      (function () {
-        var REVEAL = 'reveal'
-        var VISIBLE = 'reveal-visible'
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              bg: 'rgb(var(--bg) / <alpha-value>)',
+              card: 'rgb(var(--card) / <alpha-value>)',
+              heading: 'rgb(var(--heading) / <alpha-value>)',
+              body: 'rgb(var(--body) / <alpha-value>)',
+              muted: 'rgb(var(--muted) / <alpha-value>)',
+              accent: 'rgb(var(--accent) / <alpha-value>)',
+              accentlight: 'rgb(var(--accent2) / <alpha-value>)',
+              line: 'rgb(var(--line) / <alpha-value>)',
+              tint: 'rgb(var(--tint) / <alpha-value>)',
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        --bg: 253 248 240;
+        --card: 245 235 224;
+        --heading: 62 39 35;
+        --body: 109 76 65;
+        --muted: 154 123 106;
+        --accent: 184 91 40;
+        --accent2: 217 119 36;
+        --line: 230 213 195;
+        --tint: 247 224 208;
+        --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120' fill='none'%3E%3Cg stroke='%23B85B28' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 24c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M22 24c8-3 14-1 21 2'/%3E%3Cpath d='M72 86c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M72 86c8-3 14-1 21 2'/%3E%3C/g%3E%3Cg fill='%23D97724'%3E%3Ccircle cx='98' cy='18' r='3'/%3E%3Ccircle cx='28' cy='68' r='3.5'/%3E%3Ccircle cx='92' cy='56' r='2.5'/%3E%3Ccircle cx='56' cy='104' r='3'/%3E%3Cpath d='M62 30l5 8 8 5-8 5-5 8-5-8-8-5 8-5Z'/%3E%3C/g%3E%3C/svg%3E");
+      }
+      .dark {
+        --bg: 30 18 11;
+        --card: 42 26 16;
+        --heading: 245 235 224;
+        --body: 215 196 183;
+        --muted: 167 143 126;
+        --accent: 217 119 36;
+        --accent2: 240 176 112;
+        --line: 62 39 35;
+        --tint: 58 42 30;
+        --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120' fill='none'%3E%3Cg stroke='%23D97724' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 24c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M22 24c8-3 14-1 21 2'/%3E%3Cpath d='M72 86c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M72 86c8-3 14-1 21 2'/%3E%3C/g%3E%3Cg fill='%23F0B070'%3E%3Ccircle cx='98' cy='18' r='3'/%3E%3Ccircle cx='28' cy='68' r='3.5'/%3E%3Ccircle cx='92' cy='56' r='2.5'/%3E%3Ccircle cx='56' cy='104' r='3'/%3E%3Cpath d='M62 30l5 8 8 5-8 5-5 8-5-8-8-5 8-5Z'/%3E%3C/g%3E%3C/svg%3E");
+      }
 
-        function revealAll() {
-          document.querySelectorAll('.' + REVEAL).forEach(function (el) {
-            el.classList.add(VISIBLE)
-          })
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: rgb(var(--bg));
+        color: rgb(var(--body));
+        font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background-color 0.35s ease, color 0.35s ease;
+      }
+
+      .hero-pattern {
+        background-image: var(--pattern);
+        background-repeat: repeat;
+        background-size: 120px 120px;
+        opacity: 0.13;
+        transition: opacity 0.35s ease;
+      }
+      .dark .hero-pattern {
+        opacity: 0.07;
+      }
+
+      .site-header {
+        background: rgb(var(--bg) / 0.86);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid rgb(var(--line) / 0.7);
+      }
+
+      .logo-kuali {
+        background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent2)));
+        box-shadow: 0 8px 20px rgb(var(--accent) / 0.35);
+      }
+
+      .nav-link {
+        position: relative;
+        font-weight: 600;
+        color: rgb(var(--body));
+        transition: color 0.25s ease;
+      }
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.3rem;
+        height: 2px;
+        border-radius: 2px;
+        background: rgb(var(--accent));
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 0.3s ease;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: rgb(var(--accent));
+      }
+      .nav-link:hover::after,
+      .nav-link.active::after {
+        transform: scaleX(1);
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent2)));
+        color: #fff;
+        font-weight: 700;
+        padding: 0.95rem 1.9rem;
+        border-radius: 9999px;
+        box-shadow: 0 12px 28px rgb(var(--accent) / 0.4);
+        transition: transform 0.2s ease, box-shadow 0.3s ease, filter 0.3s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+        box-shadow: 0 16px 34px rgb(var(--accent) / 0.5);
+      }
+      .btn-primary:active {
+        transform: scale(0.97);
+      }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: rgb(var(--card));
+        color: rgb(var(--accent));
+        font-weight: 700;
+        padding: 0.95rem 1.9rem;
+        border-radius: 9999px;
+        border: 2px solid rgb(var(--line));
+        box-shadow: 0 4px 12px rgb(var(--accent) / 0.08);
+        transition: all 0.25s ease;
+      }
+      .btn-secondary:hover {
+        border-color: rgb(var(--accent));
+        background: rgb(var(--tint));
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgb(var(--accent) / 0.16);
+      }
+      .dark .btn-secondary {
+        border-color: rgb(var(--accent) / 0.4);
+        color: rgb(var(--accent2));
+      }
+
+      .stat-box {
+        background: rgb(var(--card));
+        border: 1px solid rgb(var(--line));
+        box-shadow: 0 4px 14px rgb(var(--heading) / 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      }
+      .stat-box:hover {
+        transform: translateY(-4px);
+        border-color: rgb(var(--accent) / 0.6);
+        box-shadow: 0 14px 28px rgb(var(--accent) / 0.16);
+      }
+
+      .float-card {
+        background: rgb(var(--card));
+        border: 1px solid rgb(var(--line));
+        box-shadow: 0 16px 36px rgb(var(--heading) / 0.16);
+      }
+
+      .blob {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(2px);
+      }
+
+      .maskot-float {
+        animation: hero-float 6s ease-in-out infinite;
+      }
+      .card-float {
+        animation: hero-float 5s ease-in-out infinite;
+      }
+      .card-float-2 {
+        animation: hero-float 5.8s ease-in-out infinite reverse;
+      }
+      @keyframes hero-float {
+        0%,
+        100% {
+          transform: translateY(0);
         }
+        50% {
+          transform: translateY(-14px);
+        }
+      }
 
-        if (!('IntersectionObserver' in window)) {
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', revealAll)
+      .steam {
+        animation: steam-rise 3.2s ease-in-out infinite;
+      }
+      @keyframes steam-rise {
+        0% {
+          opacity: 0.25;
+          transform: translateY(6px) scaleX(1);
+        }
+        50% {
+          opacity: 0.7;
+        }
+        100% {
+          opacity: 0.25;
+          transform: translateY(-6px) scaleX(1.06);
+        }
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(26px);
+        transition: opacity 0.65s ease, transform 0.65s ease;
+      }
+      .reveal.reveal-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: rgb(var(--card));
+        color: rgb(var(--body));
+        border: 1px solid transparent;
+        transition: all 0.25s ease;
+      }
+      .icon-btn:hover {
+        color: rgb(var(--accent));
+        border-color: rgb(var(--line));
+        background: rgb(var(--tint));
+      }
+
+      .mobile-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+      .mobile-menu.open {
+        max-height: 320px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .maskot-float,
+        .card-float,
+        .card-float-2,
+        .steam {
+          animation: none;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+          <a href="#beranda" class="flex items-center gap-3 group" aria-label="Beranda Buku Resep Nusantara">
+            <span class="logo-kuali w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 11a9 9 0 0 0 18 0 1 1 0 0 0-1-1H4a1 1 0 0 0-1 1Z" fill="currentColor" fill-opacity="0.18" />
+                <path d="M2 10h20" />
+                <path d="M9 10V8h6v2" />
+                <circle cx="12" cy="7" r="1" />
+              </svg>
+            </span>
+            <span class="font-extrabold text-lg text-heading leading-tight">
+              Buku Resep <span class="text-accent">Nusantara</span>
+            </span>
+          </a>
+
+          <nav class="hidden lg:flex items-center gap-1" aria-label="Navigasi utama">
+            <a href="#beranda" class="nav-link active text-sm px-3 py-2 rounded-lg" data-nav>Beranda</a>
+            <a href="app.html#/resep" class="nav-link text-sm px-3 py-2 rounded-lg" data-nav>Resep</a>
+            <a href="app.html#/favorit" class="nav-link text-sm px-3 py-2 rounded-lg" data-nav>Favorit</a>
+          </nav>
+
+          <div class="flex items-center gap-2">
+            <button id="themeToggle" class="icon-btn" aria-label="Ganti mode gelap/terang" title="Ganti tema">
+              <i id="iconMoon" class="fa-solid fa-moon text-base"></i>
+              <i id="iconSun" class="fa-solid fa-sun text-base hidden"></i>
+            </button>
+            <a href="app.html#/profil" class="icon-btn hidden sm:flex" aria-label="Profil pengguna" title="Profil">
+              <i class="fa-solid fa-user text-base"></i>
+            </a>
+            <button id="menuToggle" class="icon-btn lg:hidden" aria-label="Buka menu" aria-expanded="false" title="Menu">
+              <i id="iconBars" class="fa-solid fa-bars text-base"></i>
+              <i id="iconClose" class="fa-solid fa-xmark text-base hidden"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="mobileMenu" class="mobile-menu lg:hidden bg-bg/95 backdrop-blur-md border-t border-line/70">
+        <nav class="px-6 py-4 flex flex-col gap-1" aria-label="Navigasi seluler">
+          <a href="#beranda" class="nav-link active text-base px-3 py-2.5 rounded-lg" data-nav>Beranda</a>
+          <a href="app.html#/resep" class="nav-link text-base px-3 py-2.5 rounded-lg" data-nav>Resep</a>
+          <a href="app.html#/favorit" class="nav-link text-base px-3 py-2.5 rounded-lg" data-nav>Favorit</a>
+          <a href="app.html#/profil" class="nav-link text-base px-3 py-2.5 rounded-lg" data-nav>Profil</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="beranda" class="relative overflow-hidden">
+        <div class="hero-pattern absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid lg:grid-cols-2 gap-12 lg:gap-14 items-center pt-10 pb-16 lg:pt-16 lg:pb-24">
+            <div class="text-center lg:text-left">
+              <span class="reveal inline-flex items-center gap-2 bg-tint text-accent font-bold text-xs sm:text-sm px-4 py-2 rounded-full">
+                <i class="fa-solid fa-fire-flame-curved"></i> Rekomendasi Resep Nusantara
+              </span>
+
+              <h1 class="reveal mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight text-heading">
+                Resep Masakan <span class="text-accent">Nusantara</span>
+              </h1>
+
+              <p class="reveal mt-4 text-body text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Temukan resep masakan khas Nusantara dari bahan yang tersedia di dapur Anda.
+              </p>
+
+              <div class="reveal mt-8 flex flex-wrap justify-center lg:justify-start gap-4">
+                <a href="app.html#/resep" class="btn-primary">
+                  <i class="fa-solid fa-magnifying-glass"></i> Cari Resep
+                </a>
+                <a href="app.html#/resep" class="btn-secondary">
+                  <i class="fa-solid fa-book-open"></i> Lihat Semua Resep
+                </a>
+              </div>
+
+              <div class="reveal mt-10 flex flex-wrap justify-center lg:justify-start gap-3">
+                <div class="stat-box flex items-center gap-3 rounded-2xl px-4 py-3">
+                  <span class="w-10 h-10 rounded-xl bg-tint text-accent flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-bowl-food"></i>
+                  </span>
+                  <span class="text-left">
+                    <span class="block font-extrabold text-heading">122 Resep</span>
+                    <span class="block text-xs text-body">Koleksi terkurasi</span>
+                  </span>
+                </div>
+                <div class="stat-box flex items-center gap-3 rounded-2xl px-4 py-3">
+                  <span class="w-10 h-10 rounded-xl bg-tint text-accent flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-carrot"></i>
+                  </span>
+                  <span class="text-left">
+                    <span class="block font-extrabold text-heading">295 Bahan</span>
+                    <span class="block text-xs text-body">Tersedia dicari</span>
+                  </span>
+                </div>
+                <div class="stat-box flex items-center gap-3 rounded-2xl px-4 py-3">
+                  <span class="w-10 h-10 rounded-xl bg-tint text-accent flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-tags"></i>
+                  </span>
+                  <span class="text-left">
+                    <span class="block font-extrabold text-heading">10 Kategori</span>
+                    <span class="block text-xs text-body">Dari seluruh daerah</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative mx-auto w-full max-w-md lg:max-w-none" aria-hidden="true">
+              <span class="blob w-24 h-24 bg-accentlight opacity-30 top-4 left-2"></span>
+              <span class="blob w-16 h-16 bg-emerald-400 opacity-20 bottom-10 right-4"></span>
+
+              <div class="maskot-float relative">
+                <img
+                  src="/capston-resep/assets/maskot-koki.png"
+                  alt="Maskot koki wanita dengan spatula"
+                  class="w-full h-auto drop-shadow-[0_20px_40px_rgba(184,91,40,0.28)] dark:drop-shadow-[0_24px_48px_rgba(0,0,0,0.5)]"
+                  width="500"
+                  height="500"
+                />
+                <span class="steam absolute -top-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  <span class="w-2 h-8 bg-accentlight/60 rounded-full"></span>
+                  <span class="w-2 h-11 bg-accentlight/50 rounded-full"></span>
+                  <span class="w-2 h-7 bg-accentlight/60 rounded-full"></span>
+                </span>
+              </div>
+
+              <div class="float-card card-float absolute -top-3 -right-2 sm:right-0 flex items-center gap-3 rounded-2xl px-4 py-3">
+                <span class="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shrink-0 shadow-lg">
+                  <i class="fa-solid fa-heart"></i>
+                </span>
+                <span class="text-left">
+                  <span class="block font-extrabold text-sm text-heading">Cocok!</span>
+                  <span class="block text-xs text-body">dengan bahan kulkas</span>
+                </span>
+              </div>
+
+              <div class="float-card card-float-2 absolute -bottom-4 -left-2 sm:left-2 flex items-center gap-3 rounded-2xl px-4 py-3">
+                <span class="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shrink-0 shadow-lg">
+                  <i class="fa-solid fa-carrot"></i>
+                </span>
+                <span class="text-left">
+                  <span class="block font-extrabold text-sm text-heading">Mudah</span>
+                  <span class="block text-xs text-body">langkah demi langkah</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      ;(function () {
+        var THEME_KEY = 'skripsi_theme'
+        var root = document.documentElement
+        var themeToggle = document.getElementById('themeToggle')
+        var iconMoon = document.getElementById('iconMoon')
+        var iconSun = document.getElementById('iconSun')
+        var menuToggle = document.getElementById('menuToggle')
+        var iconBars = document.getElementById('iconBars')
+        var iconClose = document.getElementById('iconClose')
+        var mobileMenu = document.getElementById('mobileMenu')
+        var navLinks = document.querySelectorAll('[data-nav]')
+
+        function applyTheme(mode) {
+          if (mode === 'dark') {
+            root.classList.add('dark')
+            iconMoon.classList.add('hidden')
+            iconSun.classList.remove('hidden')
+            themeToggle.setAttribute('aria-label', 'Ganti ke mode terang')
           } else {
-            revealAll()
+            root.classList.remove('dark')
+            iconMoon.classList.remove('hidden')
+            iconSun.classList.add('hidden')
+            themeToggle.setAttribute('aria-label', 'Ganti ke mode gelap')
           }
-          return
         }
 
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add(VISIBLE)
-              io.unobserve(entry.target)
-            }
-          })
-        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' })
+        function initTheme() {
+          var saved = localStorage.getItem(THEME_KEY)
+          applyTheme(saved === 'dark' ? 'dark' : 'light')
+        }
 
-        function track() {
-          document.querySelectorAll('.' + REVEAL + ':not(.' + VISIBLE + ')').forEach(function (el) {
+        themeToggle.addEventListener('click', function () {
+          var next = root.classList.contains('dark') ? 'light' : 'dark'
+          localStorage.setItem(THEME_KEY, next)
+          applyTheme(next)
+        })
+
+        menuToggle.addEventListener('click', function () {
+          var isOpen = mobileMenu.classList.toggle('open')
+          menuToggle.setAttribute('aria-expanded', String(isOpen))
+          iconBars.classList.toggle('hidden', isOpen)
+          iconClose.classList.toggle('hidden', !isOpen)
+        })
+
+        navLinks.forEach(function (link) {
+          link.addEventListener('click', function () {
+            navLinks.forEach(function (l) {
+              l.classList.remove('active')
+            })
+            link.classList.add('active')
+            mobileMenu.classList.remove('open')
+            menuToggle.setAttribute('aria-expanded', 'false')
+            iconBars.classList.remove('hidden')
+            iconClose.classList.add('hidden')
+          })
+        })
+
+        var revealEls = document.querySelectorAll('.reveal')
+        if ('IntersectionObserver' in window) {
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('reveal-visible')
+                  io.unobserve(entry.target)
+                }
+              })
+            },
+            { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+          )
+          revealEls.forEach(function (el) {
             io.observe(el)
           })
-        }
-
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', track)
         } else {
-          track()
+          revealEls.forEach(function (el) {
+            el.classList.add('reveal-visible')
+          })
         }
 
-        // Awasi konten dinamis yang ditambahkan React / JS
-        var timer = null
-        var mo = new MutationObserver(function () {
-          clearTimeout(timer)
-          timer = setTimeout(track, 120)
-        })
-        mo.observe(document.documentElement, { childList: true, subtree: true })
+        initTheme()
       })()
     </script>
   </body>
