@@ -50,6 +50,7 @@
         --accent2: 217 119 36;
         --line: 230 213 195;
         --tint: 247 224 208;
+        --texture: url("/assets/bg-texture-light.png");
         --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120' fill='none'%3E%3Cg stroke='%23B85B28' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 24c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M22 24c8-3 14-1 21 2'/%3E%3Cpath d='M72 86c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M72 86c8-3 14-1 21 2'/%3E%3C/g%3E%3Cg fill='%23D97724'%3E%3Ccircle cx='98' cy='18' r='3'/%3E%3Ccircle cx='28' cy='68' r='3.5'/%3E%3Ccircle cx='92' cy='56' r='2.5'/%3E%3Ccircle cx='56' cy='104' r='3'/%3E%3Cpath d='M62 30l5 8 8 5-8 5-5 8-5-8-8-5 8-5Z'/%3E%3C/g%3E%3C/svg%3E");
       }
       .dark {
@@ -62,6 +63,7 @@
         --accent2: 240 176 112;
         --line: 62 39 35;
         --tint: 58 42 30;
+        --texture: url("/assets/bg-texture-dark.png");
         --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120' fill='none'%3E%3Cg stroke='%23D97724' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 24c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M22 24c8-3 14-1 21 2'/%3E%3Cpath d='M72 86c5-11 17-11 21-2 4 9-10 17-21 2Z'/%3E%3Cpath d='M72 86c8-3 14-1 21 2'/%3E%3C/g%3E%3Cg fill='%23F0B070'%3E%3Ccircle cx='98' cy='18' r='3'/%3E%3Ccircle cx='28' cy='68' r='3.5'/%3E%3Ccircle cx='92' cy='56' r='2.5'/%3E%3Ccircle cx='56' cy='104' r='3'/%3E%3Cpath d='M62 30l5 8 8 5-8 5-5 8-5-8-8-5 8-5Z'/%3E%3C/g%3E%3C/svg%3E");
       }
 
@@ -77,14 +79,15 @@
       }
 
       .hero-pattern {
-        background-image: var(--pattern);
+        background-image: var(--texture);
         background-repeat: repeat;
-        background-size: 120px 120px;
-        opacity: 0.13;
+        background-size: contain;
+        background-position: center;
+        opacity: 0.5;
         transition: opacity 0.35s ease;
       }
       .dark .hero-pattern {
-        opacity: 0.07;
+        opacity: 0.4;
       }
 
       .site-header {
