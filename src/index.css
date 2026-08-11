@@ -120,16 +120,15 @@ body {
 
 /* ===== Hero Section ===== */
 .hero {
-  background-color: var(--card);
-  background-image: url("./assets/hero.png");
-  background-size: contain;
-  background-repeat: repeat;
+  background-color: var(--bg);
+  background-image: url("./assets/background_light.png");
+  background-size: cover;
   background-position: center;
   animation: hero-fade 0.8s ease both;
 }
 .dark .hero {
-  background-color: var(--card);
-  background-image: url("./assets/hero.png");
+  background-color: var(--bg);
+  background-image: url("./assets/background_dark.png");
 }
 .hero-container {
   display: grid;
