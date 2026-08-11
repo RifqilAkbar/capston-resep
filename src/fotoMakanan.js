@@ -13,7 +13,7 @@ const FOTO_MAKANAN = [
   ['mangut', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/9._Mangut_Lele_1.jpg/960px-9._Mangut_Lele_1.jpg'],
   ['selat solo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Selat_Solo.jpg/960px-Selat_Solo.jpg'],
   ['tahu gimbal', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Tahu_gimbal_in_Semarang.jpg/960px-Tahu_gimbal_in_Semarang.jpg'],
-  ['lumpia', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Lumpia_at_Teh_Jawa%2C_Purwokerto_Station%2C_Purwokerto_2015-03-20.jpg/960px-Lumpia_at_Teh_Jawa%2C_Purwokerto_Station%2C_Purwokerto_2015-03-20.jpg'],
+  ['lumpia', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Lumpia_Semarang.jpg/960px-Lumpia_Semarang.jpg'],
   ['tempe bacem', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Tempe_bacem_lauk_soto_Pak_Marto.JPG/960px-Tempe_bacem_lauk_soto_Pak_Marto.JPG'],
   ['tempe mendoan', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Mendoan.jpg/960px-Mendoan.jpg'],
   ['mendoan', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Mendoan.jpg/960px-Mendoan.jpg'],
@@ -40,7 +40,7 @@ const FOTO_MAKANAN = [
   ['geplak', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/17._Geplak_3.jpg/960px-17._Geplak_3.jpg'],
 
   // Jawa Timur
-  ['rawon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Rawon_Setan.jpg/960px-Rawon_Setan.jpg'],
+  ['rawon', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Rawon_Bu_Rima_Leces.jpg/960px-Rawon_Bu_Rima_Leces.jpg'],
   ['soto lamongan', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Soto_Lamongan.jpg/960px-Soto_Lamongan.jpg'],
   ['rujak cingur', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Rujak_cingur_Madura.jpg/960px-Rujak_cingur_Madura.jpg'],
   ['rujak serut', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Rujak_Buah_%28Indonesian_Fruit_Salad%29.JPG/960px-Rujak_Buah_%28Indonesian_Fruit_Salad%29.JPG'],
@@ -49,7 +49,7 @@ const FOTO_MAKANAN = [
   ['lontong balap', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/20170125_105849283_Lontong_balap.jpg/960px-20170125_105849283_Lontong_balap.jpg'],
   ['tahu campur', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Tahu_Campur.jpg/960px-Tahu_Campur.jpg'],
   ['nasi krawu', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Krawu_rice.jpg/960px-Krawu_rice.jpg'],
-  ['semanggi', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Semanggi_seller.jpg/960px-Semanggi_seller.jpg'],
+  ['semanggi', './foto/makanan/semanggi.jpg'],
   ['soto madura', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Soto_Madura_Daging.JPG/960px-Soto_Madura_Daging.JPG'],
   ['bebek sinjay', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Bebek_Goreng_Malang.JPG/960px-Bebek_Goreng_Malang.JPG'],
 
@@ -105,7 +105,7 @@ const FOTO_MAKANAN = [
   ['woku', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Kakap_Woku.JPG/960px-Kakap_Woku.JPG'],
 
   // Kalimantan
-  ['soto banjar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Soto_banjar%2C_Pak_Ahmat%2C_Martapura%2C_South_Kalimantan%2C_2018-07-28_01.jpg/960px-Soto_banjar%2C_Pak_Ahmat%2C_Martapura%2C_South_Kalimantan%2C_2018-07-28_01.jpg'],
+  ['soto banjar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Soto_Banjar_1.jpg/960px-Soto_Banjar_1.jpg'],
   ['ketupat kandangan', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Katupat_Kandangan_in_Kandangan.JPG/960px-Katupat_Kandangan_in_Kandangan.JPG'],
   ['juhu singkah', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Juhu_Umbut_Rotan_Ikan_Nila.jpg/960px-Juhu_Umbut_Rotan_Ikan_Nila.jpg'],
 
@@ -123,7 +123,7 @@ const FOTO_MAKANAN = [
   ['tumis bayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Tumis_Bayam_Mempawah.jpg/960px-Tumis_Bayam_Mempawah.jpg'],
   ['ayam glabed', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ayam_goreng_kalasan.JPG/960px-Ayam_goreng_kalasan.JPG'],
   ['taliwang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Ayam_bakar_khas_Taliwang_2.JPG/960px-Ayam_bakar_khas_Taliwang_2.JPG'],
-  ['ungkep', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Ayam_Ungkep_092804.jpg/960px-Ayam_Ungkep_092804.jpg'],
+  ['ungkep', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Daging-ayam-ungkep.jpg/960px-Daging-ayam-ungkep.jpg'],
   ['ayam bakar', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Ayam_bakar_bumbu_rujak.jpg/960px-Ayam_bakar_bumbu_rujak.jpg'],
   ['ayam goreng', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Ayam_Goreng_Lalapan.jpg/960px-Ayam_Goreng_Lalapan.jpg'],
   ['bakso', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Bakso_khas_Solo.jpg/960px-Bakso_khas_Solo.jpg'],
@@ -139,7 +139,7 @@ const FOTO_MAKANAN = [
   ['mi ayam', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/960px-Mi_ayam_jamur.JPG'],
   ['oseng pare', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tumis_par%C3%A8_teri_5.jpg/960px-Tumis_par%C3%A8_teri_5.jpg'],
   ['ceker', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Ceker_Ayam_Pedas.jpg/960px-Ceker_Ayam_Pedas.jpg'],
-  ['telur ceplok', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Telur_Ceplok.jpg/960px-Telur_Ceplok.jpg'],
+  ['telur ceplok', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Telur_goreng.jpg/960px-Telur_goreng.jpg'],
   ['sambal tuna', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Tuna_Sambal_Roa_2.jpg/960px-Tuna_Sambal_Roa_2.jpg'],
   ['saus padang', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kepiting_saus_padang.jpg/960px-Kepiting_saus_padang.jpg'],
   ['kue cantik', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Cantik_Manis_Pandan.jpg/960px-Cantik_Manis_Pandan.jpg'],
@@ -179,12 +179,12 @@ export function fotoMakanan(judul) {
 export const FOTO_DAERAH = {
   'Jawa Tengah': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Gudeg_Ayam.jpg/960px-Gudeg_Ayam.jpg',
   'Yogyakarta': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Yogyakarta_Indonesia_Tugu-Yogyakarta-01.jpg/960px-Yogyakarta_Indonesia_Tugu-Yogyakarta-01.jpg',
-  'Jawa Timur': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Rawon_Setan.jpg/960px-Rawon_Setan.jpg',
+  'Jawa Timur': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Rawon_Bu_Rima_Leces.jpg/960px-Rawon_Bu_Rima_Leces.jpg',
   'Jawa Barat': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Karedok.JPG/960px-Karedok.JPG',
   'Padang': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Rendang_daging_sapi_asli_Padang.JPG/960px-Rendang_daging_sapi_asli_Padang.JPG',
   'Betawi': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Soto_Betawi_and_Asinan_Betawi_Sarinah.JPG/960px-Soto_Betawi_and_Asinan_Betawi_Sarinah.JPG',
   'Bali': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ayam_Betutu_Bali.jpg/960px-Ayam_Betutu_Bali.jpg',
   'Sumatera': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Pempek_campur.JPG/960px-Pempek_campur.JPG',
   'Sulawesi': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Coto_makassar.jpg/960px-Coto_makassar.jpg',
-  'Kalimantan': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Soto_banjar%2C_Pak_Ahmat%2C_Martapura%2C_South_Kalimantan%2C_2018-07-28_01.jpg/960px-Soto_banjar%2C_Pak_Ahmat%2C_Martapura%2C_South_Kalimantan%2C_2018-07-28_01.jpg',
+  'Kalimantan': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Soto_Banjar_1.jpg/960px-Soto_Banjar_1.jpg',
 }
