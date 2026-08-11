@@ -4,6 +4,7 @@ import { CardResep } from '../components/CardResep'
 import { kategoriResep } from '../kategoriNusantara'
 import { FOTO_DAERAH, fotoMakanan } from '../fotoMakanan'
 import { fotoAvatar, fotoKategori, mockDurasi, mockLike } from '../mock'
+import gambarHero from '../assets/gambar_hero.png'
 
 function isAdminRole(role) {
   return role === 'admin' || role === 'superadmin'
@@ -155,44 +156,7 @@ Rekomendasi Resep Nusantara
           <span className="hero-blob hero-blob-1" />
           <span className="hero-blob hero-blob-2" />
           <div className="hero-float">
-            <svg viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#ff9a52" />
-                  <stop offset="100%" stopColor="#ff6b00" />
-                </linearGradient>
-              </defs>
-
-              <circle cx="210" cy="210" r="190" fill="url(#heroGrad)" opacity="0.1" />
-              <circle cx="210" cy="210" r="150" fill="url(#heroGrad)" opacity="0.16" />
-
-              <g className="hero-steam">
-                <path d="M150 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-                <path d="M210 92q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-                <path d="M268 108q8 -22 0 -44" stroke="#ffb57e" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-              </g>
-
-              <ellipse cx="210" cy="302" rx="134" ry="36" fill="#ffffff" />
-              <ellipse cx="210" cy="302" rx="134" ry="36" stroke="#f6e3d5" strokeWidth="3" />
-              <ellipse cx="210" cy="296" rx="104" ry="27" fill="#fff8f2" />
-
-              <path d="M152 292q24 -40 60 -40q40 0 60 36q12 20 -22 28q-22 8 -46 4q-52 -8 -52 -28Z" fill="#ffffff" stroke="#ffe0cd" strokeWidth="3" />
-              <circle cx="212" cy="286" r="28" fill="url(#heroGrad)" />
-              <circle cx="188" cy="272" r="6" fill="#34d399" />
-              <circle cx="236" cy="302" r="6" fill="#34d399" />
-              <circle cx="170" cy="298" r="5" fill="#fbbf24" />
-
-              <g stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" fill="none">
-                <line x1="92" y1="140" x2="92" y2="252" />
-              </g>
-              <path d="M84 100v30M92 92v38M100 100v30" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
-              <line x1="328" y1="140" x2="328" y2="252" stroke="#e2e8f0" strokeWidth="7" strokeLinecap="round" />
-              <ellipse cx="328" cy="114" rx="16" ry="21" fill="#e2e8f0" />
-
-              <circle cx="72" cy="330" r="10" fill="#ff6b00" opacity="0.25" />
-              <circle cx="352" cy="92" r="8" fill="#ff9a52" opacity="0.5" />
-              <circle cx="342" cy="340" r="7" fill="#34d399" opacity="0.35" />
-            </svg>
+            <img src={gambarHero} alt="Ilustrasi masakan nusantara" className="hero-img" />
           </div>
 
           <div className="hero-card hero-card-rating">
