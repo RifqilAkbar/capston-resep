@@ -120,15 +120,16 @@ body {
 
 /* ===== Hero Section ===== */
 .hero {
-  background-color: var(--bg);
-  background-image: linear-gradient(180deg, var(--bg), var(--card)), url("./assets/hero.png");
+  background-color: var(--card);
+  background-image: url("./assets/hero.png");
   background-size: contain;
   background-repeat: repeat;
   background-position: center;
   animation: hero-fade 0.8s ease both;
 }
 .dark .hero {
-  background-image: linear-gradient(180deg, var(--bg), var(--card)), url("./assets/hero.png");
+  background-color: var(--card);
+  background-image: url("./assets/hero.png");
 }
 .hero-container {
   display: grid;
