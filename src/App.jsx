@@ -102,6 +102,8 @@ function App() {
   const [showAkunDropdown, setShowAkunDropdown] = useState(false)
   const searchQueryRef = useRef(searchQuery)
   const akunDropdownRef = useRef(null)
+  const scrollKembaliRef = useRef(0)
+  const ruteSebelumRef = useRef(parseHash())
 
   async function handleToggleFavorit(id) {
     const numId = Number(id)
@@ -214,9 +216,17 @@ function App() {
   useEffect(() => {
     function onHashChange() {
       const r = parseHash()
+      const prev = ruteSebelumRef.current
+      ruteSebelumRef.current = r
       setShowAkunDropdown(false)
       setRoute(r)
-      if (searchQueryRef.current.trim() && r.view === 'resep') {
+      if (prev.view === 'resep' && r.view === 'detail') {
+        scrollKembaliRef.current = window.scrollY
+        window.scrollTo(0, 0)
+      } else if (prev.view === 'detail' && r.view === 'resep') {
+        const pos = scrollKembaliRef.current
+        requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, pos)))
+      } else if (searchQueryRef.current.trim() && r.view === 'resep') {
         setTimeout(() => document.getElementById('resep')?.scrollIntoView({ behavior: 'smooth' }), 150)
       } else {
         window.scrollTo(0, 0)
