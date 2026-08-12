@@ -45,7 +45,7 @@ const corsOrigins = (process.env.CORS_ORIGIN || '')
   .filter(Boolean)
 
 app.use(cors(corsOrigins.length > 0 ? { origin: corsOrigins } : undefined))
-app.use(express.json())
+app.use(express.json({ limit: '15mb' }))
 app.use(express.static(distDir))
 
 // Helper standar agar error database/API selalu punya format yang konsisten.
@@ -76,7 +76,23 @@ function formatResep(row) {
     ...row,
     langkah_memasak: parseJsonField(row.langkah_memasak, []),
     recipe_ingredients: parseJsonField(row.recipe_ingredients, []),
+    link_media: parseJsonField(row.link_media, []),
   }
+}
+
+function sanitasiFoto(raw) {
+  if (typeof raw !== 'string') return null
+  const foto = raw.trim()
+  if (!foto || foto.length > 4000000) return null
+  return /^(data:image\/|https?:\/\/)/i.test(foto) ? foto : null
+}
+
+function sanitasiLinkMedia(raw) {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((u) => String(u).trim())
+    .filter((u) => /^https?:\/\//i.test(u))
+    .slice(0, 10)
 }
 
 function formatUser(row) {
@@ -189,6 +205,8 @@ async function listResep(where = '', params = []) {
        r.porsi_default,
        r.langkah_memasak,
        r.durasi_menit,
+       r.foto,
+       r.link_media,
        r.created_at,
        r.user_id,
        r.status,
@@ -359,11 +377,14 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
     await client.beginTransaction()
 
     const [recipeResult] = await client.query(
-      'INSERT INTO recipes (judul_resep, kategori, porsi_default, durasi_menit, langkah_memasak, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [judulResep, kategori, porsiDefault, durasiMenit, JSON.stringify(langkahMemasak), req.user.id, status],
+      'INSERT INTO recipes (judul_resep, kategori, porsi_default, durasi_menit, langkah_memasak, user_id, status, foto, link_media) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [judulResep, kategori, porsiDefault, durasiMenit, JSON.stringify(langkahMemasak), req.user.id, status, fotoBaru, linkJson],
     )
 
     const resepId = recipeResult.insertId
+    const fotoBaru = sanitasiFoto(req.body.foto)
+    const linkBaru = sanitasiLinkMedia(req.body.link_media)
+    const linkJson = linkBaru.length ? JSON.stringify(linkBaru) : null
 
     for (const ingredientId of ingredientIds) {
       const det = detBahan.get(ingredientId)
@@ -441,9 +462,12 @@ app.patch('/api/recipes/:id', wajibLogin, async (req, res) => {
   try {
     await client.beginTransaction()
 
+    const fotoEdit = sanitasiFoto(req.body.foto)
+    const linkEdit = sanitasiLinkMedia(req.body.link_media)
+    const linkJsonEdit = linkEdit.length ? JSON.stringify(linkEdit) : null
     await client.query(
-      'UPDATE recipes SET judul_resep = ?, kategori = ?, porsi_default = ?, durasi_menit = ?, langkah_memasak = ? WHERE id = ?',
-      [judulResep, kategori, porsiDefault, durasiMenit, JSON.stringify(langkahMemasak), id],
+      'UPDATE recipes SET judul_resep = ?, kategori = ?, porsi_default = ?, durasi_menit = ?, langkah_memasak = ?, foto = ?, link_media = ? WHERE id = ?',
+      [judulResep, kategori, porsiDefault, durasiMenit, JSON.stringify(langkahMemasak), fotoEdit, linkJsonEdit, id],
     )
 
     await client.query('DELETE FROM recipe_ingredients WHERE recipe_id = ?', [id])

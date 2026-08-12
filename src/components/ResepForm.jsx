@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import UsulBahanUnik from './UsulBahanUnik'
 import { DAFTAR_GRUP, ikonGrup, warnaGrup } from '../kategoriGrup'
+import { ikonLink } from '../linkMedia'
 
 export default function ResepForm({
   dataBahan,
@@ -27,6 +28,32 @@ export default function ResepForm({
   )
   const [cariBahan, setCariBahan] = useState('')
   const [grupTerbuka, setGrupTerbuka] = useState(() => new Set(DAFTAR_GRUP))
+  const [foto, setFoto] = useState(initial?.foto || '')
+  const [modaFoto, setModaFoto] = useState(initial?.foto?.startsWith('data:') ? 'upload' : 'link')
+  const [linkMedia, setLinkMedia] = useState(initial?.link_media?.length ? initial.link_media : [])
+
+  const handlePilihFile = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const maks = 1024
+        const skala = Math.min(1, maks / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * skala)
+        canvas.height = Math.round(img.height * skala)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        setFoto(canvas.toDataURL('image/jpeg', 0.75))
+      }
+      img.src = reader.result
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+  const ubahLink = (index, value) => setLinkMedia(linkMedia.map((u, i) => (i === index ? value : u)))
+  const hapusLink = (index) => setLinkMedia(linkMedia.filter((_, i) => i !== index))
 
   useEffect(() => {
     const idSet = new Set(bahanResepDipilih.map((b) => b.id))
@@ -72,6 +99,8 @@ export default function ResepForm({
       langkah_memasak: langkahValid,
       ingredient_ids: bahanResepDipilih.map((b) => b.id),
       bahan_resep: bahanResepDipilih.map((b) => ({ id: b.id, kuantitas: Number(b.kuantitas) || 1, satuan: b.satuan.trim() || 'secukupnya' })),
+      foto: foto.trim(),
+      link_media: linkMedia.map((u) => u.trim()).filter(Boolean),
     })
   }
 
@@ -127,6 +156,63 @@ export default function ResepForm({
             <option key={k} value={k}>{k}</option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <label className={label}>Foto Masakan</label>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => setModaFoto('upload')} className={`px-4 py-2 rounded-full text-xs font-bold border transition ${modaFoto === 'upload' ? 'bg-accent text-white border-accent' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}>
+            <i className="fa-solid fa-upload mr-1.5" />Upload Gambar
+          </button>
+          <button type="button" onClick={() => setModaFoto('link')} className={`px-4 py-2 rounded-full text-xs font-bold border transition ${modaFoto === 'link' ? 'bg-accent text-white border-accent' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}>
+            <i className="fa-solid fa-link mr-1.5" />Pakai Link
+          </button>
+          {foto && (
+            <button type="button" onClick={() => setFoto('')} className="text-xs font-bold text-red-500 hover:text-red-600 transition">
+              <i className="fa-solid fa-trash-can mr-1" />Hapus Foto
+            </button>
+          )}
+        </div>
+        {modaFoto === 'upload' ? (
+          <input type="file" accept="image/*" onChange={handlePilihFile} className="mt-3 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-accent file:text-white file:text-xs file:font-bold file:cursor-pointer" />
+        ) : (
+          <input
+            type="text"
+            placeholder="https://... (URL gambar masakan)"
+            value={foto.startsWith('data:') ? '' : foto}
+            onChange={(e) => setFoto(e.target.value)}
+            className={`${input} mt-3`}
+          />
+        )}
+        {foto && (
+          <img src={foto} alt="Pratinjau foto masakan" className="mt-3 w-40 h-28 object-cover rounded-xl border border-gray-200 dark:border-gray-600" />
+        )}
+      </div>
+
+      <div>
+        <label className={label}>Tautan Media Sosial</label>
+        <div className="space-y-2">
+          {linkMedia.map((u, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-600 flex items-center justify-center shrink-0">
+                <i className={ikonLink(u)} />
+              </span>
+              <input
+                type="text"
+                placeholder="https://youtube.com/... (YouTube, Instagram, Facebook, TikTok)"
+                value={u}
+                onChange={(e) => ubahLink(index, e.target.value)}
+                className="flex-1 min-w-0 p-2.5 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
+              />
+              <button type="button" onClick={() => hapusLink(index)} aria-label="Hapus tautan" className="w-8 h-8 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-center shrink-0 transition">
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={() => setLinkMedia([...linkMedia, ''])} className="text-accent dark:text-orange-400 hover:text-accent-dark font-bold text-sm flex items-center gap-1 pt-2 transition">
+          <i className="fa-solid fa-plus" /> Tambah Tautan
+        </button>
       </div>
 
       <div>

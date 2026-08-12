@@ -3,6 +3,7 @@ import { api } from '../api'
 import { ICON_HEART_FILLED, ICON_HEART_OUTLINE } from '../components/icons'
 import { fotoMakanan } from '../fotoMakanan'
 import { fotoAvatar, mockDurasi } from '../mock'
+import { ikonLink } from '../linkMedia'
 
 export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavorit, token, session, onNeedLogin }) {
   const [resep, setResep] = useState(null)
@@ -246,7 +247,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
             </div>
           ) : (
             <img
-              src={fotoMakanan(resep.judul_resep)}
+              src={resep.foto || fotoMakanan(resep.judul_resep)}
               alt={resep.judul_resep}
               onError={() => setGagalFoto(true)}
               className="w-full h-64 md:h-96 object-cover"
@@ -278,6 +279,24 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
             </button>
           </div>
         </div>
+
+        {resep.link_media?.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mr-1">Tonton/Sosial:</span>
+            {resep.link_media.map((url, i) => (
+              <a
+                key={i}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Buka tautan ${i + 1}`}
+                className="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-600 flex items-center justify-center text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              >
+                <i className={ikonLink(url)} />
+              </a>
+            ))}
+          </div>
+        )}
 
         {/* Blok 5: Details */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">

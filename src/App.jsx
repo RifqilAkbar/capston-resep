@@ -384,6 +384,7 @@ function App() {
       return {
         id: resep.id,
         judul: resep.judul_resep,
+        foto: resep.foto || '',
         langkah: resep.langkah_memasak,
         kategori: kategoriNusantara(resep.judul_resep),
         persentase: Math.round(skor * 100),

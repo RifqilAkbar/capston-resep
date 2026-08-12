@@ -25,7 +25,7 @@ export function CardResep({ resep, index, isFavorit, onToggleFavorit }) {
           </div>
         ) : (
           <img
-            src={fotoMakanan(resep.judul)}
+            src={resep.foto || fotoMakanan(resep.judul)}
             alt={resep.judul}
             loading="lazy"
             onError={() => setGagal(true)}

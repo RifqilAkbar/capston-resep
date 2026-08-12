@@ -53,6 +53,13 @@ export async function jalankanMigrasi(pool) {
   if (!(await cekKolom('recipes', 'user_id'))) {
     await pool.query('ALTER TABLE recipes ADD COLUMN user_id BIGINT UNSIGNED NULL AFTER porsi_default')
   }
+  // Foto masakan (upload data-URL base64 atau URL eksternal) & tautan media sosial.
+  if (!(await cekKolom('recipes', 'foto'))) {
+    await pool.query('ALTER TABLE recipes ADD COLUMN foto MEDIUMTEXT NULL')
+  }
+  if (!(await cekKolom('recipes', 'link_media'))) {
+    await pool.query('ALTER TABLE recipes ADD COLUMN link_media JSON NULL')
+  }
   // Durasi masak (menit) — kolom nyata agar filter "di bawah 30 menit" & tampilan
   // memakai data, bukan mock. Backfill hanya baris NULL (idempoten).
   if (!(await cekKolom('recipes', 'durasi_menit'))) {
