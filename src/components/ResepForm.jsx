@@ -130,42 +130,6 @@ export default function ResepForm({
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className={label} style={{ marginBottom: 0 }}>Bahan yang Dipilih ({bahanResepDipilih.length})</label>
-          {bahanResepDipilih.length > 0 && (
-            <button type="button" onClick={() => setBahanResepDipilih([])} className="text-xs font-bold text-red-500 hover:text-red-600 transition">
-              <i className="fa-solid fa-trash-can mr-1" />Hapus Semua
-            </button>
-          )}
-        </div>
-        <div className={`${bahanResepDipilih.length ? '' : 'hidden'} max-h-56 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 space-y-2`}>
-          {bahanResepDipilih.map((b) => (
-            <div key={b.id} className="flex flex-wrap items-center gap-2">
-              <span className="flex-1 min-w-[120px] text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{namaBahan(b.id)}</span>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={b.kuantitas}
-                onChange={(e) => ubahKuantitas(b.id, e.target.value)}
-                className="w-20 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
-              />
-              <select
-                value={b.satuan}
-                onChange={(e) => ubahSatuan(b.id, e.target.value)}
-                className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
-              >
-                {[...new Set([...SATUAN_UMUM, b.satuan])].map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <button type="button" onClick={() => hapusBahan(b.id)} aria-label={`Hapus ${namaBahan(b.id)}`} className="w-8 h-8 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-center shrink-0 transition">
-                <i className="fa-solid fa-xmark" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
         <label className={label}>Pilih Bahan Baku yang Digunakan ({bahanResepDipilih.length} dipilih):</label>
         <input
           type="text"
@@ -204,6 +168,42 @@ export default function ResepForm({
       </div>
 
       <UsulBahanUnik token={token} />
+
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className={label} style={{ marginBottom: 0 }}>Bahan yang Dipilih ({bahanResepDipilih.length})</label>
+          {bahanResepDipilih.length > 0 && (
+            <button type="button" onClick={() => setBahanResepDipilih([])} className="text-xs font-bold text-red-500 hover:text-red-600 transition">
+              <i className="fa-solid fa-trash-can mr-1" />Hapus Semua
+            </button>
+          )}
+        </div>
+        <div className={`${bahanResepDipilih.length ? '' : 'hidden'} max-h-56 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 space-y-2`}>
+          {bahanResepDipilih.map((b) => (
+            <div key={b.id} className="flex flex-wrap items-center gap-2">
+              <span className="flex-1 min-w-[120px] text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{namaBahan(b.id)}</span>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={b.kuantitas}
+                onChange={(e) => ubahKuantitas(b.id, e.target.value)}
+                className="w-20 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
+              />
+              <select
+                value={b.satuan}
+                onChange={(e) => ubahSatuan(b.id, e.target.value)}
+                className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
+              >
+                {[...new Set([...SATUAN_UMUM, b.satuan])].map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <button type="button" onClick={() => hapusBahan(b.id)} aria-label={`Hapus ${namaBahan(b.id)}`} className="w-8 h-8 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-center shrink-0 transition">
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="space-y-3">
         <label className={label}>Langkah Demi Langkah Memasak:</label>
