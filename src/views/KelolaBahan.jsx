@@ -46,7 +46,7 @@ export default function KelolaBahan({ token, onDataRefresh }) {
     }
   }
 
-  const handleEdit = async (bahan) => {
+  const gantiNamaPending = async (bahan) => {
     const namaBaru = window.prompt('Nama bahan baru:', bahan.nama_bahan)
     if (namaBaru === null) return
     if (!namaBaru.trim()) {
@@ -59,6 +59,34 @@ export default function KelolaBahan({ token, onDataRefresh }) {
       await muat()
       if (onDataRefresh) await onDataRefresh()
       setPesan(`Sukses mengubah bahan menjadi "${namaBaru.trim()}".`)
+    } catch (error) {
+      setPesan(error.message)
+    }
+  }
+
+  const [sedangEdit, setSedangEdit] = useState(null)
+  const [namaEdit, setNamaEdit] = useState('')
+  const [kategoriEdit, setKategoriEdit] = useState('Lainnya')
+
+  const bukaEdit = (bahan) => {
+    setNamaEdit(bahan.nama_bahan)
+    setKategoriEdit(bahan.kategori || 'Lainnya')
+    setSedangEdit(bahan)
+  }
+
+  const simpanEdit = async () => {
+    if (!namaEdit.trim()) {
+      setPesan('Nama bahan wajib diisi.')
+      return
+    }
+    setPesan('')
+    try {
+      await api.ubahBahan(token, sedangEdit.id, { nama_bahan: namaEdit.trim(), kategori: kategoriEdit })
+      setTerbuka((prev) => new Set(prev).add(kategoriEdit))
+      await muat()
+      if (onDataRefresh) await onDataRefresh()
+      setPesan(`Sukses mengubah bahan "${namaEdit.trim()}" (${kategoriEdit}).`)
+      setSedangEdit(null)
     } catch (error) {
       setPesan(error.message)
     }
@@ -177,7 +205,7 @@ export default function KelolaBahan({ token, onDataRefresh }) {
                       <button onClick={() => handleHapus(b.id, b.nama_bahan, `Sukses. Usulan "${b.nama_bahan}" ditolak — bahan "${b.mirip_dengan}" yang ada tetap dipakai.`)} className="border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-xs font-bold px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition">
                         Gabung ke "{b.mirip_dengan}"
                       </button>
-                      <button onClick={() => handleEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
+                      <button onClick={() => gantiNamaPending(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
                         <i className="fa-solid fa-pen" /> Edit Nama
                       </button>
                       <button onClick={() => handleSetujui(b.id, b.nama_bahan)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition">
@@ -264,25 +292,55 @@ export default function KelolaBahan({ token, onDataRefresh }) {
                       <div className="space-y-2">
                         {g.daftar.length === 0 ? (
                           <p className="text-sm text-gray-400 italic">Belum ada bahan pada kategori ini.</p>
-                        ) : g.daftar.map((b) => (
-                          <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-3">
-                            <div className="min-w-0 flex items-center gap-2">
-                              <i className={`fa-solid text-accent ${ikonGrup[b.kategori] || 'fa-leaf'}`} />
-                              <div className="min-w-0">
-                                <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{b.nama_bahan}</p>
-                                <p className="text-xs text-gray-400">{b.kategori}</p>
+                        ) : g.daftar.map((b) => {
+                          if (sedangEdit?.id === b.id) {
+                            return (
+                              <div key={b.id} className="flex flex-wrap items-center gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl shadow-sm p-3">
+                                <input
+                                  type="text"
+                                  value={namaEdit}
+                                  onChange={(e) => setNamaEdit(e.target.value)}
+                                  placeholder="Nama bahan"
+                                  className="flex-1 min-w-[140px] p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100"
+                                />
+                                <select
+                                  value={kategoriEdit}
+                                  onChange={(e) => setKategoriEdit(e.target.value)}
+                                  className="p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100"
+                                >
+                                  {[...DAFTAR_GRUP, 'Lainnya'].map((k) => <option key={k} value={k}>{k}</option>)}
+                                </select>
+                                <div className="flex gap-2 shrink-0">
+                                  <button onClick={simpanEdit} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent text-white text-xs font-bold hover:bg-accent-dark transition">
+                                    <i className="fa-solid fa-check" /> Simpan
+                                  </button>
+                                  <button onClick={() => setSedangEdit(null)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 transition">
+                                    Batal
+                                  </button>
+                                </div>
+                              </div>
+                            )
+                          }
+                          return (
+                            <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-3">
+                              <div className="min-w-0 flex items-center gap-2">
+                                <i className={`fa-solid text-accent ${ikonGrup[b.kategori] || 'fa-leaf'}`} />
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{b.nama_bahan}</p>
+                                  <p className="text-xs text-gray-400">{b.kategori}</p>
+                                </div>
+                              </div>
+                              <div className="flex gap-2 shrink-0">
+                                <button onClick={() => bukaEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
+                                  <i className="fa-solid fa-pen" /> Edit
+                                </button>
+                                <button onClick={() => handleHapus(b.id, b.nama_bahan)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
+                                  <i className="fa-solid fa-trash-can" /> Hapus
+                                </button>
                               </div>
                             </div>
-                            <div className="flex gap-2 shrink-0">
-                              <button onClick={() => handleEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
-                                <i className="fa-solid fa-pen" /> Edit
-                              </button>
-                              <button onClick={() => handleHapus(b.id, b.nama_bahan)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
-                                <i className="fa-solid fa-trash-can" /> Hapus
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </div>
                   )
