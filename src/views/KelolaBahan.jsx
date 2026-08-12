@@ -75,9 +75,19 @@ export default function KelolaBahan({ token, onDataRefresh }) {
   }
 
   const teksCari = cari.trim().toLowerCase()
-  const daftarAktif = semuaBahan
-    .filter((b) => !teksCari || String(b.nama_bahan).toLowerCase().includes(teksCari))
-    .sort((a, b) => String(a.nama_bahan).localeCompare(String(b.nama_bahan)))
+  const urutanGrup = { Protein: 0, Sayuran: 1, Buah: 2, Karbohidrat: 3, Bumbu: 4, Pelengkap: 5 }
+  const kelompokBahan = Object.entries(
+    semuaBahan
+      .filter((b) => !teksCari || String(b.nama_bahan).toLowerCase().includes(teksCari))
+      .reduce((map, b) => {
+        const nama = b.kategori || 'Lainnya'
+        if (!map[nama]) map[nama] = []
+        map[nama].push(b)
+        return map
+      }, {})
+  )
+    .sort(([a], [b2]) => (urutanGrup[a] ?? 99) - (urutanGrup[b2] ?? 99) || a.localeCompare(b2))
+    .map(([nama, daftar]) => ({ nama, daftar: daftar.sort((x, y) => String(x.nama_bahan).localeCompare(String(y.nama_bahan))) }))
 
   return (
     <main className="page-container mt-10 pb-16">
@@ -168,29 +178,40 @@ export default function KelolaBahan({ token, onDataRefresh }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <div key={i} className="skeleton-pulse h-14 rounded-xl" />)}
           </div>
-        ) : daftarAktif.length === 0 ? (
+        ) : kelompokBahan.length === 0 ? (
           <div className="text-center py-14 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
             <span className="empty-icon"><i className="fa-solid fa-carrot" /></span>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-3">Tidak ada bahan pada pencarian ini.</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {daftarAktif.map((b) => (
-              <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-3">
-                <div className="min-w-0 flex items-center gap-2">
-                  <i className={`fa-solid text-accent ${b.kategori?.toLowerCase().includes('bumbu') ? 'fa-mortar-pestle' : b.kategori?.toLowerCase().includes('protein') ? 'fa-drumstick-bite' : 'fa-leaf'}`} />
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{b.nama_bahan}</p>
-                    <p className="text-xs text-gray-400">{b.kategori}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <button onClick={() => handleEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
-                    <i className="fa-solid fa-pen" /> Edit
-                  </button>
-                  <button onClick={() => handleHapus(b.id, b.nama_bahan)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
-                    <i className="fa-solid fa-trash-can" /> Hapus
-                  </button>
+          <div className="space-y-6">
+            {kelompokBahan.map((g) => (
+              <div key={g.nama}>
+                <h4 className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="w-2 h-2 rounded-full bg-accent" />
+                  {g.nama}
+                  <span className="text-xs font-semibold text-gray-400 dark:text-gray-500">{g.daftar.length} bahan</span>
+                </h4>
+                <div className="space-y-2">
+                  {g.daftar.map((b) => (
+                    <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-3">
+                      <div className="min-w-0 flex items-center gap-2">
+                        <i className={`fa-solid text-accent ${b.kategori?.toLowerCase().includes('bumbu') ? 'fa-mortar-pestle' : b.kategori?.toLowerCase().includes('protein') ? 'fa-drumstick-bite' : 'fa-leaf'}`} />
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{b.nama_bahan}</p>
+                          <p className="text-xs text-gray-400">{b.kategori}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button onClick={() => handleEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
+                          <i className="fa-solid fa-pen" /> Edit
+                        </button>
+                        <button onClick={() => handleHapus(b.id, b.nama_bahan)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
+                          <i className="fa-solid fa-trash-can" /> Hapus
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
