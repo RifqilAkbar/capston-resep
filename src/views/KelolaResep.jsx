@@ -31,8 +31,6 @@ export default function KelolaResep({ token, onDataRefresh }) {
   const [pesan, setPesan] = useState('')
   const [terbuka, setTerbuka] = useState(() => new Set(URUTAN_KATEGORI))
 
-  useEffect(() => { setTerbuka(new Set(URUTAN_KATEGORI)) }, [cari])
-
   const muat = async () => {
     try {
       const data = await api.semuaResep(token)
@@ -100,6 +98,11 @@ export default function KelolaResep({ token, onDataRefresh }) {
       .map((nama) => ({ nama, daftar: grupDariData.get(nama) })),
   ].filter((g) => g.daftar.length > 0)
 
+  const namaKelompok = kelompok.map((g) => g.nama)
+  useEffect(() => {
+    if (kelompok.length) setTerbuka(new Set(namaKelompok))
+  }, [cari, kelompok.length])
+
   const semuaTerbuka = kelompok.length > 0 && kelompok.every((g) => terbuka.has(g.nama))
   const toggleGrup = (nama) => {
     setTerbuka((prev) => {
@@ -110,7 +113,7 @@ export default function KelolaResep({ token, onDataRefresh }) {
     })
   }
   const bukaTutupSemua = () => {
-    setTerbuka(semuaTerbuka ? new Set() : new Set(URUTAN_KATEGORI))
+    setTerbuka(new Set(semuaTerbuka ? [] : namaKelompok))
   }
 
   const kartu = (r) => (
