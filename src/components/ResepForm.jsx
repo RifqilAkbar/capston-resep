@@ -68,7 +68,7 @@ export default function ResepForm({
       <div>
         <label className={label}>Kategori</label>
         <select value={kategori} onChange={(e) => setKategori(e.target.value)} className={input}>
-          {['Nusantara', 'Jawa', 'Sumatera', 'Kalimantan', 'Sulawesi', 'Bali', 'Betawi', 'Ayam', 'Daging', 'Ikan', 'Sayuran', 'Telur', 'Mie', 'Western', 'Jepang', 'Seafood', 'Lainnya'].map((k) => (
+          {['Nusantara', 'Jawa', 'Sumatera', 'Kalimantan', 'Sulawesi', 'Bali', 'Betawi', 'Ayam', 'Daging', 'Ikan', 'Sayuran', 'Telur', 'Mie', 'Seafood', 'Lainnya'].map((k) => (
             <option key={k} value={k}>{k}</option>
           ))}
         </select>
