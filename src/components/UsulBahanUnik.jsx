@@ -19,11 +19,15 @@ export default function UsulBahanUnik({ token }) {
     setIsSubmitting(true)
     setPesan('')
     try {
-      await api.tambahBahan(token, {
+      const res = await api.tambahBahan(token, {
         nama_bahan: namaBahan.trim(),
         kategori,
       })
-      setPesan('Sukses! Bahan unik Anda diusulkan ke admin.')
+      if (res.mirip_dengan) {
+        setPesan(`Sukses! Usulan hampir sama dengan "${res.mirip_dengan}" dan masuk antrean review admin.`)
+      } else {
+        setPesan('Sukses! Bahan Anda langsung tersedia dan bisa dipakai di resep.')
+      }
       setNamaBahan('')
     } catch (error) {
       setPesan(error.message)

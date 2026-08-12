@@ -76,6 +76,15 @@ export const api = {
     method: 'PATCH',
     token,
   }),
+  ubahBahan: (token, idBahan, payload) => request(`/ingredients/${idBahan}`, {
+    method: 'PATCH',
+    token,
+    body: payload,
+  }),
+  hapusBahan: (token, idBahan) => request(`/ingredients/${idBahan}`, {
+    method: 'DELETE',
+    token,
+  }),
 
   // Resep
   tambahResep: (token, payload) => request('/recipes', {

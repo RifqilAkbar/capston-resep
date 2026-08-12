@@ -19,6 +19,7 @@ import TambahResep from './views/TambahResep'
 import EditResep from './views/EditResep'
 import AdminDashboard from './views/AdminDashboard'
 import KelolaResep from './views/KelolaResep'
+import KelolaBahan from './views/KelolaBahan'
 import KelolaUser from './views/KelolaUser'
 import './index.css'
 
@@ -62,7 +63,7 @@ function parseHash() {
 }
 
 const RUTE_USER = ['profil', 'resep-saya', 'tambah-resep', 'edit-resep']
-const RUTE_ADMIN = ['dashboard', 'kelola-resep']
+const RUTE_ADMIN = ['dashboard', 'kelola-resep', 'kelola-bahan']
 const RUTE_SUPERADMIN = ['kelola-user']
 
 function isAdminRole(role) {
@@ -483,6 +484,7 @@ function App() {
       <>
         {navItem('#/dashboard', 'fa-gauge-high', 'Dashboard Admin')}
         {navItem('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
+        {navItem('#/kelola-bahan', 'fa-carrot', 'Kelola Bahan')}
         {userRole === 'superadmin' && navItem('#/kelola-user', 'fa-users', 'Kelola User')}
       </>
     ) : (
@@ -572,6 +574,7 @@ function App() {
         <div className="py-1.5">
           {itemDropdown('#/dashboard', 'fa-gauge-high', 'Dashboard')}
           {itemDropdown('#/kelola-resep', 'fa-book-open', 'Kelola Resep')}
+          {itemDropdown('#/kelola-bahan', 'fa-carrot', 'Kelola Bahan')}
           {userRole === 'superadmin' && itemDropdown('#/kelola-user', 'fa-users', 'Kelola User')}
         </div>
         <div className="border-t border-gray-100 dark:border-gray-700 py-1.5">
@@ -902,6 +905,8 @@ function App() {
     konten = <KelolaResep token={token} onDataRefresh={initData} />
   } else if (route.view === 'kelola-user') {
     konten = <KelolaUser token={token} session={session} />
+  } else if (route.view === 'kelola-bahan') {
+    konten = <KelolaBahan token={token} onDataRefresh={initData} />
   } else if (route.view === 'profil') {
     konten = <Profil token={token} onSessionUpdate={handleSessionUpdate} />
   } else if (route.view === 'resep-saya') {

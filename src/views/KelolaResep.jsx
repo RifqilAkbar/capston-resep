@@ -81,7 +81,10 @@ export default function KelolaResep({ token, onDataRefresh }) {
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">Semua Resep</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Setujui, tolak, edit, atau hapus resep dari pengguna.</p>
         </div>
-        <a href="#/dashboard" className="btn-secondary text-sm"><i className="fa-solid fa-arrow-left" /> Dashboard</a>
+        <div className="flex flex-wrap gap-2">
+          <a href="#/dashboard" className="btn-secondary text-sm"><i className="fa-solid fa-arrow-left" /> Dashboard</a>
+          <a href="#/kelola-bahan" className="btn-secondary text-sm"><i className="fa-solid fa-carrot" /> Kelola Bahan</a>
+        </div>
       </div>
 
       {pesan && (

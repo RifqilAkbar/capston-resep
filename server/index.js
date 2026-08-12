@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { jalankanMigrasi, bagikanResepAdminKeUser } from './migrate.js'
+import { bahanMirip, kecocokan } from './bahanMirip.js'
 
 const app = express()
 const port = process.env.PORT || 3001
@@ -736,8 +737,20 @@ app.get('/api/ingredients/pending', wajibLogin, wajibAdmin, async (_req, res) =>
   const [rows] = await pool.query(
     'SELECT id, nama_bahan, kategori, status_validasi FROM ingredients WHERE status_validasi = FALSE ORDER BY created_at ASC',
   )
+  const [approved] = await pool.query(
+    'SELECT id, nama_bahan FROM ingredients WHERE status_validasi = TRUE',
+  )
 
-  res.json({ bahan: rows.map(formatBahan) })
+  // Semi-otomatis: tandai tiap usulan apakah mirip dengan bahan yang sudah aktif,
+  // agar admin tinggal putuskan (gabung / koreksi / setujui).
+  const bahan = rows.map((row) => {
+    const cocok = kecocokan(row.nama_bahan, approved)
+    return {
+      ...formatBahan(row),
+      mirip_dengan: cocok?.tipe === 'mirip' ? cocok.nama : null,
+    }
+  })
+  res.json({ bahan })
 })
 
 app.post('/api/ingredients', wajibLogin, async (req, res) => {
@@ -746,17 +759,35 @@ app.post('/api/ingredients', wajibLogin, async (req, res) => {
 
   if (!namaBahan) return kirimError(res, 400, 'Nama bahan wajib diisi.')
 
+  // Smart-routing semi-otomatis:
+  // - nama yang SAMA PERSIS dengan bahan mana pun (aktif/pending) -> tolak.
+  // - nama yang MIRIP dengan bahan yang ada -> masuk antrean review admin.
+  // - nama UNIK -> langsung disetujui otomatis.
+  const [semuaBahan] = await pool.query(
+    'SELECT id, nama_bahan, status_validasi FROM ingredients',
+  )
+  const cocok = kecocokan(namaBahan, semuaBahan)
+  if (cocok?.tipe === 'eksak') {
+    return kirimError(res, 409, `Bahan "${cocok.nama}" sudah terdaftar.`)
+  }
+
+  const perluReview = Boolean(cocok)
+  const statusValidasi = perluReview ? 0 : 1
+
   try {
     const [result] = await pool.query(
-      'INSERT INTO ingredients (nama_bahan, kategori, status_validasi) VALUES (?, ?, FALSE)',
-      [namaBahan, kategori],
+      'INSERT INTO ingredients (nama_bahan, kategori, status_validasi) VALUES (?, ?, ?)',
+      [namaBahan, kategori, statusValidasi],
     )
     const [rows] = await pool.query(
       'SELECT id, nama_bahan, kategori, status_validasi FROM ingredients WHERE id = ?',
       [result.insertId],
     )
 
-    res.status(201).json({ bahan: formatBahan(rows[0]) })
+    res.status(201).json({
+      bahan: formatBahan(rows[0]),
+      mirip_dengan: perluReview ? cocok.nama : null,
+    })
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
       return kirimError(res, 409, 'Bahan sudah terdaftar!')
@@ -764,6 +795,65 @@ app.post('/api/ingredients', wajibLogin, async (req, res) => {
 
     throw error
   }
+})
+
+app.patch('/api/ingredients/:id', wajibLogin, wajibAdmin, async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) {
+    return kirimError(res, 400, 'ID bahan tidak valid.')
+  }
+
+  const namaBahan = String(req.body.nama_bahan || '').trim()
+  const kategori = String(req.body.kategori || 'Lainnya').trim()
+  if (!namaBahan) return kirimError(res, 400, 'Nama bahan wajib diisi.')
+
+  const [cek] = await pool.query('SELECT id FROM ingredients WHERE id = ?', [id])
+  if (cek.length === 0) return kirimError(res, 404, 'Bahan tidak ditemukan.')
+
+  // Cegah rename menjadi duplikat: bandingkan dengan bahan lain (kecuali diri sendiri).
+  const [semuaBahan] = await pool.query('SELECT nama_bahan FROM ingredients WHERE id <> ?', [id])
+  const mirip = bahanMirip(namaBahan, semuaBahan.map((b) => b.nama_bahan))
+  if (mirip) {
+    return kirimError(res, 409, `Bahan mirip sudah ada: "${mirip}". Gunakan bahan yang sudah tersedia.`)
+  }
+
+  try {
+    await pool.query(
+      'UPDATE ingredients SET nama_bahan = ?, kategori = ? WHERE id = ?',
+      [namaBahan, kategori, id],
+    )
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return kirimError(res, 409, 'Bahan sudah terdaftar!')
+    }
+    throw error
+  }
+
+  const [rows] = await pool.query(
+    'SELECT id, nama_bahan, kategori, status_validasi FROM ingredients WHERE id = ?',
+    [id],
+  )
+  res.json({ bahan: formatBahan(rows[0]) })
+})
+
+app.delete('/api/ingredients/:id', wajibLogin, wajibAdmin, async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) {
+    return kirimError(res, 400, 'ID bahan tidak valid.')
+  }
+
+  const [pakai] = await pool.query(
+    'SELECT COUNT(*) AS n FROM recipe_ingredients WHERE ingredient_id = ?',
+    [id],
+  )
+  if (Number(pakai[0].n) > 0) {
+    return kirimError(res, 409, `Bahan masih dipakai di ${pakai[0].n} resep. Hapus pemakaiannya dari resep terlebih dahulu.`)
+  }
+
+  const [result] = await pool.query('DELETE FROM ingredients WHERE id = ?', [id])
+  if (result.affectedRows === 0) return kirimError(res, 404, 'Bahan tidak ditemukan.')
+
+  res.json({ message: 'Bahan berhasil dihapus.' })
 })
 
 app.patch('/api/ingredients/:id/approve', wajibLogin, wajibAdmin, async (req, res) => {
