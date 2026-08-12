@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import UsulBahanUnik from './UsulBahanUnik'
+import { DAFTAR_GRUP, ikonGrup, warnaGrup } from '../kategoriGrup'
 
 export default function ResepForm({
   dataBahan,
@@ -20,6 +21,17 @@ export default function ResepForm({
   const [bahanResepDipilih, setBahanResepDipilih] = useState(
     initial?.recipe_ingredients?.map((ri) => Number(ri.ingredient_id)) || [],
   )
+  const [cariBahan, setCariBahan] = useState('')
+  const [grupTerbuka, setGrupTerbuka] = useState(() => new Set(DAFTAR_GRUP))
+
+  useEffect(() => {
+    const idSet = new Set(bahanResepDipilih)
+    const perluBuka = new Set()
+    for (const b of dataBahan) if (idSet.has(b.id) && b.kategori) perluBuka.add(b.kategori)
+    if (perluBuka.size) {
+      setGrupTerbuka((prev) => new Set([...prev, ...perluBuka]))
+    }
+  }, [dataBahan, bahanResepDipilih])
 
   const handleUbahLangkah = (index, value) => {
     setLangkahResep(langkahResep.map((l, i) => (i === index ? { instruksi: value } : l)))
@@ -42,6 +54,29 @@ export default function ResepForm({
       durasi_menit: Number(durasiMenit) || 15,
       langkah_memasak: langkahValid,
       ingredient_ids: bahanResepDipilih,
+    })
+  }
+
+  const teksCariBahan = cariBahan.trim().toLowerCase()
+  const isDipilih = (id) => bahanResepDipilih.includes(id)
+  const chipBahan = (bahan) => (
+    <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${isDipilih(bahan.id) ? 'bg-orange-100 dark:bg-orange-900/40 border-accent dark:border-accent text-accent' : 'bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-transparent'}`}>
+      <input type="checkbox" checked={isDipilih(bahan.id)} onChange={() => handleCheckboxBahanResep(bahan.id)} className="hidden" />
+      {bahan.nama_bahan}
+    </label>
+  )
+  const bahanCocok = dataBahan.filter((b) => !teksCariBahan || String(b.nama_bahan).toLowerCase().includes(teksCariBahan))
+  const urutBahan = (daftar) => [...daftar].sort((a, b) =>
+    Number(isDipilih(b.id)) - Number(isDipilih(a.id)) || String(a.nama_bahan).localeCompare(String(b.nama_bahan)))
+  const kelompokBahan = [...DAFTAR_GRUP, 'Lainnya']
+    .map((nama) => ({ nama, daftar: urutBahan(bahanCocok.filter((b) => (b.kategori || 'Lainnya') === nama)) }))
+    .filter((g) => g.daftar.length > 0)
+  const toggleGrup = (nama) => {
+    setGrupTerbuka((prev) => {
+      const baru = new Set(prev)
+      if (baru.has(nama)) baru.delete(nama)
+      else baru.add(nama)
+      return baru
     })
   }
 
@@ -75,16 +110,40 @@ export default function ResepForm({
       </div>
 
       <div>
-        <label className={label}>Pilih Bahan Baku yang Digunakan:</label>
-        <div className="flex flex-wrap gap-2 max-h-44 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
-          {dataBahan.length === 0 ? (
+        <label className={label}>Pilih Bahan Baku yang Digunakan ({bahanResepDipilih.length} dipilih):</label>
+        <input
+          type="text"
+          placeholder="Cari bahan... (mis. cabai, daun)"
+          value={cariBahan}
+          onChange={(e) => setCariBahan(e.target.value)}
+          className="w-full p-3 mb-2 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+        />
+        <div className="max-h-60 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-gray-50 dark:bg-gray-700">
+          {bahanCocok.length === 0 ? (
             <p className="text-sm text-gray-400 italic">Belum ada bahan yang tersedia.</p>
-          ) : dataBahan.map((bahan) => (
-            <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${bahanResepDipilih.includes(bahan.id) ? 'bg-orange-100 dark:bg-orange-900/40 border-accent dark:border-accent text-accent' : 'bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-transparent'}`}>
-              <input type="checkbox" checked={bahanResepDipilih.includes(bahan.id)} onChange={() => handleCheckboxBahanResep(bahan.id)} className="hidden" />
-              {bahan.nama_bahan}
-            </label>
-          ))}
+          ) : teksCariBahan ? (
+            <div className="flex flex-wrap gap-2">{urutBahan(bahanCocok).map(chipBahan)}</div>
+          ) : (
+            <div className="space-y-3">
+              {kelompokBahan.map((g) => {
+                const buka = grupTerbuka.has(g.nama)
+                return (
+                  <div key={g.nama} className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                    <button type="button" onClick={() => toggleGrup(g.nama)} className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 transition">
+                      <span className={`inline-flex w-7 h-7 rounded-lg items-center justify-center text-xs ${warnaGrup[g.nama] || 'bg-gray-200 dark:bg-gray-500 text-gray-600 dark:text-gray-300'}`}>
+                        <i className={`fa-solid ${ikonGrup[g.nama] || 'fa-carrot'}`} />
+                      </span>
+                      <span className="flex-1 text-left text-sm font-bold text-gray-700 dark:text-gray-200">
+                        {g.nama} <span className="text-xs font-normal text-gray-400">({g.daftar.length})</span>
+                      </span>
+                      <i className={`fa-solid fa-chevron-${buka ? 'up' : 'down'} text-xs text-gray-400`} />
+                    </button>
+                    {buka && <div className="flex flex-wrap gap-2 p-3">{g.daftar.map(chipBahan)}</div>}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
 
