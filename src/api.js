@@ -26,10 +26,12 @@ async function request(path, { method = 'GET', body, token } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   })
 
-  const data = await response.json().catch(() => ({}))
+  const teks = await response.text().catch(() => '')
+  let data = {}
+  try { data = JSON.parse(teks) } catch { /* body bukan JSON, baca potongan teks di bawah */ }
 
   if (!response.ok) {
-    throw new Error(data.error || 'Request API gagal.')
+    throw new Error(data.error || `Request API gagal. (${response.status}${teks ? ` — ${teks.slice(0, 200)}` : ''})`)
   }
 
   return data
