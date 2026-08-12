@@ -34,7 +34,14 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   useEffect(() => {
     let aktif = true
     api.daftarRating(id)
-      .then(({ rating: data }) => { if (aktif) setDaftarRating(data || []) })
+      .then(({ rating: data }) => {
+        if (!aktif) return
+        setDaftarRating(data || [])
+        if (session) {
+          const milikSaya = (data || []).find((r) => r.user_id === session.user.id)
+          if (milikSaya) setNilaiRating(milikSaya.nilai)
+        }
+      })
       .catch(() => {})
     return () => { aktif = false }
   }, [id])
@@ -425,7 +432,7 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
                 className="text-2xl transition hover:scale-110 disabled:opacity-50"
                 aria-label={`Rating ${n} dari 5`}
               >
-                <i className={`fa-solid fa-star ${n <= (nilaiRating || Math.round(ratingAvg)) ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}`} />
+                <i className={`fa-solid fa-star ${n <= nilaiRating ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}`} />
               </button>
             ))}
           </div>
@@ -495,6 +502,13 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
                   <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{k.penulis || 'Pengguna'}</p>
                   <p className="text-[11px] text-gray-400">{new Date(k.created_at).toLocaleString('id-ID')}</p>
                 </div>
+                {k.rating_nilai > 0 && (
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <i key={n} className={`fa-solid fa-star text-[11px] ${n <= k.rating_nilai ? 'text-amber-400' : 'text-gray-200 dark:text-gray-600'}`} />
+                    ))}
+                  </div>
+                )}
                 {isAdmin && (
                   <button
                     type="button"

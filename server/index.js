@@ -668,7 +668,8 @@ app.get('/api/recipes/:id/comments', async (req, res) => {
        c.user_id,
        c.isi,
        c.created_at,
-       COALESCE(NULLIF(u.nama_lengkap, ''), NULLIF(u.username, ''), u.email) AS penulis
+       COALESCE(NULLIF(u.nama_lengkap, ''), NULLIF(u.username, ''), u.email) AS penulis,
+       (SELECT r.nilai FROM ratings r WHERE r.recipe_id = c.recipe_id AND r.user_id = c.user_id) AS rating_nilai
      FROM comments c
      JOIN users u ON u.id = c.user_id
      WHERE c.recipe_id = ?
@@ -696,7 +697,8 @@ app.post('/api/recipes/:id/comments', wajibLogin, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT
        c.id, c.recipe_id, c.user_id, c.isi, c.created_at,
-       COALESCE(NULLIF(u.nama_lengkap, ''), NULLIF(u.username, ''), u.email) AS penulis
+       COALESCE(NULLIF(u.nama_lengkap, ''), NULLIF(u.username, ''), u.email) AS penulis,
+       (SELECT r.nilai FROM ratings r WHERE r.recipe_id = c.recipe_id AND r.user_id = c.user_id) AS rating_nilai
      FROM comments c
      JOIN users u ON u.id = c.user_id
      WHERE c.id = ?`,
