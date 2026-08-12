@@ -16,6 +16,9 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
   const [isiKomentar, setIsiKomentar] = useState('')
   const [isSubmittingKomentar, setIsSubmittingKomentar] = useState(false)
   const [pesanKomentar, setPesanKomentar] = useState('')
+  const [idKomentarEdit, setIdKomentarEdit] = useState(null)
+  const [isiKomentarEdit, setIsiKomentarEdit] = useState('')
+  const [isEditingKomentar, setIsEditingKomentar] = useState(false)
 
   const [daftarRating, setDaftarRating] = useState([])
 
@@ -132,6 +135,34 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
     } finally {
       setIsSubmittingKomentar(false)
     }
+  }
+
+  const handleEditKomentar = (k) => {
+    setIdKomentarEdit(k.id)
+    setIsiKomentarEdit(k.isi)
+  }
+
+  const handleSimpanEditKomentar = async () => {
+    if (isEditingKomentar) return
+    const isi = isiKomentarEdit.trim()
+    if (!isi) return
+
+    setIsEditingKomentar(true)
+    try {
+      const { komentar: data } = await api.ubahKomentar(token, idKomentarEdit, isi)
+      setKomentar((prev) => prev.map((k) => (k.id === data.id ? data : k)))
+      setIdKomentarEdit(null)
+      setIsiKomentarEdit('')
+    } catch (error) {
+      setPesanKomentar(error.message)
+    } finally {
+      setIsEditingKomentar(false)
+    }
+  }
+
+  const batalEditKomentar = () => {
+    setIdKomentarEdit(null)
+    setIsiKomentarEdit('')
   }
 
   const handleKirimRating = async (nilai) => {
@@ -492,37 +523,78 @@ export default function DetailResep({ id, kulkasUser, favoritIds, onToggleFavori
         <div className="mt-6 space-y-4">
           {komentar.length === 0 ? (
             <p className="text-sm text-gray-400 italic text-center py-6">Belum ada komentar. Jadilah yang pertama!</p>
-          ) : komentar.map((k) => (
-            <div key={k.id} className="border border-gray-100 dark:border-gray-700 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-accent font-bold">
-                  {(k.penulis || '?').charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{k.penulis || 'Pengguna'}</p>
-                  <p className="text-[11px] text-gray-400">{new Date(k.created_at).toLocaleString('id-ID')}</p>
-                </div>
-                {k.rating_nilai > 0 && (
-                  <div className="flex items-center gap-0.5 shrink-0">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <i key={n} className={`fa-solid fa-star text-[11px] ${n <= k.rating_nilai ? 'text-amber-400' : 'text-gray-200 dark:text-gray-600'}`} />
-                    ))}
+          ) : komentar.map((k) => {
+            const milikSaya = session && k.user_id === session.user.id
+            return (
+              <div key={k.id} className="border border-gray-100 dark:border-gray-700 rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-accent font-bold">
+                    {(k.penulis || '?').charAt(0).toUpperCase()}
                   </div>
-                )}
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => handleHapusKomentar(k.id)}
-                    className="text-red-400 hover:text-red-600 text-xs font-bold shrink-0 transition"
-                    aria-label="Hapus komentar"
-                  >
-                    <i className="fa-solid fa-trash-can mr-1" />Hapus
-                  </button>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{k.penulis || 'Pengguna'}</p>
+                    <p className="text-[11px] text-gray-400">{new Date(k.created_at).toLocaleString('id-ID')}</p>
+                  </div>
+                  {k.rating_nilai > 0 && (
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <i key={n} className={`fa-solid fa-star text-[11px] ${n <= k.rating_nilai ? 'text-amber-400' : 'text-gray-200 dark:text-gray-600'}`} />
+                      ))}
+                    </div>
+                  )}
+                  {milikSaya && (
+                    <button
+                      type="button"
+                      onClick={() => handleEditKomentar(k)}
+                      className="text-gray-400 hover:text-accent text-xs font-bold shrink-0 transition"
+                      aria-label="Edit komentar"
+                    >
+                      <i className="fa-solid fa-pen mr-1" />Edit
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => handleHapusKomentar(k.id)}
+                      className="text-red-400 hover:text-red-600 text-xs font-bold shrink-0 transition"
+                      aria-label="Hapus komentar"
+                    >
+                      <i className="fa-solid fa-trash-can mr-1" />Hapus
+                    </button>
+                  )}
+                </div>
+                {idKomentarEdit === k.id ? (
+                  <div className="mt-3 space-y-2">
+                    <textarea
+                      rows="3"
+                      value={isiKomentarEdit}
+                      onChange={(e) => setIsiKomentarEdit(e.target.value)}
+                      className="w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+                    />
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={batalEditKomentar}
+                        className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSimpanEditKomentar}
+                        disabled={isEditingKomentar}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white bg-accent disabled:bg-accent/50 transition"
+                      >
+                        <i className="fa-solid fa-check" /> {isEditingKomentar ? 'Menyimpan...' : 'Simpan'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-3">{k.isi}</p>
                 )}
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 mt-3">{k.isi}</p>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </main>

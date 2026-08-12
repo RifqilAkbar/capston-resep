@@ -707,6 +707,35 @@ app.post('/api/recipes/:id/comments', wajibLogin, async (req, res) => {
   res.status(201).json({ komentar: rows[0] })
 })
 
+// Edit komentar oleh pemiliknya sendiri.
+app.patch('/api/comments/:id', wajibLogin, async (req, res) => {
+  const id = Number(req.params.id)
+  const isi = String(req.body.isi || '').trim()
+
+  if (!Number.isInteger(id) || id <= 0) return kirimError(res, 400, 'ID komentar tidak valid.')
+  if (!isi) return kirimError(res, 400, 'Isi komentar wajib diisi.')
+
+  const [cek] = await pool.query('SELECT id, user_id FROM comments WHERE id = ?', [id])
+  if (cek.length === 0) return kirimError(res, 404, 'Komentar tidak ditemukan.')
+  if (cek[0].user_id !== req.user.id) {
+    return kirimError(res, 403, 'Anda hanya bisa mengedit komentar Anda sendiri.')
+  }
+
+  await pool.query('UPDATE comments SET isi = ? WHERE id = ?', [isi, id])
+
+  const [rows] = await pool.query(
+    `SELECT
+       c.id, c.recipe_id, c.user_id, c.isi, c.created_at,
+       COALESCE(NULLIF(u.nama_lengkap, ''), NULLIF(u.username, ''), u.email) AS penulis,
+       (SELECT r.nilai FROM ratings r WHERE r.recipe_id = c.recipe_id AND r.user_id = c.user_id) AS rating_nilai
+     FROM comments c
+     JOIN users u ON u.id = c.user_id
+     WHERE c.id = ?`,
+    [id],
+  )
+  res.json({ komentar: rows[0] })
+})
+
 // Hapus komentar (moderasi admin & superadmin).
 app.delete('/api/comments/:id', wajibLogin, wajibAdmin, async (req, res) => {
   const id = Number(req.params.id)
@@ -986,6 +1015,73 @@ async function pastikanDatabaseAda() {
   }
 }
 
+// Kalimat review contoh untuk seed komentar acak.
+const KOMENTAR_CONTOH = [
+  'Resepnya praktis dan hasilnya enak, keluarga langsung suka!',
+  'Bahan mudah dicari, langkahnya jelas sampai berhasil di percobaan pertama.',
+  'Kebetulan semua bahan ada di dapur, langsung coba dan mantap rasanya.',
+  'Porsinya pas untuk lauk sehari-hari. Bakal masak lagi.',
+  'Bumbunya meresap banget, aroma wanginya bikin lahap.',
+  'Cara masaknya simpel, cocok untuk yang baru belajar masak.',
+  'Rasa otentik khas nusantara, tidak mengecewakan.',
+  'Tekstur dan rasanya pas, cuma kurang pedas menurut selera saya.',
+  'Waktu memasaknya sesuai yang ditulis, tidak gagal. Recommended!',
+  'Anak-anak sampai minta tambah, tipsnya bermanfaat.',
+]
+
+// Seed rating & komentar acak ke 8 resep "Resep Populer" beranda (setelah login).
+// Populer = mockLike(id) = 40 + (id*137) % 460 (sama dengan src/mock.js).
+// Idempoten: resep yang sudah punya komentar dilewati, jadi tidak menumpuk saat restart.
+async function sebarRatingKomentar(pool) {
+  const [resep] = await pool.query(
+    `SELECT id, judul_resep FROM recipes WHERE status = 'approved'
+     ORDER BY (40 + (id * 137) % 460) DESC, id DESC LIMIT 8`,
+  )
+  const [userRows] = await pool.query(
+    `SELECT id FROM users WHERE email LIKE 'user%@user.com' ORDER BY email`,
+  )
+  if (resep.length === 0 || userRows.length === 0) return 0
+
+  const acak = (n) => Math.floor(Math.random() * n)
+  let tersebar = 0
+
+  for (const r of resep) {
+    const [ada] = await pool.query('SELECT COUNT(*) AS n FROM comments WHERE recipe_id = ?', [r.id])
+    if (Number(ada[0].n) > 0) continue
+
+    // Rating acak 2-5 user (nilai 3-5). INSERT IGNORE aman karena UNIQUE user+resep.
+    const jumlahRating = 2 + acak(4)
+    for (let i = 0; i < jumlahRating; i++) {
+      const user = userRows[acak(userRows.length)]
+      await pool.query(
+        'INSERT IGNORE INTO ratings (user_id, recipe_id, nilai) VALUES (?, ?, ?)',
+        [user.id, r.id, 3 + acak(3)],
+      )
+    }
+
+    // Komentar acak 1-3 user; author komentar ikut diberi rating agar bintang tampil.
+    const jumlahKomentar = 1 + acak(3)
+    const userTerpakai = new Set()
+    for (let i = 0; i < jumlahKomentar; i++) {
+      let user = userRows[acak(userRows.length)]
+      while (userTerpakai.has(user.id)) user = userRows[acak(userRows.length)]
+      userTerpakai.add(user.id)
+      await pool.query(
+        'INSERT INTO comments (recipe_id, user_id, isi) VALUES (?, ?, ?)',
+        [r.id, user.id, KOMENTAR_CONTOH[acak(KOMENTAR_CONTOH.length)]],
+      )
+      await pool.query(
+        'INSERT IGNORE INTO ratings (user_id, recipe_id, nilai) VALUES (?, ?, ?)',
+        [user.id, r.id, 3 + acak(3)],
+      )
+    }
+    tersebar++
+    console.log(`  Seed rating & komentar: "${r.judul_resep}"`)
+  }
+
+  return tersebar
+}
+
 // Seed data tim (database/seed_resep.sql) — idempoten, dijalankan setelah
 // migrasi agar kolom terbaru (mis. user_id, status) sudah tersedia.
 async function jalankanSeed() {
@@ -1003,6 +1099,7 @@ async function jalankanSeed() {
     // Setelah seed, bagikan resep yang masih milik admin ke user demo secara acak
     // (user1 paling banyak). Idempoten: hanya resep tanpa pemilik yang diproses.
     await bagikanResepAdminKeUser(pool)
+    await sebarRatingKomentar(pool)
   } finally {
     await conn.end()
   }

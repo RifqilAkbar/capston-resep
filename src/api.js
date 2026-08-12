@@ -124,6 +124,11 @@ export const api = {
     method: 'DELETE',
     token,
   }),
+  ubahKomentar: (token, idKomentar, isi) => request(`/comments/${idKomentar}`, {
+    method: 'PATCH',
+    token,
+    body: { isi },
+  }),
 
   // Favorit
   ambilFavorit: (token) => request('/favorites', { token }),
