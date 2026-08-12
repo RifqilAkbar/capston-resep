@@ -64,9 +64,9 @@ INSERT INTO ingredients (id, nama_bahan, kategori, status_validasi) VALUES
 (1, 'Nasi', 'Karbohidrat', TRUE),
 (2, 'Telur', 'Protein', TRUE),
 (3, 'Ayam', 'Protein', TRUE),
-(4, 'Bawang Merah', 'Bumbu', TRUE),
-(5, 'Bawang Putih', 'Bumbu', TRUE),
-(6, 'Cabai', 'Bumbu', TRUE),
+(4, 'Bawang Merah', 'Bumbu Dasar', TRUE),
+(5, 'Bawang Putih', 'Bumbu Dasar', TRUE),
+(6, 'Cabai', 'Bumbu Dasar', TRUE),
 (7, 'Wortel', 'Sayuran', TRUE),
 (8, 'Bayam', 'Sayuran', TRUE);
 

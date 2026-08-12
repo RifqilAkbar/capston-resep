@@ -78,7 +78,7 @@ export default function KelolaBahan({ token, onDataRefresh }) {
   }
 
   const teksCari = cari.trim().toLowerCase()
-  const urutanGrup = { Protein: 0, Sayuran: 1, Buah: 2, Karbohidrat: 3, Rempah: 4, 'Bumbu Dasar': 5, 'Bahan Cair': 6, Penyedap: 7, Pelengkap: 8 }
+  const DAFTAR_GRUP = ['Protein', 'Sayuran', 'Buah', 'Karbohidrat', 'Rempah', 'Bumbu Dasar', 'Bahan Cair', 'Penyedap', 'Pelengkap']
   const ikonGrup = {
     Protein: 'fa-drumstick-bite', Sayuran: 'fa-leaf', Buah: 'fa-apple-whole',
     Karbohidrat: 'fa-bowl-rice', Rempah: 'fa-mortar-pestle', 'Bumbu Dasar': 'fa-blender',
@@ -95,18 +95,22 @@ export default function KelolaBahan({ token, onDataRefresh }) {
     Penyedap: 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400',
     Pelengkap: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400',
   }
-  const kelompokBahan = Object.entries(
-    semuaBahan
-      .filter((b) => !teksCari || String(b.nama_bahan).toLowerCase().includes(teksCari))
-      .reduce((map, b) => {
-        const nama = b.kategori || 'Lainnya'
-        if (!map[nama]) map[nama] = []
-        map[nama].push(b)
-        return map
-      }, {})
-  )
-    .sort(([a], [b2]) => (urutanGrup[a] ?? 99) - (urutanGrup[b2] ?? 99) || a.localeCompare(b2))
-    .map(([nama, daftar]) => ({ nama, daftar: daftar.sort((x, y) => String(x.nama_bahan).localeCompare(String(y.nama_bahan))) }))
+  const cocok = (b) => !teksCari || String(b.nama_bahan).toLowerCase().includes(teksCari)
+  const grupDariData = new Map()
+  for (const b of semuaBahan.filter(cocok)) {
+    const nama = b.kategori || 'Lainnya'
+    if (!grupDariData.has(nama)) grupDariData.set(nama, [])
+    grupDariData.get(nama).push(b)
+  }
+  const urut = (daftar) => daftar.sort((x, y) => String(x.nama_bahan).localeCompare(String(y.nama_bahan)))
+  const kelompokBahan = [
+    ...DAFTAR_GRUP.map((nama) => ({ nama, daftar: urut(grupDariData.get(nama) || []) })),
+    ...[...grupDariData.keys()]
+      .filter((nama) => !DAFTAR_GRUP.includes(nama))
+      .sort((a, b) => a.localeCompare(b))
+      .map((nama) => ({ nama, daftar: urut(grupDariData.get(nama)) })),
+  ]
+  const totalHasil = kelompokBahan.reduce((n, g) => n + g.daftar.length, 0)
 
   const toggleGrup = (nama) => {
     setTerbuka((prev) => {
@@ -213,7 +217,7 @@ export default function KelolaBahan({ token, onDataRefresh }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <div key={i} className="skeleton-pulse h-14 rounded-xl" />)}
           </div>
-        ) : kelompokBahan.length === 0 ? (
+        ) : totalHasil === 0 ? (
           <div className="text-center py-14 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
             <span className="empty-icon"><i className="fa-solid fa-carrot" /></span>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-3">Tidak ada bahan pada pencarian ini.</p>
@@ -258,7 +262,9 @@ export default function KelolaBahan({ token, onDataRefresh }) {
                         <span className="text-xs font-semibold text-gray-400 dark:text-gray-500">{g.daftar.length} bahan</span>
                       </h4>
                       <div className="space-y-2">
-                        {g.daftar.map((b) => (
+                        {g.daftar.length === 0 ? (
+                          <p className="text-sm text-gray-400 italic">Belum ada bahan pada kategori ini.</p>
+                        ) : g.daftar.map((b) => (
                           <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-3">
                             <div className="min-w-0 flex items-center gap-2">
                               <i className={`fa-solid text-accent ${ikonGrup[b.kategori] || 'fa-leaf'}`} />

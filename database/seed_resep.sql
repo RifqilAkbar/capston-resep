@@ -51,7 +51,7 @@ VALUES ('Lontong', 'Karbohidrat', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Ketupat', 'Karbohidrat', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kerupuk', 'Karbohidrat', TRUE);
+VALUES ('Kerupuk', 'Pelengkap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Tepung Sagu', 'Karbohidrat', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
@@ -89,9 +89,15 @@ VALUES ('Kacang Hijau', 'Protein', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Oncom', 'Protein', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kelapa', 'Protein', TRUE);
+VALUES ('Kelapa', 'Buah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Santan', 'Bumbu', TRUE);
+VALUES ('Pisang', 'Buah', TRUE);
+INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
+VALUES ('Mangga', 'Buah', TRUE);
+INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
+VALUES ('Jeruk', 'Buah', TRUE);
+INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
+VALUES ('Santan', 'Bahan Cair', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Bayam', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
@@ -123,7 +129,7 @@ VALUES ('Timun', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Sawi', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kacang Tanah', 'Sayuran', TRUE);
+VALUES ('Kacang Tanah', 'Pelengkap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Daun Singkong', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
@@ -135,69 +141,69 @@ VALUES ('Labu Kuning', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Jengkol', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kemangi', 'Sayuran', TRUE);
+VALUES ('Kemangi', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
 VALUES ('Petai', 'Sayuran', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Bawang Merah', 'Bumbu', TRUE);
+VALUES ('Bawang Merah', 'Bumbu Dasar', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Bawang Putih', 'Bumbu', TRUE);
+VALUES ('Bawang Putih', 'Bumbu Dasar', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Cabai', 'Bumbu', TRUE);
+VALUES ('Cabai', 'Bumbu Dasar', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Cabai Rawit', 'Bumbu', TRUE);
+VALUES ('Cabai Rawit', 'Bumbu Dasar', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Jahe', 'Bumbu', TRUE);
+VALUES ('Jahe', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kencur', 'Bumbu', TRUE);
+VALUES ('Kencur', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Lengkuas', 'Bumbu', TRUE);
+VALUES ('Lengkuas', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kunyit', 'Bumbu', TRUE);
+VALUES ('Kunyit', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kemiri', 'Bumbu', TRUE);
+VALUES ('Kemiri', 'Bumbu Dasar', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Ketumbar', 'Bumbu', TRUE);
+VALUES ('Ketumbar', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Jintan', 'Bumbu', TRUE);
+VALUES ('Jintan', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Terasi', 'Bumbu', TRUE);
+VALUES ('Terasi', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Asam Jawa', 'Bumbu', TRUE);
+VALUES ('Asam Jawa', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Daun Salam', 'Bumbu', TRUE);
+VALUES ('Daun Salam', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Daun Jeruk', 'Bumbu', TRUE);
+VALUES ('Daun Jeruk', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Serai', 'Bumbu', TRUE);
+VALUES ('Serai', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kayu Manis', 'Bumbu', TRUE);
+VALUES ('Kayu Manis', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Cengkeh', 'Bumbu', TRUE);
+VALUES ('Cengkeh', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Pala', 'Bumbu', TRUE);
+VALUES ('Pala', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kapulaga', 'Bumbu', TRUE);
+VALUES ('Kapulaga', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Merica', 'Bumbu', TRUE);
+VALUES ('Merica', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kluwak', 'Bumbu', TRUE);
+VALUES ('Kluwak', 'Rempah', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Ebi', 'Bumbu', TRUE);
+VALUES ('Ebi', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Garam', 'Bumbu', TRUE);
+VALUES ('Garam', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Gula', 'Bumbu', TRUE);
+VALUES ('Gula', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Gula Merah', 'Bumbu', TRUE);
+VALUES ('Gula Merah', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kecap Manis', 'Bumbu', TRUE);
+VALUES ('Kecap Manis', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Minyak Goreng', 'Bumbu', TRUE);
+VALUES ('Minyak Goreng', 'Bahan Cair', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Penyedap', 'Bumbu', TRUE);
+VALUES ('Penyedap', 'Penyedap', TRUE);
 INSERT IGNORE INTO ingredients (nama_bahan, kategori, status_validasi)
-VALUES ('Kaldu Ayam', 'Bumbu', TRUE);
+VALUES ('Kaldu Ayam', 'Penyedap', TRUE);
 
 -- ===== RESEP NUSANTARA (seed massal) =====
 
