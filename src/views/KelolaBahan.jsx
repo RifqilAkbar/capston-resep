@@ -8,6 +8,9 @@ export default function KelolaBahan({ token, onDataRefresh }) {
   const [cari, setCari] = useState('')
   const [loading, setLoading] = useState(true)
   const [pesan, setPesan] = useState('')
+  const [terbuka, setTerbuka] = useState(() => new Set())
+
+  useEffect(() => { setTerbuka(new Set()) }, [cari])
 
   const muat = async () => {
     const [pending, publik] = await Promise.all([
@@ -76,6 +79,10 @@ export default function KelolaBahan({ token, onDataRefresh }) {
 
   const teksCari = cari.trim().toLowerCase()
   const urutanGrup = { Protein: 0, Sayuran: 1, Buah: 2, Karbohidrat: 3, Bumbu: 4, Pelengkap: 5 }
+  const ikonGrup = {
+    Protein: 'fa-drumstick-bite', Sayuran: 'fa-leaf', Buah: 'fa-apple-whole',
+    Karbohidrat: 'fa-bowl-rice', Bumbu: 'fa-mortar-pestle', Pelengkap: 'fa-cookie-bite',
+  }
   const kelompokBahan = Object.entries(
     semuaBahan
       .filter((b) => !teksCari || String(b.nama_bahan).toLowerCase().includes(teksCari))
@@ -88,6 +95,17 @@ export default function KelolaBahan({ token, onDataRefresh }) {
   )
     .sort(([a], [b2]) => (urutanGrup[a] ?? 99) - (urutanGrup[b2] ?? 99) || a.localeCompare(b2))
     .map(([nama, daftar]) => ({ nama, daftar: daftar.sort((x, y) => String(x.nama_bahan).localeCompare(String(y.nama_bahan))) }))
+
+  const toggleGrup = (nama) => {
+    setTerbuka((prev) => {
+      const baru = new Set(prev)
+      if (baru.has(nama)) baru.delete(nama)
+      else baru.add(nama)
+      return baru
+    })
+  }
+  const semuaTerbuka = kelompokBahan.length > 0 && kelompokBahan.every((g) => terbuka.has(g.nama))
+  const setSemua = (buka) => setTerbuka(new Set(buka ? kelompokBahan.map((g) => g.nama) : []))
 
   return (
     <main className="page-container mt-10 pb-16">
@@ -170,8 +188,13 @@ export default function KelolaBahan({ token, onDataRefresh }) {
       <div className="mt-8">
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Bahan Aktif</h3>
-          <div className="w-full md:w-72">
-            <SearchBar value={cari} onChange={setCari} placeholder="Cari bahan..." />
+          <div className="flex items-center gap-3 flex-wrap">
+            <button onClick={() => setSemua(!semuaTerbuka)} className="text-xs font-bold text-accent hover:text-accent-dark transition">
+              <i className={`fa-solid ${semuaTerbuka ? 'fa-compress' : 'fa-expand'} mr-1`} />{semuaTerbuka ? 'Tutup Semua' : 'Buka Semua'}
+            </button>
+            <div className="w-full md:w-72">
+              <SearchBar value={cari} onChange={setCari} placeholder="Cari bahan..." />
+            </div>
           </div>
         </div>
         {loading ? (
@@ -184,37 +207,49 @@ export default function KelolaBahan({ token, onDataRefresh }) {
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-3">Tidak ada bahan pada pencarian ini.</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {kelompokBahan.map((g) => (
-              <div key={g.nama}>
-                <h4 className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  <span className="w-2 h-2 rounded-full bg-accent" />
-                  {g.nama}
-                  <span className="text-xs font-semibold text-gray-400 dark:text-gray-500">{g.daftar.length} bahan</span>
-                </h4>
-                <div className="space-y-2">
-                  {g.daftar.map((b) => (
-                    <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-3">
-                      <div className="min-w-0 flex items-center gap-2">
-                        <i className={`fa-solid text-accent ${b.kategori?.toLowerCase().includes('bumbu') ? 'fa-mortar-pestle' : b.kategori?.toLowerCase().includes('protein') ? 'fa-drumstick-bite' : 'fa-leaf'}`} />
-                        <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{b.nama_bahan}</p>
-                          <p className="text-xs text-gray-400">{b.kategori}</p>
+          <div className="space-y-3">
+            {kelompokBahan.map((g) => {
+              const buka = teksCari ? true : terbuka.has(g.nama)
+              return (
+                <div key={g.nama} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => toggleGrup(g.nama)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                    aria-expanded={buka}
+                  >
+                    <span className="flex items-center gap-3 min-w-0">
+                      <i className={`fa-solid ${ikonGrup[g.nama] || 'fa-carrot'} text-accent`} />
+                      <span className="font-bold text-gray-900 dark:text-gray-100">{g.nama}</span>
+                      <span className="text-xs font-semibold text-gray-400 dark:text-gray-500">{g.daftar.length} bahan</span>
+                    </span>
+                    <i className={`fa-solid fa-chevron-${buka ? 'up' : 'down'} text-gray-400 text-xs transition`} />
+                  </button>
+                  {buka && (
+                    <div className="space-y-2 px-4 pb-4">
+                      {g.daftar.map((b) => (
+                        <div key={b.id} className="flex flex-wrap justify-between items-center gap-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 rounded-xl p-3">
+                          <div className="min-w-0 flex items-center gap-2">
+                            <i className={`fa-solid text-accent ${b.kategori?.toLowerCase().includes('bumbu') ? 'fa-mortar-pestle' : b.kategori?.toLowerCase().includes('protein') ? 'fa-drumstick-bite' : 'fa-leaf'}`} />
+                            <div className="min-w-0">
+                              <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{b.nama_bahan}</p>
+                              <p className="text-xs text-gray-400">{b.kategori}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <button onClick={() => handleEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
+                              <i className="fa-solid fa-pen" /> Edit
+                            </button>
+                            <button onClick={() => handleHapus(b.id, b.nama_bahan)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
+                              <i className="fa-solid fa-trash-can" /> Hapus
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <button onClick={() => handleEdit(b)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-600 dark:text-gray-300 hover:border-accent hover:text-accent transition">
-                          <i className="fa-solid fa-pen" /> Edit
-                        </button>
-                        <button onClick={() => handleHapus(b.id, b.nama_bahan)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
-                          <i className="fa-solid fa-trash-can" /> Hapus
-                        </button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
