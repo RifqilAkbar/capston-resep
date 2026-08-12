@@ -139,6 +139,35 @@ export async function jalankanMigrasi(pool) {
   // Hapus akun superadmin legacy (admin@example.com) dari seed laragon.sql lama.
   // Deprecated: akun admin resmi sekarang admin@admin.com.
   await pool.query("DELETE FROM users WHERE email = 'admin@example.com'")
+
+  // ===== Reklasifikasi kategori bahan =====
+  await reklasifikasiBahan(pool)
+}
+
+// Kategori baru: Protein, Sayuran, Buah, Karbohidrat, Rempah, Bumbu Dasar,
+// Bahan Cair, Penyedap, Pelengkap, Lainnya. Idempoten: hanya baris yang
+// kategorinya berbeda yang di-update.
+const REKLASIFIKASI_BAHAN = {
+  'Jahe': 'Rempah', 'Kunyit': 'Rempah', 'Lengkuas': 'Rempah', 'Kencur': 'Rempah',
+  'Merica': 'Rempah', 'Lada': 'Rempah', 'Ketumbar': 'Rempah', 'Jintan': 'Rempah',
+  'Pala': 'Rempah', 'Cengkeh': 'Rempah', 'Kayu Manis': 'Rempah', 'Kapulaga': 'Rempah',
+  'Kluwak': 'Rempah', 'Serai': 'Rempah', 'Sereh': 'Rempah', 'Daun Salam': 'Rempah',
+  'Daun Jeruk': 'Rempah', 'Kemangi': 'Rempah',
+  'Bawang Merah': 'Bumbu Dasar', 'Bawang Putih': 'Bumbu Dasar', 'Cabai': 'Bumbu Dasar',
+  'Cabai Rawit': 'Bumbu Dasar', 'Kemiri': 'Bumbu Dasar', 'Cabai Keriting': 'Bumbu Dasar',
+  'Santan': 'Bahan Cair', 'Minyak Goreng': 'Bahan Cair', 'Air': 'Bahan Cair', 'Cuka': 'Bahan Cair',
+  'Garam': 'Penyedap', 'Gula': 'Penyedap', 'Gula Merah': 'Penyedap', 'Penyedap': 'Penyedap',
+  'Kaldu Ayam': 'Penyedap', 'Terasi': 'Penyedap', 'Ebi': 'Penyedap', 'Kecap Manis': 'Penyedap',
+  'Asam Jawa': 'Penyedap', 'Kecap Asin': 'Penyedap', 'Saus': 'Penyedap',
+  'Kerupuk': 'Pelengkap', 'Kacang Tanah': 'Pelengkap', 'Kacang Goreng': 'Pelengkap',
+  'Kelapa': 'Buah', 'Pisang': 'Buah', 'Mangga': 'Buah', 'Jeruk': 'Buah', 'Pepaya': 'Buah',
+}
+
+export async function reklasifikasiBahan(pool) {
+  await pool.query("UPDATE ingredients SET kategori = 'Bumbu Dasar' WHERE kategori = 'Bumbu'")
+  for (const [nama, kategori] of Object.entries(REKLASIFIKASI_BAHAN)) {
+    await pool.query('UPDATE ingredients SET kategori = ? WHERE nama_bahan = ? AND kategori <> ?', [kategori, nama, kategori])
+  }
 }
 
 // Bagikan resep "upload admin" (user_id NULL / milik admin@admin.com) ke akun

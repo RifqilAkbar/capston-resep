@@ -67,11 +67,14 @@ export default function UsulBahanUnik({ token }) {
             onChange={(e) => setKategori(e.target.value)}
             className="p-2.5 bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 rounded-xl text-sm text-gray-900 dark:text-gray-100"
           >
+            <option value="Protein">Protein</option>
             <option value="Sayuran">Sayuran</option>
             <option value="Buah">Buah</option>
-            <option value="Protein">Protein</option>
             <option value="Karbohidrat">Karbohidrat</option>
-            <option value="Bumbu">Bumbu</option>
+            <option value="Rempah">Rempah</option>
+            <option value="Bumbu Dasar">Bumbu Dasar</option>
+            <option value="Bahan Cair">Bahan Cair</option>
+            <option value="Penyedap">Penyedap</option>
             <option value="Pelengkap">Pelengkap</option>
           </select>
           <button

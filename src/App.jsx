@@ -49,7 +49,13 @@ function ikonBahan(kategori) {
   const k = (kategori || '').toLowerCase()
   if (k.includes('sayur')) return 'fa-leaf'
   if (k.includes('protein')) return 'fa-drumstick-bite'
-  if (k.includes('bumbu')) return 'fa-mortar-pestle'
+  if (k.includes('buah')) return 'fa-apple-whole'
+  if (k.includes('karbohidrat')) return 'fa-bowl-rice'
+  if (k.includes('rempah')) return 'fa-mortar-pestle'
+  if (k.includes('bumbu')) return 'fa-blender'
+  if (k.includes('bahan cair')) return 'fa-droplet'
+  if (k.includes('penyedap')) return 'fa-spoon'
+  if (k.includes('pelengkap')) return 'fa-cookie-bite'
   return 'fa-bowl-food'
 }
 

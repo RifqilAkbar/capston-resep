@@ -194,7 +194,7 @@ const KATA_BUMBU = [
   'lengkuas', 'laos', 'serai', 'sereh', 'salam', 'jeruk', 'kemiri', 'garam', 'gula',
   'minyak', 'kecap', 'santan', 'terasi', 'asam', 'cuka', 'bumbu', 'rempah', 'saus',
   'penyedap', 'kaldu', 'pala', 'cengkeh', 'kayu manis', 'adas', 'jintan', 'daun jeruk',
-  'kencur', 'kapulaga', 'kemangi',
+  'kencur', 'kapulaga', 'kemangi', 'ebi',
 ]
 
 export function adalahBumbu(bahan) {
