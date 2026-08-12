@@ -224,24 +224,24 @@ export default function KelolaBahan({ token, onDataRefresh }) {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
               {kelompokBahan.map((g) => {
                 const buka = teksCari ? true : terbuka.has(g.nama)
                 return (
                   <button
                     key={g.nama}
                     onClick={() => toggleGrup(g.nama)}
-                    className={`bg-white dark:bg-gray-800 border rounded-2xl shadow-sm p-5 text-left transition hover:shadow-md hover:-translate-y-0.5 ${buka ? 'border-accent dark:border-accent' : 'border-gray-200 dark:border-gray-700'}`}
+                    className={`bg-white dark:bg-gray-800 border rounded-2xl shadow-sm p-3 text-left transition hover:shadow-md hover:-translate-y-0.5 ${buka ? 'border-accent dark:border-accent' : 'border-gray-200 dark:border-gray-700'}`}
                     aria-expanded={buka}
                   >
                     <span className="flex items-center justify-between">
-                      <span className={`inline-flex w-11 h-11 rounded-xl items-center justify-center text-lg ${warnaGrup[g.nama] || 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
+                      <span className={`inline-flex w-9 h-9 rounded-lg items-center justify-center text-sm ${warnaGrup[g.nama] || 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
                         <i className={`fa-solid ${ikonGrup[g.nama] || 'fa-carrot'}`} />
                       </span>
-                      <i className={`fa-solid fa-chevron-${buka ? 'up' : 'down'} text-xs text-gray-400`} />
+                      <i className={`fa-solid fa-chevron-${buka ? 'up' : 'down'} text-[10px] text-gray-400`} />
                     </span>
-                    <p className="mt-3 font-bold text-gray-900 dark:text-gray-100">{g.nama}</p>
-                    <p className="text-xs font-semibold text-gray-400 mt-1">{g.daftar.length} bahan</p>
+                    <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{g.nama}</p>
+                    <p className="text-[11px] font-semibold text-gray-400 mt-0.5">{g.daftar.length} bahan</p>
                   </button>
                 )
               })}
