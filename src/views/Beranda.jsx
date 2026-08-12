@@ -22,12 +22,25 @@ function ThumbKategori({ nama }) {
   return <img src={FOTO_DAERAH[nama]} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
 }
 
-function ThumbResepKecil({ judul }) {
+function ThumbResepKecil({ judul, foto, id }) {
   const [gagal, setGagal] = useState(false)
-  if (gagal) {
-    return <span className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400"><i className="fa-solid fa-utensils" /></span>
-  }
-  return <img src={fotoMakanan(judul)} alt="" loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
+  const isi = gagal
+    ? <span className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400"><i className="fa-solid fa-utensils" /></span>
+    : <img src={foto || fotoMakanan(judul)} alt={judul} loading="lazy" onError={() => setGagal(true)} className="w-full h-full object-cover" />
+  if (!id) return isi
+  return (
+    <button
+      type="button"
+      onClick={() => { window.location.hash = `#/resep/${id}` }}
+      aria-label={`Buka resep ${judul}`}
+      className="group relative w-full h-full block cursor-pointer text-left overflow-hidden"
+    >
+      {isi}
+      <span className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center text-white opacity-0 group-hover:opacity-100">
+        <i className="fa-solid fa-eye text-lg" />
+      </span>
+    </button>
+  )
 }
 
 function KartuResepFreshly({ resep, isFavorit, onToggleFavorit }) {
@@ -324,7 +337,7 @@ export default function Beranda({
         u.totalRating += ratingAvg
         u.jumlahBerRating += 1
       }
-      if (u.judulResep.length < 4) u.judulResep.push(r.judul_resep)
+      if (u.judulResep.length < 4) u.judulResep.push({ id: r.id, judul: r.judul_resep, foto: r.foto || '' })
     }
 
     return [...akumulasi.values()]
@@ -533,9 +546,9 @@ export default function Beranda({
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-4 gap-2">
-                  {u.judulResep.map((judul, i) => (
+                  {u.judulResep.map((r, i) => (
                     <div key={i} className="aspect-square rounded-lg overflow-hidden">
-                      <ThumbResepKecil judul={judul} />
+                      <ThumbResepKecil judul={r.judul} foto={r.foto} id={r.id} />
                     </div>
                   ))}
                 </div>
