@@ -342,6 +342,9 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
   const durasiMenit = Number.parseInt(req.body.durasi_menit, 10) || 15
   const langkahMemasak = Array.isArray(req.body.langkah_memasak) ? req.body.langkah_memasak : []
   const ingredientIds = Array.isArray(req.body.ingredient_ids) ? req.body.ingredient_ids : []
+  const detBahan = new Map(
+    (Array.isArray(req.body.bahan_resep) ? req.body.bahan_resep : []).map((b) => [Number(b.id), b]),
+  )
 
   if (!judulResep || ingredientIds.length === 0) {
     return kirimError(res, 400, 'Judul resep dan minimal 1 bahan wajib diisi.')
@@ -363,9 +366,10 @@ app.post('/api/recipes', wajibLogin, async (req, res) => {
     const resepId = recipeResult.insertId
 
     for (const ingredientId of ingredientIds) {
+      const det = detBahan.get(ingredientId)
       await client.query(
         'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, kuantitas, satuan) VALUES (?, ?, ?, ?)',
-        [resepId, ingredientId, 1, 'secukupnya'],
+        [resepId, ingredientId, det && Number(det.kuantitas) ? Number(det.kuantitas) : 1, det?.satuan?.trim() || 'secukupnya'],
       )
     }
 
@@ -417,6 +421,9 @@ app.patch('/api/recipes/:id', wajibLogin, async (req, res) => {
   const durasiMenit = Number.parseInt(req.body.durasi_menit, 10) || 15
   const langkahMemasak = Array.isArray(req.body.langkah_memasak) ? req.body.langkah_memasak : []
   const ingredientIds = Array.isArray(req.body.ingredient_ids) ? req.body.ingredient_ids : []
+  const detBahan = new Map(
+    (Array.isArray(req.body.bahan_resep) ? req.body.bahan_resep : []).map((b) => [Number(b.id), b]),
+  )
 
   if (!judulResep || ingredientIds.length === 0) {
     return kirimError(res, 400, 'Judul resep dan minimal 1 bahan wajib diisi.')
@@ -441,9 +448,10 @@ app.patch('/api/recipes/:id', wajibLogin, async (req, res) => {
 
     await client.query('DELETE FROM recipe_ingredients WHERE recipe_id = ?', [id])
     for (const ingredientId of ingredientIds) {
+      const det = detBahan.get(ingredientId)
       await client.query(
         'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, kuantitas, satuan) VALUES (?, ?, ?, ?)',
-        [id, ingredientId, 1, 'secukupnya'],
+        [id, ingredientId, det && Number(det.kuantitas) ? Number(det.kuantitas) : 1, det?.satuan?.trim() || 'secukupnya'],
       )
     }
 

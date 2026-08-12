@@ -19,13 +19,17 @@ export default function ResepForm({
     (initial?.langkah_memasak?.length ? initial.langkah_memasak : [{ instruksi: '' }]),
   )
   const [bahanResepDipilih, setBahanResepDipilih] = useState(
-    initial?.recipe_ingredients?.map((ri) => Number(ri.ingredient_id)) || [],
+    initial?.recipe_ingredients?.map((ri) => ({
+      id: Number(ri.ingredient_id),
+      kuantitas: ri.kuantitas ?? 1,
+      satuan: ri.satuan || 'secukupnya',
+    })) || [],
   )
   const [cariBahan, setCariBahan] = useState('')
   const [grupTerbuka, setGrupTerbuka] = useState(() => new Set(DAFTAR_GRUP))
 
   useEffect(() => {
-    const idSet = new Set(bahanResepDipilih)
+    const idSet = new Set(bahanResepDipilih.map((b) => b.id))
     const perluBuka = new Set()
     for (const b of dataBahan) if (idSet.has(b.id) && b.kategori) perluBuka.add(b.kategori)
     if (perluBuka.size) {
@@ -39,7 +43,20 @@ export default function ResepForm({
   const handleTambahInputLangkah = () => setLangkahResep([...langkahResep, { instruksi: '' }])
   const handleHapusInputLangkah = (index) => setLangkahResep(langkahResep.filter((_, i) => i !== index))
   const handleCheckboxBahanResep = (idBahan) => {
-    setBahanResepDipilih((prev) => prev.includes(idBahan) ? prev.filter((id) => id !== idBahan) : [...prev, idBahan])
+    setBahanResepDipilih((prev) =>
+      prev.some((b) => b.id === idBahan)
+        ? prev.filter((b) => b.id !== idBahan)
+        : [...prev, { id: idBahan, kuantitas: 1, satuan: 'secukupnya' }],
+    )
+  }
+  const ubahKuantitas = (idBahan, kuantitas) => {
+    setBahanResepDipilih((prev) => prev.map((b) => (b.id === idBahan ? { ...b, kuantitas } : b)))
+  }
+  const ubahSatuan = (idBahan, satuan) => {
+    setBahanResepDipilih((prev) => prev.map((b) => (b.id === idBahan ? { ...b, satuan } : b)))
+  }
+  const hapusBahan = (idBahan) => {
+    setBahanResepDipilih((prev) => prev.filter((b) => b.id !== idBahan))
   }
 
   const handleSubmit = (e) => {
@@ -53,12 +70,14 @@ export default function ResepForm({
       porsi_default: Number(porsiDefault) || 1,
       durasi_menit: Number(durasiMenit) || 15,
       langkah_memasak: langkahValid,
-      ingredient_ids: bahanResepDipilih,
+      ingredient_ids: bahanResepDipilih.map((b) => b.id),
+      bahan_resep: bahanResepDipilih.map((b) => ({ id: b.id, kuantitas: Number(b.kuantitas) || 1, satuan: b.satuan.trim() || 'secukupnya' })),
     })
   }
 
   const teksCariBahan = cariBahan.trim().toLowerCase()
-  const isDipilih = (id) => bahanResepDipilih.includes(id)
+  const isDipilih = (id) => bahanResepDipilih.some((b) => b.id === id)
+  const namaBahan = (id) => dataBahan.find((b) => b.id === id)?.nama_bahan || `#${id}`
   const chipBahan = (bahan) => (
     <label key={bahan.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition ${isDipilih(bahan.id) ? 'bg-orange-100 dark:bg-orange-900/40 border-accent dark:border-accent text-accent' : 'bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-transparent'}`}>
       <input type="checkbox" checked={isDipilih(bahan.id)} onChange={() => handleCheckboxBahanResep(bahan.id)} className="hidden" />
@@ -82,6 +101,7 @@ export default function ResepForm({
 
   const input = 'w-full p-3 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-accent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm'
   const label = 'block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2'
+  const SATUAN_UMUM = ['secukupnya', 'buah', 'butir', 'siung', 'lembar', 'ikat', 'potong', 'iris', 'sdm', 'sdt', 'ml', 'liter', 'gr', 'gram', 'kg', 'piring', 'gelas', 'bungkus']
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -107,6 +127,42 @@ export default function ResepForm({
             <option key={k} value={k}>{k}</option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className={label} style={{ marginBottom: 0 }}>Bahan yang Dipilih ({bahanResepDipilih.length})</label>
+          {bahanResepDipilih.length > 0 && (
+            <button type="button" onClick={() => setBahanResepDipilih([])} className="text-xs font-bold text-red-500 hover:text-red-600 transition">
+              <i className="fa-solid fa-trash-can mr-1" />Hapus Semua
+            </button>
+          )}
+        </div>
+        <div className={`${bahanResepDipilih.length ? '' : 'hidden'} max-h-56 overflow-y-auto border dark:border-gray-600 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 space-y-2`}>
+          {bahanResepDipilih.map((b) => (
+            <div key={b.id} className="flex flex-wrap items-center gap-2">
+              <span className="flex-1 min-w-[120px] text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{namaBahan(b.id)}</span>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={b.kuantitas}
+                onChange={(e) => ubahKuantitas(b.id, e.target.value)}
+                className="w-20 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
+              />
+              <select
+                value={b.satuan}
+                onChange={(e) => ubahSatuan(b.id, e.target.value)}
+                className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100"
+              >
+                {[...new Set([...SATUAN_UMUM, b.satuan])].map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <button type="button" onClick={() => hapusBahan(b.id)} aria-label={`Hapus ${namaBahan(b.id)}`} className="w-8 h-8 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-center shrink-0 transition">
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>
