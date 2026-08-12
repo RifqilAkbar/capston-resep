@@ -31,6 +31,7 @@ export default function ResepForm({
   const [foto, setFoto] = useState(initial?.foto || '')
   const [modaFoto, setModaFoto] = useState(initial?.foto?.startsWith('data:') ? 'upload' : 'link')
   const [linkMedia, setLinkMedia] = useState(initial?.link_media?.length ? initial.link_media : [])
+  const [ukuranFoto, setUkuranFoto] = useState(null)
 
   const handlePilihFile = (e) => {
     const file = e.target.files?.[0]
@@ -39,13 +40,16 @@ export default function ResepForm({
     reader.onload = () => {
       const img = new Image()
       img.onload = () => {
-        const maks = 1024
+        const maks = 800
         const skala = Math.min(1, maks / Math.max(img.width, img.height))
         const canvas = document.createElement('canvas')
         canvas.width = Math.round(img.width * skala)
         canvas.height = Math.round(img.height * skala)
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-        setFoto(canvas.toDataURL('image/jpeg', 0.75))
+        let hasil = canvas.toDataURL('image/webp', 0.7)
+        if (!hasil.startsWith('data:image/webp')) hasil = canvas.toDataURL('image/jpeg', 0.7)
+        setFoto(hasil)
+        setUkuranFoto(Math.max(1, Math.round((hasil.length * 3) / 4 / 1024)))
       }
       img.src = reader.result
     }
@@ -168,7 +172,7 @@ export default function ResepForm({
             <i className="fa-solid fa-link mr-1.5" />Pakai Link
           </button>
           {foto && (
-            <button type="button" onClick={() => setFoto('')} className="text-xs font-bold text-red-500 hover:text-red-600 transition">
+            <button type="button" onClick={() => { setFoto(''); setUkuranFoto(null) }} className="text-xs font-bold text-red-500 hover:text-red-600 transition">
               <i className="fa-solid fa-trash-can mr-1" />Hapus Foto
             </button>
           )}
@@ -185,7 +189,10 @@ export default function ResepForm({
           />
         )}
         {foto && (
-          <img src={foto} alt="Pratinjau foto masakan" className="mt-3 w-40 h-28 object-cover rounded-xl border border-gray-200 dark:border-gray-600" />
+          <div className="mt-3 flex items-center gap-4">
+            <img src={foto} alt="Pratinjau foto masakan" className="w-40 h-28 object-cover rounded-xl border border-gray-200 dark:border-gray-600" />
+            {ukuranFoto && <p className="text-xs text-gray-500 dark:text-gray-400"><i className="fa-solid fa-compress mr-1" />Terkompres otomatis ± {ukuranFoto} KB</p>}
+          </div>
         )}
       </div>
 
